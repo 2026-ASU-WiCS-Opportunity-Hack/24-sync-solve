@@ -161,7 +161,7 @@ STABLE
 SECURITY DEFINER
 SET search_path = ''
 AS $$
-  SELECT get_user_role() = 'super_admin';
+  SELECT public.get_user_role() = 'super_admin';
 $$;
 
 -- Check if user can edit a specific chapter
@@ -173,9 +173,9 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
   SELECT
-    get_user_role() = 'super_admin'
-    OR user_has_chapter_role(p_chapter_id, 'chapter_lead')
-    OR user_has_chapter_role(p_chapter_id, 'content_editor');
+    public.get_user_role() = 'super_admin'
+    OR public.user_has_chapter_role(p_chapter_id, 'chapter_lead')
+    OR public.user_has_chapter_role(p_chapter_id, 'content_editor');
 $$;
 
 -- ============================================================
