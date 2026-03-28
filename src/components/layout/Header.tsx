@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { GLOBAL_NAV_LINKS } from '@/lib/utils/constants'
+import { GLOBAL_NAV_LINKS, CHAPTER_NAV_LINKS } from '@/lib/utils/constants'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import type { AuthUser } from '@/types'
@@ -66,7 +66,7 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
 
         {/* Desktop navigation */}
         <nav aria-label="Main navigation" className="hidden lg:flex lg:items-center lg:gap-1">
-          {GLOBAL_NAV_LINKS.map((link) => (
+          {(chapterSlug ? CHAPTER_NAV_LINKS : GLOBAL_NAV_LINKS).map((link) => (
             <Link
               key={link.href}
               href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}

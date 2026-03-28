@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import { GLOBAL_NAV_LINKS } from '@/lib/utils/constants'
+import { GLOBAL_NAV_LINKS, CHAPTER_NAV_LINKS } from '@/lib/utils/constants'
 import { logoutAction } from '@/features/auth/actions/login'
 import type { AuthUser } from '@/types'
 
@@ -40,7 +40,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
           aria-label="Mobile navigation"
         >
           <div className="space-y-1 px-4 pt-2 pb-4">
-            {GLOBAL_NAV_LINKS.map((link) => (
+            {(chapterSlug ? CHAPTER_NAV_LINKS : GLOBAL_NAV_LINKS).map((link) => (
               <Link
                 key={link.href}
                 href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}

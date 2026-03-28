@@ -21,6 +21,7 @@ const checkoutSchema = z.object({
 })
 
 export async function createCheckoutSessionAction(
+  _prevState: ActionResult<{ url: string }> | null,
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
   // ── Auth check ───────────────────────────────────────────────────────────────

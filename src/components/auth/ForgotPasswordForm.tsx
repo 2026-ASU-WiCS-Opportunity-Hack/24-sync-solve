@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { requestPasswordResetAction } from '@/features/auth/actions/resetPassword'
 import type { ActionResult } from '@/types'
 
-const initialState: ActionResult = { success: false, error: '' }
-
 export function ForgotPasswordForm() {
-  const [state, formAction] = useActionState(requestPasswordResetAction, initialState)
+  const [state, formAction] = useActionState<ActionResult | null, FormData>(
+    requestPasswordResetAction,
+    null
+  )
   const [isPending, startTransition] = useTransition()
 
-  if (state.success) {
+  if (state?.success) {
     return (
       <div role="status" aria-live="polite" className="text-center">
         <div className="mb-4 flex justify-center">
@@ -39,7 +40,7 @@ export function ForgotPasswordForm() {
       noValidate
       aria-label="Reset password"
     >
-      {!state.success && state.error && (
+      {state && !state.success && state.error && (
         <div
           role="alert"
           aria-live="polite"

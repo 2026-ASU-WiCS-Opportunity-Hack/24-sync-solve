@@ -104,3 +104,33 @@ export const resetPasswordSchema = z
     message: 'Passwords do not match',
     path: ['confirm_password'],
   })
+
+/** Chapter create form — all fields required */
+export const chapterCreateSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  slug: chapterSlugSchema,
+  country_code: countryCodeSchema,
+  timezone: z.string().min(1, 'Timezone is required').max(100),
+  currency: currencyCodeSchema,
+  accent_color: hexColorSchema,
+  contact_email: emailSchema
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+  website_url: optionalUrlSchema,
+})
+
+export type ChapterCreateInput = z.infer<typeof chapterCreateSchema>
+
+/** Chapter update form — same fields plus id and active flag */
+export const chapterUpdateSchema = chapterCreateSchema.extend({
+  id: uuidSchema,
+  is_active: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true')
+    .pipe(z.boolean())
+    .optional(),
+})
+
+export type ChapterUpdateInput = z.infer<typeof chapterUpdateSchema>

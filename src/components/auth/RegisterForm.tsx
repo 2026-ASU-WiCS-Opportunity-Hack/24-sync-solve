@@ -5,10 +5,8 @@ import Link from 'next/link'
 import { registerAction } from '@/features/auth/actions/register'
 import type { ActionResult } from '@/types'
 
-const initialState: ActionResult = { success: false, error: '' }
-
 export function RegisterForm() {
-  const [state, formAction] = useActionState(registerAction, initialState)
+  const [state, formAction] = useActionState<ActionResult | null, FormData>(registerAction, null)
   const [isPending, startTransition] = useTransition()
 
   return (
@@ -17,7 +15,7 @@ export function RegisterForm() {
       noValidate
       aria-label="Create account"
     >
-      {!state.success && state.error && (
+      {state && !state.success && state.error && (
         <div
           role="alert"
           aria-live="polite"
@@ -39,13 +37,15 @@ export function RegisterForm() {
           autoComplete="name"
           required
           placeholder="Jane Doe"
-          aria-invalid={!state.success && state.fieldErrors?.['full_name'] ? 'true' : undefined}
+          aria-invalid={
+            state && !state.success && state.fieldErrors?.['full_name'] ? 'true' : undefined
+          }
           aria-describedby={
-            !state.success && state.fieldErrors?.['full_name'] ? 'name-error' : undefined
+            state && !state.success && state.fieldErrors?.['full_name'] ? 'name-error' : undefined
           }
           className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:outline-none"
         />
-        {!state.success && state.fieldErrors?.['full_name'] && (
+        {state && !state.success && state.fieldErrors?.['full_name'] && (
           <p id="name-error" className="mt-1 text-xs text-red-600">
             {state.fieldErrors['full_name']?.[0]}
           </p>
@@ -64,13 +64,15 @@ export function RegisterForm() {
           autoComplete="email"
           required
           placeholder="you@example.com"
-          aria-invalid={!state.success && state.fieldErrors?.['email'] ? 'true' : undefined}
+          aria-invalid={
+            state && !state.success && state.fieldErrors?.['email'] ? 'true' : undefined
+          }
           aria-describedby={
-            !state.success && state.fieldErrors?.['email'] ? 'email-error' : undefined
+            state && !state.success && state.fieldErrors?.['email'] ? 'email-error' : undefined
           }
           className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:outline-none"
         />
-        {!state.success && state.fieldErrors?.['email'] && (
+        {state && !state.success && state.fieldErrors?.['email'] && (
           <p id="email-error" className="mt-1 text-xs text-red-600">
             {state.fieldErrors['email']?.[0]}
           </p>
@@ -89,13 +91,17 @@ export function RegisterForm() {
           autoComplete="new-password"
           required
           placeholder="At least 8 characters"
-          aria-invalid={!state.success && state.fieldErrors?.['password'] ? 'true' : undefined}
+          aria-invalid={
+            state && !state.success && state.fieldErrors?.['password'] ? 'true' : undefined
+          }
           aria-describedby={
-            !state.success && state.fieldErrors?.['password'] ? 'password-error' : undefined
+            state && !state.success && state.fieldErrors?.['password']
+              ? 'password-error'
+              : undefined
           }
           className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:outline-none"
         />
-        {!state.success && state.fieldErrors?.['password'] && (
+        {state && !state.success && state.fieldErrors?.['password'] && (
           <p id="password-error" className="mt-1 text-xs text-red-600">
             {state.fieldErrors['password']?.[0]}
           </p>

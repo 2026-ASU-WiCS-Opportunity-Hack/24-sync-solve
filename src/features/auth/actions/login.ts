@@ -5,7 +5,10 @@ import { createClient } from '@/lib/supabase/server'
 import { loginSchema } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
-export async function loginAction(formData: FormData): Promise<ActionResult> {
+export async function loginAction(
+  _prevState: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
   const raw = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,

@@ -43,6 +43,7 @@ export type EventType =
 
 export interface Database {
   public: {
+    PostgrestVersion: '12'
     Tables: {
       chapters: {
         Row: {
@@ -80,6 +81,7 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['chapters']['Insert']>
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -105,6 +107,15 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
       }
       user_chapter_roles: {
         Row: {
@@ -124,6 +135,22 @@ export interface Database {
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['user_chapter_roles']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'user_chapter_roles_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_chapter_roles_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
       }
       coach_profiles: {
         Row: {
@@ -172,6 +199,22 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['coach_profiles']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'coach_profiles_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'coach_profiles_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
       }
       pages: {
         Row: {
@@ -197,6 +240,15 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['pages']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'pages_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
       }
       content_blocks: {
         Row: {
@@ -238,6 +290,15 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['content_blocks']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'content_blocks_page_id_fkey'
+            columns: ['page_id']
+            isOneToOne: false
+            referencedRelation: 'pages'
+            referencedColumns: ['id']
+          },
+        ]
       }
       content_versions: {
         Row: {
@@ -259,6 +320,15 @@ export interface Database {
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['content_versions']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'content_versions_content_block_id_fkey'
+            columns: ['content_block_id']
+            isOneToOne: false
+            referencedRelation: 'content_blocks'
+            referencedColumns: ['id']
+          },
+        ]
       }
       events: {
         Row: {
@@ -302,6 +372,15 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['events']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'events_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
       }
       payments: {
         Row: {
@@ -335,6 +414,22 @@ export interface Database {
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['payments']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'payments_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'payments_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
       }
       audit_log: {
         Row: {
@@ -364,6 +459,7 @@ export interface Database {
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['audit_log']['Insert']>
+        Relationships: []
       }
     }
     Views: Record<string, never>

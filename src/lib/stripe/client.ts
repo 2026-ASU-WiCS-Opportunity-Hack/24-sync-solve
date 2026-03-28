@@ -13,7 +13,7 @@ export function createStripeClient(): Stripe {
   }
 
   return new Stripe(secretKey, {
-    apiVersion: '2025-04-30.basil',
+    apiVersion: '2026-03-25.dahlia',
     typescript: true,
   })
 }

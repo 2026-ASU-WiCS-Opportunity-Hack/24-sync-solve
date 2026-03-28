@@ -4,7 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { forgotPasswordSchema, resetPasswordSchema } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
-export async function requestPasswordResetAction(formData: FormData): Promise<ActionResult> {
+export async function requestPasswordResetAction(
+  _prevState: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
   const raw = { email: formData.get('email') as string }
 
   const result = forgotPasswordSchema.safeParse(raw)
@@ -30,7 +33,10 @@ export async function requestPasswordResetAction(formData: FormData): Promise<Ac
   return { success: true, data: undefined }
 }
 
-export async function updatePasswordAction(formData: FormData): Promise<ActionResult> {
+export async function updatePasswordAction(
+  _prevState: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
   const raw = {
     password: formData.get('password') as string,
     confirm_password: formData.get('confirm_password') as string,

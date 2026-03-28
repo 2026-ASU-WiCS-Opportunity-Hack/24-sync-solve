@@ -1,10 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, CoachProfile, PaginatedResult } from '@/types'
+import type { CertificationLevel } from '@/types/database'
 import { COACH_PAGE_SIZE } from '@/lib/utils/constants'
 
 interface CoachFilters {
   q?: string
-  certification?: string
+  certification?: CertificationLevel
   country?: string
   chapterId?: string
   cursor?: string
