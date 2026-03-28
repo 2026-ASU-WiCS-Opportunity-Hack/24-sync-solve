@@ -106,11 +106,9 @@ CREATE TABLE user_chapter_roles (
 
 CREATE INDEX idx_ucr_user ON user_chapter_roles (user_id);
 CREATE INDEX idx_ucr_chapter ON user_chapter_roles (chapter_id);
-
 -- ============================================================
 -- COACH PROFILES
 -- ============================================================
-
 CREATE TABLE coach_profiles (
   id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id              UUID NOT NULL UNIQUE REFERENCES profiles (id) ON DELETE CASCADE,
@@ -130,16 +128,11 @@ CREATE TABLE coach_profiles (
   recertification_due  DATE,
   coaching_hours       INTEGER NOT NULL DEFAULT 0,
   pending_changes      JSONB,
-  search_vector        TSVECTOR GENERATED ALWAYS AS (
-    setweight(to_tsvector('english', COALESCE(bio, '')), 'A') ||
-    setweight(to_tsvector('english', COALESCE(array_to_string(specializations, ' '), '')), 'B') ||
-    setweight(to_tsvector('english', COALESCE(location_city, '') || ' ' || COALESCE(location_country, '')), 'C')
-  ) STORED,
+  search_vector        TSVECTOR, -- Removed GENERATED ALWAYS AS
   created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
   -- Future: embedding vector(384)  -- pgvector for AI semantic search
 );
-
 CREATE INDEX idx_coach_chapter ON coach_profiles (chapter_id);
 CREATE INDEX idx_coach_published ON coach_profiles (is_published) WHERE is_published = true;
 CREATE INDEX idx_coach_cert_level ON coach_profiles (certification_level);
@@ -147,6 +140,23 @@ CREATE INDEX idx_coach_country ON coach_profiles (location_country);
 CREATE INDEX idx_coach_search ON coach_profiles USING GIN (search_vector);
 CREATE INDEX idx_coach_specializations ON coach_profiles USING GIN (specializations);
 
+-- Create a trigger function to update the search_vector column
+CREATE OR REPLACE FUNCTION update_coach_search_vector()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector :=
+    setweight(to_tsvector('english', COALESCE(NEW.bio, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(array_to_string(NEW.specializations, ' '), '')), 'B') ||
+    setweight(to_tsvector('english', COALESCE(NEW.location_city, '') || ' ' || COALESCE(NEW.location_country, '')), 'C');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Attach the trigger to the coach_profiles table
+CREATE TRIGGER trg_update_coach_search_vector
+BEFORE INSERT OR UPDATE ON coach_profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_coach_search_vector();
 -- ============================================================
 -- PAGES
 -- ============================================================
