@@ -13,12 +13,14 @@ Scaffold a new Next.js App Router page following project conventions.
 `/page [route/path]` — e.g., `/page admin/analytics` or `/page [chapter]/testimonials`
 
 Parse `$ARGUMENTS` to extract:
+
 - **Route path**: Where in `src/app/` this page lives
 - **Route group**: Determine if it belongs in (global)/, (auth)/, admin/, [chapter]/, or api/
 
 ## Determine Page Type
 
 Ask or infer:
+
 1. **Public or protected?** — Does it need auth? What role?
 2. **Global or chapter-scoped?** — Is it under `[chapter]/` or `(global)/`?
 3. **Static or dynamic?** — Can it be SSG, or does it need ISR/SSR?
@@ -27,6 +29,7 @@ Ask or infer:
 ## Critical: Verify Against Live Docs
 
 Before scaffolding, check the latest patterns at:
+
 - https://nextjs.org/docs/app — Next.js App Router API (params, metadata, middleware)
 - https://next-intl.dev/docs/getting-started/app-router/without-i18n-routing — next-intl setup
 - https://supabase.com/docs/guides/auth/server-side/nextjs — Supabase auth patterns
@@ -38,6 +41,7 @@ Before scaffolding, check the latest patterns at:
 ### Page File: `src/app/{route}/page.tsx`
 
 **Public SSG page:**
+
 ```tsx
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -65,6 +69,7 @@ export default async function {PageName}Page() {
 ```
 
 **Protected admin page:**
+
 ```tsx
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -89,6 +94,7 @@ export default async function Admin{PageName}Page() {
 ```
 
 **Chapter-scoped page:**
+
 ```tsx
 import { notFound } from 'next/navigation';
 import { getChapterBySlug } from '@/features/chapters/queries';
@@ -133,6 +139,7 @@ Only create if this route group needs a shared layout different from the parent.
 ## Output
 
 After creating the page, report:
+
 1. Files created with their paths
 2. Translation keys added
 3. Auth requirements

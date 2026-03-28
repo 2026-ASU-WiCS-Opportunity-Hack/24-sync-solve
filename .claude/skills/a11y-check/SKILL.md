@@ -17,6 +17,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 ## Audit Categories
 
 ### 1. Perceivable
+
 - [ ] **Text alternatives**: All `<img>`, `<Image>`, `<svg>` have meaningful `alt` text or `aria-label`
 - [ ] **Video/audio**: Captions and transcripts provided (if applicable)
 - [ ] **Color alone**: Information not conveyed by color alone — icons, text, or patterns supplement
@@ -25,6 +26,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] **Text spacing**: No loss of content when text spacing is increased
 
 ### 2. Operable
+
 - [ ] **Keyboard access**: All interactive elements reachable via Tab, operable via Enter/Space
 - [ ] **No keyboard trap**: Focus can always escape any component (especially modals, drawers)
 - [ ] **Focus visible**: Focused elements have a visible focus indicator (HeroUI handles this)
@@ -35,6 +37,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] **Motion**: Animations respect `prefers-reduced-motion`. No auto-playing content.
 
 ### 3. Understandable
+
 - [ ] **Language**: `<html lang="en">` set correctly
 - [ ] **Labels**: Every form input has a visible `<label>` or `aria-label`
 - [ ] **Error identification**: Errors described in text, associated with fields via `aria-describedby`
@@ -43,6 +46,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] **Consistent identification**: Same UI elements behave the same way everywhere
 
 ### 4. Robust
+
 - [ ] **Valid HTML**: No duplicate IDs, proper nesting, semantic elements
 - [ ] **ARIA usage**: Correct roles, states, and properties. Don't override native semantics.
 - [ ] **HeroUI components**: Used for interactive elements (built-in React Aria support)
@@ -50,6 +54,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] **Name, Role, Value**: All custom components expose name/role/value to assistive technology
 
 ### 5. RTL Readiness (for future i18n)
+
 - [ ] **Logical CSS**: `ms-`/`me-`/`ps-`/`pe-` instead of `ml-`/`mr-`/`pl-`/`pr-`
 - [ ] **Logical alignment**: `text-start`/`text-end` instead of `text-left`/`text-right`
 - [ ] **Logical layout**: `start`/`end` instead of `left`/`right` in flex/grid

@@ -17,6 +17,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 ## Audit Categories
 
 ### 1. Authentication & Session Management
+
 - [ ] Server-side auth uses `getUser()`, NEVER `getSession()`
 - [ ] Protected routes call `requireAuth()` / `requireRole()` at the top
 - [ ] API routes verify auth before processing
@@ -25,6 +26,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] Password reset tokens are single-use and time-limited (Supabase handles this)
 
 ### 2. Authorization (RBAC)
+
 - [ ] Every Supabase table has RLS enabled
 - [ ] RLS policies match the intended access patterns
 - [ ] Server Actions verify user role before mutations
@@ -33,6 +35,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] Admin routes check for `super_admin` role
 
 ### 3. Input Validation (Injection Prevention)
+
 - [ ] All form inputs validated with Zod schemas
 - [ ] URL params / search params validated before use
 - [ ] API request bodies validated before processing
@@ -41,6 +44,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] No `eval()`, `Function()`, or dynamic code execution
 
 ### 4. XSS Prevention
+
 - [ ] No `dangerouslySetInnerHTML` without DOMPurify sanitization
 - [ ] Rich text content rendered via tiptap server renderer (not raw HTML)
 - [ ] User-generated content escaped by React's default behavior
@@ -48,6 +52,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] No inline scripts in HTML
 
 ### 5. Sensitive Data Protection
+
 - [ ] No secrets in client-side code (only `NEXT_PUBLIC_` prefixed vars)
 - [ ] No `.env` files committed to git
 - [ ] No PII logged to console in production
@@ -55,6 +60,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] Payment amounts calculated server-side, never trusted from client
 
 ### 6. Payment Security
+
 - [ ] Stripe Checkout (hosted page) used — no card data on our servers
 - [ ] Webhook signature verified with `stripe.webhooks.constructEvent()`
 - [ ] Payment amounts validated server-side against known prices
@@ -62,6 +68,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] No Stripe secret key in client bundles
 
 ### 7. API Security
+
 - [ ] Rate limiting on sensitive endpoints (auth, payments)
 - [ ] CORS configured correctly (not `*` in production)
 - [ ] Stripe webhook endpoint skips CSRF but verifies signature
@@ -69,6 +76,7 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] Error responses don't leak internal details (stack traces, SQL)
 
 ### 8. Security Headers (next.config.ts)
+
 - [ ] `Content-Security-Policy` — restricts script/style/img sources
 - [ ] `X-Frame-Options: DENY` — prevents clickjacking
 - [ ] `X-Content-Type-Options: nosniff` — prevents MIME sniffing
@@ -77,12 +85,14 @@ If `$ARGUMENTS` is empty, audit the entire codebase.
 - [ ] `Strict-Transport-Security` — enforces HTTPS
 
 ### 9. Dependency Security
+
 - [ ] No known vulnerabilities (`npm audit`)
 - [ ] Dependencies up to date (Dependabot or similar)
 - [ ] Lock file committed (`package-lock.json`)
 - [ ] No unnecessary dependencies
 
 ### 10. Data Integrity
+
 - [ ] Database constraints enforce data validity (CHECK, NOT NULL, UNIQUE, FK)
 - [ ] Content versioning prevents data loss on edits
 - [ ] Audit log captures security-relevant actions

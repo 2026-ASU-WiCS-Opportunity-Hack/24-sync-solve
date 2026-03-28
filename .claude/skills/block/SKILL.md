@@ -21,6 +21,7 @@ Before using any HeroUI form components in the editor, check https://heroui.com/
 ## Context
 
 Content blocks are the building units of chapter pages. Each block type has:
+
 - A **Zod schema** defining the shape of its JSONB content
 - A **display component** (Server Component, zero JS, renders published content)
 - An **editor component** (Client Component, form-based, loaded only in edit mode)
@@ -156,6 +157,7 @@ import { {blockType}Schema } from './{block-type}/schema';
 ## Output
 
 After creating the block, report:
+
 1. Files created
 2. Registry entry added
 3. Translation keys needed

@@ -1,0 +1,321 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "certification": "Certification",
+    "coaches": "Find a Coach",
+    "resources": "Resources",
+    "events": "Events",
+    "contact": "Contact",
+    "pay": "Pay Dues",
+    "login": "Log In",
+    "register": "Get Started",
+    "dashboard": "Dashboard",
+    "logout": "Log Out",
+    "adminPanel": "Admin Panel",
+    "myProfile": "My Profile",
+    "skipToContent": "Skip to main content"
+  },
+  "footer": {
+    "tagline": "Transforming leaders through Action Learning",
+    "links": {
+      "heading": "Quick Links"
+    },
+    "chapters": {
+      "heading": "Our Chapters"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "copyright": "© {year} World Institute for Action Learning. All rights reserved."
+    }
+  },
+  "home": {
+    "hero": {
+      "headline": "Transforming Leaders Through Action Learning",
+      "subheadline": "WIAL certifies Action Learning coaches across 20+ countries, empowering organizations to solve complex challenges through collaborative problem-solving.",
+      "ctaPrimary": "Find a Coach",
+      "ctaSecondary": "Get Certified"
+    },
+    "stats": {
+      "countries": "Countries",
+      "coaches": "Certified Coaches",
+      "organizations": "Organizations Served",
+      "years": "Years of Impact"
+    },
+    "about": {
+      "heading": "What is Action Learning?",
+      "body": "Action Learning is a process that involves a small group working on real problems, taking action, and learning as individuals and as a team."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Log in to your WIAL account",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Log In",
+      "submitting": "Logging in...",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google"
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Join the global WIAL community",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "Jane Doe",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "submitButton": "Create Account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "termsNotice": "By creating an account, you agree to our {termsLink} and {privacyLink}.",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we'll send you a reset link",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submitButton": "Send Reset Link",
+      "submitting": "Sending...",
+      "successMessage": "Check your email for a password reset link.",
+      "backToLogin": "Back to login"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "emailTaken": "An account with this email already exists.",
+      "generic": "Something went wrong. Please try again.",
+      "emailRequired": "Email is required.",
+      "passwordRequired": "Password is required.",
+      "nameRequired": "Full name is required."
+    }
+  },
+  "coaches": {
+    "directory": {
+      "title": "Find an Action Learning Coach",
+      "subtitle": "Browse our global directory of certified coaches",
+      "searchPlaceholder": "Search by name, specialty, or location...",
+      "filterCertification": "Certification level",
+      "filterCountry": "Country",
+      "filterChapter": "Chapter",
+      "allCertifications": "All levels",
+      "allCountries": "All countries",
+      "allChapters": "All chapters",
+      "noResults": "No coaches found matching your search.",
+      "noResultsHint": "Try adjusting your filters or search terms.",
+      "loadMore": "Load more coaches",
+      "coachCount": "{count} coaches found",
+      "clearFilters": "Clear filters"
+    },
+    "card": {
+      "certifiedSince": "Certified {date}",
+      "viewProfile": "View profile",
+      "location": "{city}, {country}",
+      "contactCoach": "Contact"
+    },
+    "profile": {
+      "bio": "About",
+      "specializations": "Specializations",
+      "languages": "Languages",
+      "certificationLevel": "Certification Level",
+      "location": "Location",
+      "contact": "Contact",
+      "linkedin": "LinkedIn",
+      "chapter": "Chapter",
+      "coachingHours": "Coaching Hours",
+      "certifiedSince": "Certified Since",
+      "recertificationDue": "Recertification Due"
+    },
+    "certificationLevels": {
+      "CALC": "Certified Action Learning Coach",
+      "PALC": "Professional Action Learning Coach",
+      "SALC": "Senior Action Learning Coach",
+      "MALC": "Master Action Learning Coach"
+    },
+    "edit": {
+      "title": "My Coach Profile",
+      "photoLabel": "Profile photo",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Tell coaches and organizations about your background and approach to Action Learning...",
+      "specializationsLabel": "Specializations",
+      "languagesLabel": "Languages",
+      "locationCityLabel": "City",
+      "locationCountryLabel": "Country",
+      "contactEmailLabel": "Contact email",
+      "linkedinLabel": "LinkedIn URL",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "savedSuccess": "Profile updated successfully.",
+      "pendingApproval": "Your changes are pending admin review.",
+      "lockedFields": "Certification level and published status are managed by WIAL administrators."
+    }
+  },
+  "events": {
+    "list": {
+      "title": "Events",
+      "subtitle": "Upcoming workshops, webinars, and conferences",
+      "noEvents": "No upcoming events at this time.",
+      "checkBack": "Check back soon for new events.",
+      "viewAll": "View all events",
+      "virtual": "Virtual",
+      "inPerson": "In Person",
+      "register": "Register",
+      "learnMore": "Learn more",
+      "free": "Free",
+      "date": "{date}",
+      "time": "{time}",
+      "location": "{location}"
+    },
+    "types": {
+      "workshop": "Workshop",
+      "webinar": "Webinar",
+      "conference": "Conference",
+      "certification": "Certification",
+      "networking": "Networking",
+      "other": "Event"
+    }
+  },
+  "payments": {
+    "title": "Dues & Payments",
+    "subtitle": "Pay your certification fees and membership dues",
+    "types": {
+      "enrollment_fee": "Enrollment Fee",
+      "certification_fee": "Certification Fee",
+      "membership_dues": "Membership Dues",
+      "event_registration": "Event Registration"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "succeeded": "Paid",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "checkout": {
+      "proceedToPayment": "Proceed to Payment",
+      "processing": "Redirecting to checkout...",
+      "secureNote": "Secure payment powered by Stripe",
+      "cancelUrl": "Cancel and return",
+      "successMessage": "Payment successful! Thank you.",
+      "cancelMessage": "Payment cancelled."
+    },
+    "history": {
+      "title": "Payment History",
+      "noPayments": "No payments found.",
+      "date": "Date",
+      "amount": "Amount",
+      "type": "Type",
+      "status": "Status",
+      "receipt": "Receipt"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "chapters": "Chapters",
+      "coaches": "Coaches",
+      "approvals": "Approvals",
+      "payments": "Payments",
+      "users": "Users"
+    },
+    "chapters": {
+      "title": "Manage Chapters",
+      "createNew": "Create Chapter",
+      "editChapter": "Edit Chapter",
+      "provisionPages": "Provision Pages",
+      "noChapters": "No chapters yet.",
+      "fields": {
+        "slug": "Slug",
+        "name": "Chapter Name",
+        "country": "Country",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "accentColor": "Accent Color",
+        "contactEmail": "Contact Email",
+        "isActive": "Active"
+      }
+    },
+    "approvals": {
+      "title": "Content Approval Queue",
+      "noItems": "No items pending approval.",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approving": "Approving...",
+      "rejecting": "Rejecting...",
+      "rejectionReason": "Reason for rejection",
+      "rejectionPlaceholder": "Explain why this content was rejected...",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pendingCount": "{count} items pending"
+    }
+  },
+  "content": {
+    "editMode": {
+      "toggle": "Edit Mode",
+      "on": "Editing",
+      "off": "Preview",
+      "unsavedChanges": "You have unsaved changes.",
+      "exitConfirm": "Exit edit mode? Unsaved changes will be lost."
+    },
+    "blocks": {
+      "edit": "Edit",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "show": "Show section",
+      "hide": "Hide section",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "deleteBlock": "Delete block",
+      "deleteConfirm": "Delete this section? This cannot be undone.",
+      "pendingApproval": "Changes pending approval",
+      "instantPublish": "Changes published immediately"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "retry": "Try again",
+    "notFound": "Page not found",
+    "notFoundMessage": "The page you're looking for doesn't exist.",
+    "backHome": "Back to home",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "required": "Required",
+    "optional": "Optional",
+    "learnMore": "Learn more",
+    "readMore": "Read more",
+    "seeAll": "See all",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    }
+  },
+  "a11y": {
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "openUserMenu": "Open user menu",
+    "toggleEditMode": "Toggle edit mode",
+    "coachPhoto": "{name}'s profile photo",
+    "chapterLogo": "{chapter} chapter logo",
+    "externalLink": "Opens in new tab"
+  }
+}

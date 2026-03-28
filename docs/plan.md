@@ -10,17 +10,17 @@ This plan covers **all P0 requirements**: public website, chapter provisioning, 
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| Framework | Next.js 15 (App Router) | SSG/ISR, server components, edge middleware |
-| UI Components | HeroUI v3 | 75+ accessible components, React Aria, CSS-first theming |
-| Styling | TailwindCSS v4 | Utility-first, CSS variables, performant |
-| Database | Supabase (PostgreSQL) | RLS, Auth, Storage, pgvector-ready for future AI |
-| Auth | Supabase Auth | Email/password + social, JWT, built-in RLS integration |
-| Payments | Stripe (Checkout) | PCI-compliant hosted page, webhooks |
-| i18n | next-intl | English only for MVP, infrastructure for future languages |
-| Rich Text | tiptap (ProseMirror) | Headless, lightweight (~30KB), SSR-compatible |
-| Deployment | Vercel | Native Next.js hosting, edge functions, image optimization |
+| Layer         | Technology              | Why                                                        |
+| ------------- | ----------------------- | ---------------------------------------------------------- |
+| Framework     | Next.js 15 (App Router) | SSG/ISR, server components, edge middleware                |
+| UI Components | HeroUI v3               | 75+ accessible components, React Aria, CSS-first theming   |
+| Styling       | TailwindCSS v4          | Utility-first, CSS variables, performant                   |
+| Database      | Supabase (PostgreSQL)   | RLS, Auth, Storage, pgvector-ready for future AI           |
+| Auth          | Supabase Auth           | Email/password + social, JWT, built-in RLS integration     |
+| Payments      | Stripe (Checkout)       | PCI-compliant hosted page, webhooks                        |
+| i18n          | next-intl               | English only for MVP, infrastructure for future languages  |
+| Rich Text     | tiptap (ProseMirror)    | Headless, lightweight (~30KB), SSR-compatible              |
+| Deployment    | Vercel                  | Native Next.js hosting, edge functions, image optimization |
 
 ---
 
@@ -123,6 +123,7 @@ src/
 ```
 
 Additional top-level:
+
 ```
 supabase/
 ├── config.toml
@@ -147,21 +148,25 @@ e2e/                              # Playwright E2E tests
 ### Core Tables
 
 **`chapters`** - Regional chapter sites
+
 - `id`, `slug` (unique, e.g. 'usa', 'nigeria'), `name`, `country_code`, `timezone`, `currency`
 - `accent_color` (chapter accent override), `logo_url`, `is_active`
 - `stripe_account_id` (for future Stripe Connect)
 - `contact_email`, `website_url`, `settings` (JSONB: feature flags, config)
 
 **`profiles`** - Extends `auth.users`
+
 - `id` (FK -> auth.users), `email`, `full_name`, `avatar_url`, `phone`
 - `role` (enum: super_admin, chapter_lead, content_editor, coach, public)
 - `chapter_id` (FK -> chapters, primary chapter)
 
 **`user_chapter_roles`** - Multi-chapter role assignments
+
 - `user_id`, `chapter_id`, `role`, `granted_by`
 - UNIQUE(user_id, chapter_id, role)
 
 **`coach_profiles`** - Coach directory entries
+
 - `user_id` (FK -> profiles), `chapter_id` (FK -> chapters)
 - `certification_level` (CALC/PALC/SALC/MALC), `bio`, `specializations[]`, `languages[]`
 - `location_city`, `location_country`, `photo_url`, `contact_email`, `linkedin_url`
@@ -171,11 +176,13 @@ e2e/                              # Playwright E2E tests
 - Future: `embedding vector(384)` column for AI search (pgvector)
 
 **`pages`** - Page metadata
+
 - `chapter_id` (NULL = global page), `slug`, `title`, `description`
 - `is_published`, `sort_order`
 - UNIQUE(chapter_id, slug)
 
 **`content_blocks`** - Core of the inline editing system
+
 - `page_id` (FK -> pages)
 - `block_type` (hero, text, image, cta, team_grid, coach_list, event_list, testimonial, faq, contact_form, stats, video, divider)
 - `content` (JSONB), `sort_order`, `is_visible`
@@ -184,30 +191,37 @@ e2e/                              # Playwright E2E tests
 - `created_by`, `updated_by`
 
 **`content_versions`** - Audit trail (auto-created via trigger)
+
 - `content_block_id`, `version_number`, `content`, `status`, `changed_by`
 
 **`events`** - Chapter and global events
+
 - `chapter_id` (NULL = global), `title`, `description`, `event_type`
 - `start_date`, `end_date`, `timezone`, `location_name`, `is_virtual`, `virtual_link`
 - `max_attendees`, `registration_url`, `image_url`, `is_published`
 
 **`payments`** - Stripe payment records
+
 - `user_id`, `chapter_id`, `stripe_payment_intent_id`, `stripe_checkout_session_id`
 - `amount` (cents), `currency`, `payment_type` (enrollment_fee, certification_fee, membership_dues, event_registration)
 - `status` (pending/processing/succeeded/failed/refunded), `receipt_url`
 
 **`audit_log`** - All significant actions
+
 - `user_id`, `action`, `entity_type`, `entity_id`, `chapter_id`
 - `old_value` (JSONB), `new_value` (JSONB), `ip_address`, `user_agent`
 
 ### Database Functions & Triggers
+
 - `handle_updated_at()` - Auto-update `updated_at` on all tables
 - `handle_new_user()` - Auto-create `profiles` row on auth.users insert
 - `auto_version_content()` - Auto-create `content_versions` row on content_block change
 - `get_user_role()`, `get_user_chapter_id()`, `user_has_chapter_role()` - RLS helper functions
 
 ### Row-Level Security (RLS)
+
 Every table has RLS enabled. Key policies:
+
 - **Public**: Read active chapters, published content blocks, published coach profiles, published events
 - **Coaches**: CRUD own profile, view own payments
 - **Chapter leads**: CRUD content/coaches/events for their chapter, view chapter payments
@@ -215,21 +229,24 @@ Every table has RLS enabled. Key policies:
 - **Payments**: Insert/update only via service role (Stripe webhooks), users see own, chapter leads see chapter
 
 ### Storage Buckets
-- `avatars` (public, 2MB, image/* only)
-- `coach-photos` (public, 2MB, image/* only)
-- `chapter-assets` (public, 5MB, image/* and PDF)
-- `content-images` (public, 2MB, image/* only)
+
+- `avatars` (public, 2MB, image/\* only)
+- `coach-photos` (public, 2MB, image/\* only)
+- `chapter-assets` (public, 5MB, image/\* and PDF)
+- `content-images` (public, 2MB, image/\* only)
 
 ---
 
 ## Authentication & RBAC
 
 ### Auth Flow
+
 - Supabase Auth with email/password + Google OAuth + magic links
 - `@supabase/ssr` for cookie-based session management in App Router
 - **Always use `getUser()` on server (validates JWT), never trust `getSession()`**
 
 ### Role Hierarchy
+
 1. `super_admin` - Full access to everything
 2. `chapter_lead` - Full access to their chapter(s)
 3. `content_editor` - Edit content on assigned chapter(s)
@@ -237,6 +254,7 @@ Every table has RLS enabled. Key policies:
 5. `public` - View published content only
 
 ### Edge Middleware (`src/middleware.ts`)
+
 1. Refresh Supabase session via `getUser()`
 2. Validate chapter slugs against cached list
 3. Protect `/admin/*` (require super_admin)
@@ -248,6 +266,7 @@ Every table has RLS enabled. Key policies:
 ## Inline Editing System
 
 ### Architecture
+
 - **Edit Mode Toggle**: Floating button (bottom-right) visible only to chapter_lead/content_editor
 - **EditModeProvider**: React context that switches all editable blocks from display to edit mode
 - **Content Block Registry** (`features/content/blocks/registry.ts`): Maps each `block_type` to `{ display, editor, schema, requiresApproval, label, icon }`
@@ -257,16 +276,19 @@ Every table has RLS enabled. Key policies:
 **Locked (never editable)**: Header, Footer, Navigation, page URL structure, core brand colors (navy, red, white)
 
 **Instant publish (no approval)**:
+
 - Local events, team bios, accent colors/styling
 - Section visibility toggles, section reorder
 - Chapter contact info, coach directory filtering
 
 **Requires approval**:
+
 - Hero blocks (images, headline, CTA)
 - Main about section content
 - Any block where `requiresApproval: true` in registry
 
 ### Edit Flow
+
 1. Chapter lead toggles edit mode ON
 2. Editable blocks show blue dashed border + hover toolbar (Edit, Move Up/Down, Show/Hide)
 3. Click opens inline editor with form fields specific to block type
@@ -277,6 +299,7 @@ Every table has RLS enabled. Key policies:
 6. Super admin reviews in `/admin/approvals` with side-by-side diff, approves or rejects
 
 ### Rich Text
+
 - tiptap (ProseMirror) loaded only in edit mode via dynamic import
 - Extensions: bold, italic, link, heading (h2, h3), bullet/ordered list
 - No tables, embeds, or arbitrary HTML (security)
@@ -287,6 +310,7 @@ Every table has RLS enabled. Key policies:
 ## Coach Directory
 
 ### Global Directory (`/coaches`)
+
 - Search: Full-text search via PostgreSQL `tsvector` (weighted: bio A, specializations B, location C)
 - Filters: Certification level, country, chapter
 - Results: Card grid (photo 80x80 AVIF thumbnail, name, cert badge, location, bio excerpt)
@@ -295,14 +319,17 @@ Every table has RLS enabled. Key policies:
 - Target: <= 500KB
 
 ### Chapter Directory (`/[chapter]/coaches`)
+
 - Same component, pre-filtered to chapter
 
 ### Profile Self-Management (`/coaches/profile`)
+
 - Coaches edit: bio, photo, specializations, languages, contact, LinkedIn
 - Cannot edit: certification level, published status
 - Profile changes go to `pending_changes` JSONB, admin approves -> merges
 
 ### Future AI Readiness
+
 - `search_vector` tsvector column for current keyword search
 - Commented `embedding vector(384)` column ready for pgvector
 - Architecture allows swapping search implementation without UI changes
@@ -312,6 +339,7 @@ Every table has RLS enabled. Key policies:
 ## Payment Integration (Stripe)
 
 ### Flow
+
 1. User selects payment type: enrollment ($50/student), certification ($30/student), membership (variable)
 2. Server action `createCheckoutSession` validates user, calculates amount, creates Stripe Checkout Session
 3. Redirect to Stripe hosted checkout page (PCI-compliant)
@@ -319,6 +347,7 @@ Every table has RLS enabled. Key policies:
 5. Webhook verifies signature, creates/updates `payments` row, sends receipt
 
 ### Security
+
 - No card data touches our servers (Stripe Checkout handles PCI)
 - Webhook signature verification prevents spoofing
 - Amount validation server-side (client cannot set arbitrary amounts)
@@ -328,13 +357,14 @@ Every table has RLS enabled. Key policies:
 
 ## Performance Targets
 
-| Page | Max Size | Strategy |
-|------|----------|----------|
-| Chapter landing | <= 200 KB | SSG, system fonts, lazy load below-fold |
-| Coach directory | <= 500 KB | ISR (60s), 80x80 AVIF thumbnails, pagination |
-| Content pages | < 100 KB JS | Server Components, dynamic import heavy libs |
+| Page            | Max Size    | Strategy                                     |
+| --------------- | ----------- | -------------------------------------------- |
+| Chapter landing | <= 200 KB   | SSG, system fonts, lazy load below-fold      |
+| Coach directory | <= 500 KB   | ISR (60s), 80x80 AVIF thumbnails, pagination |
+| Content pages   | < 100 KB JS | Server Components, dynamic import heavy libs |
 
 ### Key Techniques
+
 - **SSG/ISR**: Pre-render all chapter pages, revalidate on content change via `revalidatePath()`
 - **System font stack**: `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` (saves 200-600KB)
 - **Images**: AVIF > WebP > JPEG via Next.js Image, max 50KB per image, lazy load below-fold
@@ -370,6 +400,7 @@ Every table has RLS enabled. Key policies:
 ## Build Order (5 Sprints)
 
 ### Sprint 1: Foundation
+
 - Project setup (Next.js, HeroUI v3, TailwindCSS v4, TypeScript, ESLint, Prettier, Husky)
 - Supabase project + all migrations (tables, RLS, functions, triggers)
 - Auth (login, register, middleware, role checking)
@@ -379,6 +410,7 @@ Every table has RLS enabled. Key policies:
 - **Deliverable**: Authenticated shell with nav, login/register, seeded DB
 
 ### Sprint 2: Chapter System + Core Pages
+
 - `[chapter]` dynamic routing + chapter layout
 - Chapter slug validation in middleware
 - PageRenderer + all display-mode block components
@@ -388,6 +420,7 @@ Every table has RLS enabled. Key policies:
 - **Deliverable**: Multi-site with all core pages rendering from DB
 
 ### Sprint 3: Coach Directory + Events
+
 - Coach directory (global + chapter-filtered)
 - Full-text search + filter UI
 - Coach profile page + self-management
@@ -396,6 +429,7 @@ Every table has RLS enabled. Key policies:
 - **Deliverable**: Searchable coach directory + events calendar
 
 ### Sprint 4: Inline Editing + CMS
+
 - Edit mode toggle + EditModeProvider
 - All editor-mode block components
 - tiptap integration for rich text
@@ -407,6 +441,7 @@ Every table has RLS enabled. Key policies:
 - **Deliverable**: Chapter leads can visually edit their sites
 
 ### Sprint 5: Payments + Polish
+
 - Stripe Checkout integration
 - Webhook handler
 - Payment dashboard (admin + chapter level)
@@ -420,13 +455,13 @@ Every table has RLS enabled. Key policies:
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `src/middleware.ts` | Edge middleware: auth refresh, chapter routing, RBAC |
-| `supabase/migrations/00001_initial_schema.sql` | Complete DB schema, indexes, RLS, triggers |
-| `src/features/content/blocks/registry.ts` | Block type registry (display/editor/schema/approval mapping) |
-| `src/app/[chapter]/layout.tsx` | Chapter layout (slug validation, accent colors, template inheritance) |
-| `src/features/payments/actions/createCheckoutSession.ts` | Stripe Checkout session creation + validation |
+| File                                                     | Purpose                                                               |
+| -------------------------------------------------------- | --------------------------------------------------------------------- |
+| `src/middleware.ts`                                      | Edge middleware: auth refresh, chapter routing, RBAC                  |
+| `supabase/migrations/00001_initial_schema.sql`           | Complete DB schema, indexes, RLS, triggers                            |
+| `src/features/content/blocks/registry.ts`                | Block type registry (display/editor/schema/approval mapping)          |
+| `src/app/[chapter]/layout.tsx`                           | Chapter layout (slug validation, accent colors, template inheritance) |
+| `src/features/payments/actions/createCheckoutSession.ts` | Stripe Checkout session creation + validation                         |
 
 ---
 

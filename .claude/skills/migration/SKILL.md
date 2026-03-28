@@ -27,6 +27,7 @@ Before writing RLS policies, check https://supabase.com/docs/guides/database/pos
 ## Conventions
 
 ### Table Creation
+
 ```sql
 -- Always include these columns
 CREATE TABLE public.{table_name} (
@@ -45,6 +46,7 @@ ALTER TABLE public.{table_name} ENABLE ROW LEVEL SECURITY;
 ```
 
 ### Naming
+
 - Tables: `snake_case`, plural (e.g., `coach_profiles`, `content_blocks`)
 - Columns: `snake_case`
 - Indexes: `idx_{table}_{column(s)}`
@@ -87,12 +89,14 @@ CREATE POLICY "{table}_all_super_admin" ON public.{table}
 ### Indexes
 
 Add indexes for:
+
 - Foreign key columns (chapter_id, user_id, etc.)
 - Columns used in WHERE clauses (status, is_active, is_published)
 - Columns used in ORDER BY (created_at, sort_order)
 - Partial indexes where applicable: `WHERE is_active = true`
 
 ### Column Types
+
 - IDs: `UUID` with `gen_random_uuid()`
 - Timestamps: `TIMESTAMPTZ` (always timezone-aware)
 - Money: `INTEGER` in cents (never DECIMAL for currency)
@@ -102,6 +106,7 @@ Add indexes for:
 - Arrays: `TEXT[]` for simple lists
 
 ### Security Rules
+
 - Never store passwords (Supabase Auth handles this)
 - Never store payment card data (Stripe handles this)
 - Use CHECK constraints for enums instead of PostgreSQL ENUM types (easier to migrate)
@@ -120,6 +125,7 @@ Add indexes for:
 ## Output
 
 After creating the migration, report:
+
 1. Migration file path and number
 2. Tables/columns created or modified
 3. RLS policies added

@@ -17,6 +17,7 @@ Parse `$ARGUMENTS` to extract the feature name (camelCase or kebab-case).
 ## Critical: Verify Against Live Docs
 
 Before writing Supabase queries or server actions, verify current patterns at:
+
 - https://supabase.com/docs/guides/auth/server-side/nextjs — Supabase SSR client setup
 - https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations — Server Actions API
 
@@ -37,6 +38,7 @@ src/features/{feature-name}/
 ## File Templates
 
 ### `types.ts`
+
 ```typescript
 // Types for the {featureName} feature
 // Import database types from @/types/database if needed
@@ -47,6 +49,7 @@ export interface {FeatureName}Config {
 ```
 
 ### Query Template (when specific queries are known)
+
 ```typescript
 // src/features/{feature-name}/queries/get-{entity}.ts
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -66,6 +69,7 @@ export async function get{Entity}(
 ```
 
 ### Server Action Template (when specific actions are known)
+
 ```typescript
 // src/features/{feature-name}/actions/{action-name}.ts
 'use server';
@@ -89,6 +93,7 @@ export async function {actionName}(formData: FormData) {
 ```
 
 ### Hook Template (when specific hooks are known)
+
 ```typescript
 // src/features/{feature-name}/hooks/use-{hook-name}.ts
 'use client';
@@ -112,6 +117,7 @@ export function use{HookName}() {
 ## Output
 
 After creating the module, report:
+
 1. Directory structure created
 2. Files created with descriptions
 3. Reminders for related tasks (migrations, components, pages, i18n keys)

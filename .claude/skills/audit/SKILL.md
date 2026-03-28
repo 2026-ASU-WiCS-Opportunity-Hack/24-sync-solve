@@ -31,7 +31,7 @@ Read `CLAUDE.md` and verify:
 - [ ] **RLS**: Every Supabase table has RLS enabled with appropriate policies
 - [ ] **Input validation**: All external input validated with Zod before processing
 - [ ] **No dangerouslySetInnerHTML**: Unless wrapped with DOMPurify
-- [ ] **Secrets**: No secrets in client code. No `.env` files committed. NEXT_PUBLIC_ only for public values.
+- [ ] **Secrets**: No secrets in client code. No `.env` files committed. NEXT*PUBLIC* only for public values.
 - [ ] **CSP headers**: Configured in next.config.ts
 - [ ] **Stripe webhooks**: Signature verified before processing
 - [ ] **File uploads**: MIME type and size validated
@@ -88,6 +88,7 @@ For each planned P0 feature, verify existence and completeness:
 ## Output Format
 
 For each section, report:
+
 - **PASS**: Items that are correct
 - **FAIL**: Items with specific file paths and what needs fixing
 - **MISSING**: Items that don't exist yet but should

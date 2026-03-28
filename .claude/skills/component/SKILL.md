@@ -13,6 +13,7 @@ Scaffold a new component following project conventions.
 `/component [directory/ComponentName]` — e.g., `/component coaches/CoachCard` or `/component layout/MobileNav`
 
 Parse `$ARGUMENTS` to extract:
+
 - **directory**: Where in `src/components/` to place it (ui, layout, editor, coaches, chapters, payments, common)
 - **component name**: PascalCase name
 
@@ -21,12 +22,14 @@ If no directory specified, ask the user which directory it belongs in.
 ## Rules
 
 ### File Naming
+
 - File: `src/components/{directory}/{kebab-case-name}.tsx`
 - Example: `/component coaches/CoachCard` → `src/components/coaches/coach-card.tsx`
 
 ### Component Template
 
 **Server Component** (default):
+
 ```tsx
 import { getTranslations } from 'next-intl/server';
 
@@ -47,6 +50,7 @@ export async function CoachCard({ ...props }: CoachCardProps) {
 ```
 
 **Client Component** (only if interactivity needed):
+
 ```tsx
 'use client';
 
@@ -85,15 +89,15 @@ export function SearchBar({ ...props }: SearchBarProps) {
 Create a colocated test: `src/components/{directory}/{kebab-case-name}.test.tsx`
 
 ```tsx
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { CoachCard } from './coach-card';
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { CoachCard } from './coach-card'
 
 describe('CoachCard', () => {
   it('renders coach name and certification level', () => {
     // test
-  });
-});
+  })
+})
 ```
 
 ### Translation Keys
@@ -103,6 +107,7 @@ Add any new strings to `messages/en.json` under the appropriate namespace.
 ## Output
 
 After creating the component, report:
+
 1. Files created
 2. Translation keys added
 3. Reminder: check accessibility with keyboard navigation

@@ -1,0 +1,174 @@
+/* TailwindCSS v4 — import order matters: tailwind first, heroui second */
+@import 'tailwindcss';
+@import '@heroui/styles';
+
+/* ============================================================
+   WIAL Brand Design Tokens
+   Navy (#003366), Red (#CC0000), White (#FFFFFF)
+   ============================================================ */
+
+@theme {
+  /* WIAL Brand Colors */
+  --color-wial-navy: #003366;
+  --color-wial-navy-light: #004488;
+  --color-wial-navy-dark: #002244;
+  --color-wial-red: #cc0000;
+  --color-wial-red-light: #ee1111;
+  --color-wial-red-dark: #aa0000;
+  --color-wial-white: #ffffff;
+
+  /* Semantic tokens */
+  --color-brand-primary: var(--color-wial-navy);
+  --color-brand-accent: var(--color-wial-red);
+  --color-brand-surface: var(--color-wial-white);
+
+  /* Chapter accent override (set via CSS custom property per chapter) */
+  --color-chapter-accent: var(--color-wial-red);
+
+  /* Typography — system font stack (zero custom fonts for perf) */
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+
+  /* Spacing scale extensions */
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+  --spacing-88: 22rem;
+  --spacing-112: 28rem;
+  --spacing-128: 32rem;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /* Z-index scale */
+  --z-nav: 50;
+  --z-modal: 100;
+  --z-toast: 200;
+}
+
+/* ============================================================
+   Global base styles
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-wial-white);
+  color: var(--color-wial-navy);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus ring — accessible, visible */
+:focus-visible {
+  outline: 2px solid var(--color-wial-red);
+  outline-offset: 2px;
+}
+
+/* Skip to content — accessible first focusable element */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--color-wial-navy);
+  color: var(--color-wial-white);
+  padding: 0.5rem 1rem;
+  z-index: var(--z-modal);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Chapter accent color override — injected per chapter via data attribute */
+[data-chapter-accent] {
+  --color-chapter-accent: attr(data-chapter-accent);
+}
+
+/* Rich text rendered content (from tiptap JSON) */
+.prose-content {
+  line-height: 1.7;
+}
+
+.prose-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-wial-navy);
+}
+
+.prose-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-wial-navy);
+}
+
+.prose-content p {
+  margin-bottom: 1rem;
+}
+
+.prose-content ul,
+.prose-content ol {
+  padding-inline-start: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose-content li {
+  margin-bottom: 0.25rem;
+}
+
+.prose-content a {
+  color: var(--color-wial-red);
+  text-decoration: underline;
+}
+
+.prose-content a:hover {
+  color: var(--color-wial-red-dark);
+}
+
+/* Edit mode visual affordances */
+[data-edit-mode='true'] [data-editable] {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 2px;
+  cursor: pointer;
+  position: relative;
+}
+
+[data-edit-mode='true'] [data-editable]:hover {
+  outline-color: #2563eb;
+  background-color: rgb(59 130 246 / 0.04);
+}
