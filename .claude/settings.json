@@ -22,6 +22,7 @@
       "Bash(git checkout -b:*)",
       "Bash(git stash:*)",
       "Bash(ls:*)",
+      "Bash(cat:*)",
       "Bash(mkdir:*)",
       "Bash(cat:*)",
       "Bash(wc:*)",

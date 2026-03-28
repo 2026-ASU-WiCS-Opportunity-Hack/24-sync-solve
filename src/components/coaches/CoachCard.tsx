@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import type { CoachWithBasicProfile } from '@/features/coaches/queries/getCoaches'
 import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
@@ -22,68 +23,83 @@ export function CoachCard({ coach }: CoachCardProps) {
 
   return (
     <article className="group shadow-card hover:shadow-card-hover overflow-hidden rounded-2xl bg-white transition-shadow">
-      {/* Photo */}
-      <div className="flex justify-center pt-6 pb-2">
-        {coach.photo_url ? (
-          <Image
-            src={coach.photo_url}
-            alt={`${name}'s profile photo`}
-            width={80}
-            height={80}
-            className="size-20 rounded-full object-cover shadow-sm ring-2 ring-white"
-          />
-        ) : (
+      <Link
+        href={`/coaches/${coach.id}`}
+        className="focus-visible:ring-wial-navy block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        aria-label={`View ${name}'s coach profile`}
+      >
+        {/* Photo */}
+        <div className="flex justify-center pt-6 pb-2">
+          {coach.photo_url ? (
+            <Image
+              src={coach.photo_url}
+              alt={`${name}'s profile photo`}
+              width={80}
+              height={80}
+              className="size-20 rounded-full object-cover shadow-sm ring-2 ring-white"
+            />
+          ) : (
+            <span
+              className="bg-wial-navy flex size-20 items-center justify-center rounded-full text-2xl font-bold text-white shadow-sm ring-2 ring-white"
+              aria-hidden="true"
+            >
+              {name[0]?.toUpperCase()}
+            </span>
+          )}
+        </div>
+
+        <div className="px-4 pb-5 text-center">
+          {/* Name */}
+          <h2 className="text-wial-navy text-sm leading-snug font-semibold group-hover:underline">
+            {name}
+          </h2>
+
+          {/* Certification badge */}
           <span
-            className="bg-wial-navy flex size-20 items-center justify-center rounded-full text-2xl font-bold text-white shadow-sm ring-2 ring-white"
-            aria-hidden="true"
+            className={`mt-1.5 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${certColor}`}
+            title={CERTIFICATION_LABELS[coach.certification_level]}
           >
-            {name[0]?.toUpperCase()}
+            {coach.certification_level}
           </span>
-        )}
-      </div>
 
-      <div className="px-4 pb-5 text-center">
-        {/* Name */}
-        <h2 className="text-wial-navy text-sm leading-snug font-semibold">{name}</h2>
-
-        {/* Certification badge */}
-        <span
-          className={`mt-1.5 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${certColor}`}
-          title={CERTIFICATION_LABELS[coach.certification_level]}
-        >
-          {coach.certification_level}
-        </span>
-
-        {/* Location */}
-        {(coach.location_city || coach.location_country) && (
-          <div className="mt-2 flex items-center justify-center gap-1 text-xs text-gray-500">
-            <MapPin size={11} aria-hidden="true" />
-            <span>{[coach.location_city, coach.location_country].filter(Boolean).join(', ')}</span>
-          </div>
-        )}
-
-        {/* Bio excerpt */}
-        {coach.bio && (
-          <p className="mt-2 text-xs leading-relaxed text-gray-500">{truncate(coach.bio, 100)}</p>
-        )}
-
-        {/* Specializations */}
-        {coach.specializations.length > 0 && (
-          <div className="mt-3 flex flex-wrap justify-center gap-1" aria-label="Specializations">
-            {coach.specializations.slice(0, 3).map((spec) => (
-              <span
-                key={spec}
-                className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
-              >
-                {spec}
+          {/* Location */}
+          {(coach.location_city || coach.location_country) && (
+            <div className="mt-2 flex items-center justify-center gap-1 text-xs text-gray-500">
+              <MapPin size={11} aria-hidden="true" />
+              <span>
+                {[coach.location_city, coach.location_country].filter(Boolean).join(', ')}
               </span>
-            ))}
-            {coach.specializations.length > 3 && (
-              <span className="text-xs text-gray-400">+{coach.specializations.length - 3}</span>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+
+          {/* Bio excerpt */}
+          {coach.bio && (
+            <p className="mt-2 text-xs leading-relaxed text-gray-500">{truncate(coach.bio, 100)}</p>
+          )}
+
+          {/* Specializations */}
+          {coach.specializations.length > 0 && (
+            <div className="mt-3 flex flex-wrap justify-center gap-1" aria-label="Specializations">
+              {coach.specializations.slice(0, 3).map((spec) => (
+                <span
+                  key={spec}
+                  className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                >
+                  {spec}
+                </span>
+              ))}
+              {coach.specializations.length > 3 && (
+                <span className="text-xs text-gray-400">+{coach.specializations.length - 3}</span>
+              )}
+            </div>
+          )}
+
+          {/* View profile CTA */}
+          <p className="text-wial-red mt-4 text-xs font-medium group-hover:underline">
+            View profile →
+          </p>
+        </div>
+      </Link>
     </article>
   )
 }
