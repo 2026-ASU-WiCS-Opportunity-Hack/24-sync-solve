@@ -11,12 +11,12 @@
  *
  * Requirements:
  *   - Supabase project must be running (local or remote)
- *   - NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set
+ *   - NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY must be set
  *   - Run `supabase db reset` first to apply all migrations cleanly
  *
  * Note: Set env vars before running:
  *   export NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
- *   export SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+ *   export SUPABASE_SECRET_KEY=<your-service-role-key>
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -26,18 +26,18 @@ import type { Database } from '../src/types/database'
 // ── Environment ─────────────────────────────────────────────────────────────────
 
 const SUPABASE_URL = process.env['NEXT_PUBLIC_SUPABASE_URL']
-const SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY']
+const SECRET_KEY = process.env['SUPABASE_SECRET_KEY']
 
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+if (!SUPABASE_URL || !SECRET_KEY) {
   console.error(
     '❌ Missing environment variables.\n' +
-      '   Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before running.\n' +
+      '   Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY before running.\n' +
       '   For local Supabase: run `supabase status` to get these values.'
   )
   process.exit(1)
 }
 
-const supabase = createClient<Database>(SUPABASE_URL, SERVICE_ROLE_KEY, {
+const supabase = createClient<Database>(SUPABASE_URL, SECRET_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 

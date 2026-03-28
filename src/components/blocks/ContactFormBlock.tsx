@@ -2,6 +2,7 @@
 
 import { useActionState, useTransition } from 'react'
 import { z } from 'zod'
+import { submitContactForm } from '@/features/chapters/actions/submitContactForm'
 
 const contactSchema = z.object({
   heading: z.string().optional().default('Get in Touch'),
@@ -12,21 +13,6 @@ const contactSchema = z.object({
 interface ContactFormBlockProps {
   content: Record<string, unknown>
   accentColor?: string
-}
-
-async function submitContactForm(_prev: { success: boolean; error: string }, formData: FormData) {
-  'use server'
-  // In production, this would send an email via a configured email service
-  // For MVP, log and return success
-  const name = formData.get('name')
-  const email = formData.get('email')
-  const message = formData.get('message')
-
-  if (!name || !email || !message) {
-    return { success: false, error: 'All fields are required.' }
-  }
-
-  return { success: true, error: '' }
 }
 
 export default function ContactFormBlock({ content, accentColor }: ContactFormBlockProps) {

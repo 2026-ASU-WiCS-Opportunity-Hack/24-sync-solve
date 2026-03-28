@@ -137,8 +137,8 @@ src/app/
 
 - **RLS on every table** — no exceptions
 - **Parameterized queries only** — Supabase client handles this, but never string-concatenate SQL
-- **Service role client** (`admin.ts`) only in API routes and server actions, never in client code
-- Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client
+- **Secret key client** (`admin.ts`) only in API routes and server actions, never in client code
+- Never expose `SUPABASE_SECRET_KEY` to the client
 
 ### Input Validation
 
@@ -311,12 +311,12 @@ Examples:
 ```
 # Public (safe for client)
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=              # Also referred to as "publishable key" in newer Supabase docs
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_SITE_URL=
 
 # Secret (server only)
-SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_SECRET_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 ```
