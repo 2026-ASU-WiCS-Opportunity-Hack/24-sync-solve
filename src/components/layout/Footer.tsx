@@ -18,18 +18,18 @@ export async function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-wial-navy border-t border-gray-200 text-white">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <footer className="bg-wial-navy border-t border-white/10 text-white">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block">
-              <span className="text-2xl font-extrabold text-white">WIAL</span>
-              <span className="mt-1 block text-xs font-semibold tracking-widest text-white/60 uppercase">
+              <span className="text-2xl font-black text-white">WIAL</span>
+              <span className="mt-1 block text-xs font-semibold tracking-[0.18em] text-white/60 uppercase">
                 World Institute for Action Learning
               </span>
             </Link>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/75">
               {t('footer.tagline')}
             </p>
           </div>
@@ -44,7 +44,7 @@ export async function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
+                    className="text-sm text-white/70 transition-colors hover:text-white focus:outline-none"
                   >
                     {t(`nav.${link.labelKey.replace('nav.', '')}` as Parameters<typeof t>[0])}
                   </Link>
@@ -64,7 +64,7 @@ export async function Footer() {
                   <li key={chapter.slug}>
                     <Link
                       href={`/${chapter.slug}`}
-                      className="text-sm text-white/70 transition-colors hover:text-white"
+                      className="text-sm text-white/70 transition-colors hover:text-white focus:outline-none"
                     >
                       {chapter.name}
                     </Link>

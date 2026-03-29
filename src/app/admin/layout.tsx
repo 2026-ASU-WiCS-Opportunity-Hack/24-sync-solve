@@ -44,16 +44,16 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const stats = await getAdminDashboardStats(supabase)
 
   return (
-    <div className="flex min-h-screen">
+    <div className="to-wial-surface/50 flex min-h-screen bg-gradient-to-b from-white">
       <AdminSidebar pendingApprovals={stats.pendingApprovals} />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Admin top bar */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200/80 bg-white/90 px-6 backdrop-blur">
           <div />
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">{profile?.full_name ?? user.email}</span>
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+            <span className="text-sm text-gray-600">{profile?.full_name ?? user.email}</span>
+            <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">
               Super Admin
             </span>
           </div>
@@ -62,7 +62,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         {/* Page content */}
         <main
           id="main-content"
-          className="flex-1 overflow-y-auto bg-gray-50 p-6 focus:outline-none"
+          className="flex-1 overflow-y-auto bg-transparent p-6 focus:outline-none"
           tabIndex={-1}
         >
           {children}

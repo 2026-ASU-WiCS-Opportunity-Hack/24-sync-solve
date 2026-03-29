@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { GLOBAL_NAV_LINKS, CHAPTER_NAV_LINKS } from '@/lib/utils/constants'
 import { logoutAction } from '@/features/auth/actions/login'
 import type { AuthUser } from '@/types'
@@ -15,6 +16,7 @@ interface MobileNavProps {
 
 export function MobileNav({ chapterSlug, user }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const t = useTranslations('nav')
 
   const handleClose = () => setIsOpen(false)
 
@@ -23,7 +25,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light rounded p-2 text-white focus:ring-2 focus:ring-white focus:outline-none"
+        className="hover:bg-wial-navy-light rounded-full p-2 text-white focus:ring-2 focus:ring-white focus:outline-none"
         aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-expanded={isOpen}
         aria-controls="mobile-menu"
@@ -35,19 +37,19 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
       {isOpen && (
         <div
           id="mobile-menu"
-          className="border-wial-navy-dark bg-wial-navy absolute inset-x-0 top-full z-50 border-t shadow-xl"
+          className="border-wial-navy-dark bg-wial-navy absolute inset-x-3 top-[calc(100%+0.5rem)] z-50 rounded-2xl border p-2 shadow-2xl"
           role="navigation"
           aria-label="Mobile navigation"
         >
-          <div className="space-y-1 px-4 pt-2 pb-4">
+          <div className="space-y-1 px-2 py-2">
             {(chapterSlug ? CHAPTER_NAV_LINKS : GLOBAL_NAV_LINKS).map((link) => (
               <Link
                 key={link.href}
                 href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}
                 onClick={handleClose}
-                className="hover:bg-wial-navy-light block rounded px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
+                className="hover:bg-wial-navy-light block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
               >
-                {link.labelKey.replace('nav.', '')}
+                {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
               </Link>
             ))}
 
@@ -60,17 +62,17 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                   <Link
                     href={user.role === 'super_admin' ? '/admin' : `/${user.chapterId}/edit`}
                     onClick={handleClose}
-                    className="hover:bg-wial-navy-light block rounded px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
+                    className="hover:bg-wial-navy-light block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
                   >
-                    Dashboard
+                    {t('dashboard')}
                   </Link>
                 )}
                 <form action={logoutAction}>
                   <button
                     type="submit"
-                    className="hover:bg-wial-navy-light w-full rounded px-3 py-2.5 text-start text-sm font-medium text-white/80 hover:text-white"
+                    className="hover:bg-wial-navy-light w-full rounded-lg px-3 py-2.5 text-start text-sm font-medium text-white/80 hover:text-white"
                   >
-                    Log Out
+                    {t('logout')}
                   </button>
                 </form>
               </>
@@ -79,16 +81,16 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 <Link
                   href="/login"
                   onClick={handleClose}
-                  className="hover:bg-wial-navy-light block rounded px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
+                  className="hover:bg-wial-navy-light block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
                 >
-                  Log In
+                  {t('login')}
                 </Link>
                 <Link
                   href="/register"
                   onClick={handleClose}
-                  className="bg-wial-red hover:bg-wial-red-dark block rounded-lg px-3 py-2.5 text-center text-sm font-semibold text-white"
+                  className="bg-wial-red hover:bg-wial-red-dark mt-1 block rounded-lg px-3 py-2.5 text-center text-sm font-semibold text-white"
                 >
-                  Get Started
+                  {t('register')}
                 </Link>
               </>
             )}

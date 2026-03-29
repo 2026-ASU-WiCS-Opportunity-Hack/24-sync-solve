@@ -37,9 +37,13 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
   return (
     <>
-      <section className="bg-wial-navy py-12 text-white">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold">{t('title')}</h1>
+      <section className="bg-wial-navy relative overflow-hidden py-14 text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.12),transparent_34%)]"
+        />
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+          <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">{t('title')}</h1>
           <p className="mt-3 text-white/80">{t('subtitle')}</p>
         </div>
       </section>

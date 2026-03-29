@@ -30,14 +30,18 @@ export default function CtaBlock({ content, accentColor }: CtaBlockProps) {
   return (
     <section aria-label="Call to action" className={`${bgClass} py-16`}>
       <div className="mx-auto max-w-4xl px-6 text-center lg:px-8">
-        <h2 className={`text-3xl font-bold tracking-tight sm:text-4xl ${textClass}`}>
-          {data.heading}
-        </h2>
-        {data.subheading && <p className={`mt-4 text-lg ${subTextClass}`}>{data.subheading}</p>}
-        <div className="mt-8">
-          <Link href={data.button_href} className={btnClass} style={btnStyle}>
-            {data.button_text}
-          </Link>
+        <div
+          className={`rounded-3xl border p-10 shadow-sm ${isLight ? 'border-gray-200 bg-white' : 'border-white/15 bg-white/5'}`}
+        >
+          <h2 className={`text-3xl font-bold tracking-tight sm:text-4xl ${textClass}`}>
+            {data.heading}
+          </h2>
+          {data.subheading && <p className={`mt-4 text-lg ${subTextClass}`}>{data.subheading}</p>}
+          <div className="mt-8">
+            <Link href={data.button_href} className={btnClass} style={btnStyle}>
+              {data.button_text}
+            </Link>
+          </div>
         </div>
       </div>
     </section>

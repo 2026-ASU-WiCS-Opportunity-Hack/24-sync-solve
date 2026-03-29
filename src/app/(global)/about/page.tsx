@@ -21,8 +21,8 @@ export default async function AboutPage() {
     <EditablePageRenderer initialBlocks={result.blocks} pageId={result.page.id} />
   ) : (
     <div className="bg-white py-20">
-      <div className="mx-auto max-w-3xl px-6 lg:px-8">
-        <h1 className="text-wial-navy text-4xl font-bold">About WIAL</h1>
+      <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200/80 bg-white px-6 py-10 shadow-sm lg:px-8">
+        <h1 className="text-wial-navy text-4xl leading-tight font-bold sm:text-5xl">About WIAL</h1>
         <p className="mt-6 text-lg text-gray-600">
           The World Institute for Action Learning (WIAL) is the global authority on Action Learning.
           We certify coaches at four levels — CALC, PALC, SALC, and MALC — ensuring the highest

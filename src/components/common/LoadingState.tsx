@@ -9,10 +9,10 @@ export function LoadingState({ label = 'Loading...', size = 'md' }: LoadingState
   return (
     <div role="status" aria-label={label} className="flex items-center justify-center py-12">
       <span
-        className={`${sizeClass} border-t-wial-red animate-spin rounded-full border-2 border-gray-200`}
+        className={`${sizeClass} border-t-wial-red animate-spin rounded-full border-2 border-gray-200/90 shadow-sm`}
         aria-hidden="true"
       />
-      <span className="sr-only">{label}</span>
+      <span className="ms-3 text-sm text-gray-500">{label}</span>
     </div>
   )
 }

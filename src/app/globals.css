@@ -16,6 +16,10 @@
   --color-wial-red-light: #ee1111;
   --color-wial-red-dark: #aa0000;
   --color-wial-white: #ffffff;
+  --color-wial-ink: #0f2747;
+  --color-wial-muted: #5c6f87;
+  --color-wial-surface: #f4f7fb;
+  --color-wial-border: #d8e2ef;
 
   /* Semantic tokens */
   --color-brand-primary: var(--color-wial-navy);
@@ -48,6 +52,7 @@
   /* Shadows */
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-soft: 0 10px 25px -15px rgb(3 24 53 / 0.35);
 
   /* Z-index scale */
   --z-nav: 50;
@@ -81,10 +86,16 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-wial-white);
-  color: var(--color-wial-navy);
+  background:
+    radial-gradient(circle at 20% -10%, rgb(0 68 136 / 0.06), transparent 42%),
+    radial-gradient(circle at 80% 0%, rgb(204 0 0 / 0.05), transparent 36%), var(--color-wial-white);
+  color: var(--color-wial-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgb(204 0 0 / 0.15);
 }
 
 /* Focus ring — accessible, visible */
@@ -158,6 +169,15 @@ body {
 
 .prose-content a:hover {
   color: var(--color-wial-red-dark);
+}
+
+.page-section {
+  padding-block: 4rem;
+}
+
+.content-shell {
+  margin-inline: auto;
+  width: min(1120px, 100% - 2rem);
 }
 
 /* Edit mode visual affordances */

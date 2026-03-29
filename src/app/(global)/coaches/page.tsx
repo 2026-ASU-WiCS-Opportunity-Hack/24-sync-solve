@@ -58,14 +58,18 @@ export default async function CoachesPage({ searchParams }: CoachesPageProps) {
 
   return (
     <>
-      <section className="bg-wial-navy py-12 text-white">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold">{t('title')}</h1>
+      <section className="bg-wial-navy relative overflow-hidden py-14 text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_0%,rgba(204,0,0,0.22),transparent_40%)]"
+        />
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+          <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">{t('title')}</h1>
           <p className="mt-3 text-white/80">{t('subtitle')}</p>
         </div>
       </section>
 
-      <section className="min-h-[60vh] bg-gray-50 py-10">
+      <section className="min-h-[60vh] bg-white py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <CoachDirectory
             initialCoaches={coachResult.items}

@@ -30,7 +30,7 @@ export function UserMenu({ user }: UserMenuProps) {
       <div className="flex items-center gap-2">
         <Link
           href="/login"
-          className="rounded px-3 py-2 text-sm font-medium text-white/80 hover:text-white"
+          className="rounded-full px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
           Log In
         </Link>
@@ -52,7 +52,7 @@ export function UserMenu({ user }: UserMenuProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light flex items-center gap-2 rounded-full p-1 text-white focus:ring-2 focus:ring-white focus:outline-none"
+        className="hover:bg-wial-navy-light flex items-center gap-2 rounded-full border border-white/15 p-1 text-white focus:ring-2 focus:ring-white focus:outline-none"
         aria-label="Open user menu"
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -75,10 +75,10 @@ export function UserMenu({ user }: UserMenuProps) {
       {isOpen && (
         <div
           role="menu"
-          className="absolute end-0 top-full z-50 mt-2 w-56 rounded-xl border border-gray-200 bg-white shadow-lg"
+          className="absolute end-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
           aria-label="User menu"
         >
-          <div className="border-b border-gray-100 px-4 py-3">
+          <div className="from-wial-surface border-b border-gray-100 bg-gradient-to-b to-white px-4 py-3">
             <p className="truncate text-sm font-medium text-gray-900">{user.fullName ?? 'User'}</p>
             <p className="truncate text-xs text-gray-500">{user.email}</p>
           </div>
@@ -88,7 +88,7 @@ export function UserMenu({ user }: UserMenuProps) {
               href={dashboardHref}
               role="menuitem"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
             >
               <LayoutDashboard size={16} aria-hidden="true" />
               Dashboard
@@ -99,7 +99,7 @@ export function UserMenu({ user }: UserMenuProps) {
                 href="/coaches/profile"
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
               >
                 <User size={16} aria-hidden="true" />
                 My Profile
@@ -110,7 +110,7 @@ export function UserMenu({ user }: UserMenuProps) {
               href="/account/settings"
               role="menuitem"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
             >
               <Settings size={16} aria-hidden="true" />
               Account Settings
@@ -122,7 +122,7 @@ export function UserMenu({ user }: UserMenuProps) {
               <button
                 type="submit"
                 role="menuitem"
-                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
               >
                 <LogOut size={16} aria-hidden="true" />
                 Log Out

@@ -43,7 +43,7 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
   const logoName = chapterName ? `WIAL ${chapterName}` : 'WIAL'
 
   return (
-    <header className="bg-wial-navy sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+    <header className="bg-wial-navy/95 sticky top-0 z-50 border-b border-white/10 shadow-[0_12px_30px_-24px_rgba(0,0,0,0.75)] backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
@@ -51,14 +51,14 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
           className="focus:ring-offset-wial-navy flex items-center gap-2 rounded focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none"
           aria-label={`${logoName} home`}
         >
-          <span className="text-xl font-extrabold tracking-tight text-white">WIAL</span>
+          <span className="text-xl font-black tracking-tight text-white">WIAL</span>
           {chapterName && (
-            <span className="hidden text-sm font-semibold text-white/70 sm:block">
+            <span className="hidden rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/80 sm:block">
               {chapterName}
             </span>
           )}
           {!chapterName && (
-            <span className="hidden text-xs font-medium tracking-widest text-white/60 uppercase sm:block">
+            <span className="hidden text-xs font-semibold tracking-[0.18em] text-white/55 uppercase sm:block">
               Action Learning
             </span>
           )}
@@ -70,7 +70,7 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
             <Link
               key={link.href}
               href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}
-              className="hover:bg-wial-navy-light rounded px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white focus:ring-2 focus:ring-white focus:outline-none"
+              className="rounded-full px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus:ring-2 focus:ring-white focus:outline-none"
             >
               {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
             </Link>
@@ -78,7 +78,7 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
         </nav>
 
         {/* Right side: auth + mobile menu */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Chapter accent bar */}
           {accentColor && (
             <div

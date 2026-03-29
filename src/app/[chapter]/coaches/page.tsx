@@ -53,16 +53,20 @@ export default async function ChapterCoachesPage({
   return (
     <>
       <section
-        className="py-12 text-white"
+        className="relative overflow-hidden py-14 text-white"
         style={{ backgroundColor: chapter.accent_color ?? 'var(--color-wial-navy)' }}
       >
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold">Our Coaches</h1>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.14),transparent_40%)]"
+        />
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+          <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">Our Coaches</h1>
           <p className="mt-3 text-white/80">Certified Action Learning coaches in {chapter.name}.</p>
         </div>
       </section>
 
-      <section className="min-h-[60vh] bg-gray-50 py-10">
+      <section className="min-h-[60vh] bg-white py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <CoachDirectory
             initialCoaches={coachResult.items}

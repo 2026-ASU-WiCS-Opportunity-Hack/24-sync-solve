@@ -29,7 +29,11 @@ export default async function GlobalLayout({ children }: GlobalLayoutProps) {
   return (
     <EditModeProvider canEdit={canEdit} chapterId={null}>
       <Header />
-      <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
+      <main
+        id="main-content"
+        className="to-wial-surface/45 flex-1 bg-gradient-to-b from-white via-white focus:outline-none"
+        tabIndex={-1}
+      >
         {children}
       </main>
       <Footer />

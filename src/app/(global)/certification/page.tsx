@@ -29,9 +29,15 @@ export default async function CertificationPage() {
 function FallbackCertification() {
   return (
     <>
-      <section className="bg-wial-navy py-16 text-white">
-        <div className="mx-auto max-w-3xl px-6 text-center lg:px-8">
-          <h1 className="text-4xl font-extrabold text-white">Action Learning Certification</h1>
+      <section className="bg-wial-navy relative overflow-hidden py-16 text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_0%,rgba(204,0,0,0.2),transparent_40%)]"
+        />
+        <div className="relative mx-auto max-w-3xl px-6 text-center lg:px-8">
+          <h1 className="text-4xl leading-tight font-extrabold text-white sm:text-5xl">
+            Action Learning Certification
+          </h1>
           <p className="mt-4 text-lg text-white/80">
             Earn globally recognized certification as an Action Learning coach at four progressive
             levels.
@@ -44,7 +50,10 @@ function FallbackCertification() {
           <h2 className="text-wial-navy mb-10 text-3xl font-bold">Certification Levels</h2>
           <div className="space-y-8">
             {CERTIFICATION_ORDER.map((level, i) => (
-              <div key={level} className="rounded-2xl border border-gray-200 p-6">
+              <div
+                key={level}
+                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+              >
                 <div className="flex items-center gap-3">
                   <span className="bg-wial-red flex size-8 items-center justify-center rounded-full text-sm font-bold text-white">
                     {i + 1}

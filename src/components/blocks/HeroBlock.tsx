@@ -25,6 +25,11 @@ export default function HeroBlock({ content, accentColor }: HeroBlockProps) {
 
   return (
     <section aria-label="Hero section" className="bg-wial-navy relative overflow-hidden text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(255,255,255,0.12),transparent_36%),radial-gradient(circle_at_80%_0%,rgba(204,0,0,0.22),transparent_42%)]"
+      />
+
       {/* Background image overlay */}
       {data.background_image_url && (
         <div className="absolute inset-0">
@@ -57,7 +62,7 @@ export default function HeroBlock({ content, accentColor }: HeroBlockProps) {
               {data.cta_primary_text && data.cta_primary_href && (
                 <Link
                   href={data.cta_primary_href}
-                  className="focus:ring-offset-wial-navy rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-90 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none"
+                  className="focus:ring-offset-wial-navy rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none"
                   style={accentStyle}
                 >
                   {data.cta_primary_text}
@@ -66,7 +71,7 @@ export default function HeroBlock({ content, accentColor }: HeroBlockProps) {
               {data.cta_secondary_text && data.cta_secondary_href && (
                 <Link
                   href={data.cta_secondary_href}
-                  className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus:ring-2 focus:ring-white focus:outline-none"
+                  className="rounded-lg border border-white/35 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/12 focus:ring-2 focus:ring-white focus:outline-none"
                 >
                   {data.cta_secondary_text}
                 </Link>

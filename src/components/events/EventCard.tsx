@@ -56,7 +56,7 @@ export function EventCard({ event, accentColor }: EventCardProps) {
     .join(' ')
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-shadow hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
       {/* Event image — links to detail page, hidden from AT since title link suffices */}
       {event.image_url && (
         <Link
@@ -91,14 +91,17 @@ export function EventCard({ event, accentColor }: EventCardProps) {
 
         {/* Title — primary link to detail page */}
         <h2 className="text-wial-navy flex-1 text-base leading-snug font-semibold">
-          <Link href={`/events/${event.id}`} className="hover:underline">
+          <Link
+            href={`/events/${event.id}`}
+            className="decoration-wial-red/40 underline-offset-2 hover:underline"
+          >
             {event.title}
           </Link>
         </h2>
 
         {/* Description excerpt */}
         {event.description && (
-          <p className="mt-2 line-clamp-2 text-sm text-gray-500">{event.description}</p>
+          <p className="mt-2 line-clamp-2 text-sm text-gray-600">{event.description}</p>
         )}
 
         {/* Date, location, relative time */}

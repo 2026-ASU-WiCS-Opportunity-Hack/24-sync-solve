@@ -47,7 +47,10 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
   }
 
   return (
-    <aside className="bg-wial-navy flex w-64 shrink-0 flex-col" aria-label="Admin navigation">
+    <aside
+      className="bg-wial-navy flex w-64 shrink-0 flex-col border-e border-white/10"
+      aria-label="Admin navigation"
+    >
       {/* Logo */}
       <div className="border-wial-navy-dark flex h-16 items-center border-b px-6">
         <Link
@@ -63,7 +66,7 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Admin sections">
+      <nav className="flex flex-1 flex-col gap-1.5 p-3" aria-label="Admin sections">
         {navItems.map(({ href, label, icon: Icon, badge }) => (
           <Link
             key={href}
@@ -72,7 +75,7 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
             className={cn(
               'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
               isActive(href)
-                ? 'bg-white/15 text-white'
+                ? 'bg-white/15 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
                 : 'text-white/70 hover:bg-white/10 hover:text-white'
             )}
           >

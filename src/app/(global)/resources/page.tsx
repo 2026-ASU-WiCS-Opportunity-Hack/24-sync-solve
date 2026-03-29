@@ -20,9 +20,9 @@ export default async function ResourcesPage() {
     <EditablePageRenderer initialBlocks={result.blocks} pageId={result.page.id} />
   ) : (
     <div className="bg-white py-20">
-      <div className="mx-auto max-w-3xl px-6 lg:px-8">
-        <h1 className="text-wial-navy text-4xl font-bold">Resources</h1>
-        <p className="mt-6 text-gray-600">
+      <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200/80 bg-white px-6 py-10 shadow-sm lg:px-8">
+        <h1 className="text-wial-navy text-4xl leading-tight font-bold sm:text-5xl">Resources</h1>
+        <p className="mt-6 text-lg text-gray-600">
           Explore our library of Action Learning resources, research, and publications.
         </p>
       </div>

@@ -73,11 +73,18 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
 
   return (
     <>
-      <section className="py-12 text-white" style={{ backgroundColor: chapter.accent_color }}>
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section
+        className="relative overflow-hidden py-14 text-white"
+        style={{ backgroundColor: chapter.accent_color }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_0%,rgba(255,255,255,0.16),transparent_40%)]"
+        />
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-extrabold">Events</h1>
+              <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">Events</h1>
               <p className="mt-3 text-white/80">Upcoming events in {chapter.name}.</p>
             </div>
             {canManageEvents && (

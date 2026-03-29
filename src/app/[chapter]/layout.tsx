@@ -59,7 +59,7 @@ export default async function ChapterLayout({ children, params }: ChapterLayoutP
       />
       <main
         id="main-content"
-        className="flex-1 focus:outline-none"
+        className="to-wial-surface/50 flex-1 bg-gradient-to-b from-white via-white focus:outline-none"
         tabIndex={-1}
         style={{ '--color-chapter-accent': chapter.accent_color } as React.CSSProperties}
         data-chapter-accent={chapter.accent_color}
