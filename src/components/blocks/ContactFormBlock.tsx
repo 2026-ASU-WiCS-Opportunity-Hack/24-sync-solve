@@ -3,6 +3,7 @@
 import { useActionState, useTransition } from 'react'
 import { z } from 'zod'
 import { submitContactForm } from '@/features/chapters/actions/submitContactForm'
+import { getContrastTextColor } from '@/lib/utils/color'
 
 const contactSchema = z.object({
   heading: z.string().optional().default('Get in Touch'),
@@ -21,10 +22,12 @@ export default function ContactFormBlock({ content, accentColor }: ContactFormBl
   const [state, formAction] = useActionState(submitContactForm, { success: false, error: '' })
   const [isPending, startTransition] = useTransition()
 
-  const accentStyle = accentColor ? { backgroundColor: accentColor } : {}
+  const accentStyle = accentColor
+    ? { backgroundColor: accentColor, color: getContrastTextColor(accentColor) }
+    : {}
 
   return (
-    <section aria-label={data.heading} className="bg-gray-50 py-16">
+    <section aria-label={data.heading} className="bg-white py-16">
       <div className="mx-auto max-w-2xl px-6 lg:px-8">
         <div className="mb-8 text-center">
           <h2 className="text-wial-navy text-3xl font-bold">{data.heading}</h2>
@@ -39,7 +42,7 @@ export default function ContactFormBlock({ content, accentColor }: ContactFormBl
         ) : (
           <form
             action={(formData) => startTransition(() => formAction(formData))}
-            className="space-y-4"
+            className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
             noValidate
           >
             {state.error && (

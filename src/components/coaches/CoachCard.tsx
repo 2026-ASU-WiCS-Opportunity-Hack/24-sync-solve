@@ -22,25 +22,30 @@ export function CoachCard({ coach }: CoachCardProps) {
   const certColor = CERT_COLORS[coach.certification_level] ?? 'bg-gray-100 text-gray-700'
 
   return (
-    <article className="group shadow-card hover:shadow-card-hover overflow-hidden rounded-2xl bg-white transition-shadow">
+    <article className="group overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
       <Link
         href={`/coaches/${coach.id}`}
         className="focus-visible:ring-wial-navy block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         aria-label={`View ${name}'s coach profile`}
       >
+        <div
+          className="from-wial-navy to-wial-navy-light h-8 bg-gradient-to-r"
+          aria-hidden="true"
+        />
+
         {/* Photo */}
-        <div className="flex justify-center pt-6 pb-2">
+        <div className="-mt-4 flex justify-center pb-2">
           {coach.photo_url ? (
             <Image
               src={coach.photo_url}
               alt={`${name}'s profile photo`}
               width={80}
               height={80}
-              className="size-20 rounded-full object-cover shadow-sm ring-2 ring-white"
+              className="size-20 rounded-full object-cover shadow-sm ring-4 ring-white"
             />
           ) : (
             <span
-              className="bg-wial-navy flex size-20 items-center justify-center rounded-full text-2xl font-bold text-white shadow-sm ring-2 ring-white"
+              className="bg-wial-navy flex size-20 items-center justify-center rounded-full text-2xl font-bold text-white shadow-sm ring-4 ring-white"
               aria-hidden="true"
             >
               {name[0]?.toUpperCase()}
@@ -50,7 +55,7 @@ export function CoachCard({ coach }: CoachCardProps) {
 
         <div className="px-4 pb-5 text-center">
           {/* Name */}
-          <h2 className="text-wial-navy text-sm leading-snug font-semibold group-hover:underline">
+          <h2 className="text-wial-navy text-base leading-snug font-semibold group-hover:underline">
             {name}
           </h2>
 
@@ -74,7 +79,7 @@ export function CoachCard({ coach }: CoachCardProps) {
 
           {/* Bio excerpt */}
           {coach.bio && (
-            <p className="mt-2 text-xs leading-relaxed text-gray-500">{truncate(coach.bio, 100)}</p>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">{truncate(coach.bio, 120)}</p>
           )}
 
           {/* Specializations */}
@@ -95,9 +100,9 @@ export function CoachCard({ coach }: CoachCardProps) {
           )}
 
           {/* View profile CTA */}
-          <p className="text-wial-red mt-4 text-xs font-medium group-hover:underline">
-            View profile →
-          </p>
+          <span className="bg-wial-navy group-hover:bg-wial-navy-light mt-4 inline-flex rounded-full px-3 py-1.5 text-xs font-semibold text-white transition-colors">
+            View profile
+          </span>
         </div>
       </Link>
     </article>

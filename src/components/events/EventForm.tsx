@@ -3,6 +3,7 @@
 import { useActionState, useTransition } from 'react'
 import { Loader2 } from 'lucide-react'
 import type { ActionResult, Event } from '@/types'
+import { getContrastTextColor } from '@/lib/utils/color'
 
 interface EventFormProps {
   /** Server action bound with chapterId */
@@ -40,6 +41,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
   )
 
   const isEditing = !!event
+  const buttonTextColor = accentColor ? getContrastTextColor(accentColor) : '#ffffff'
 
   return (
     <form action={(fd) => startTransition(() => formAction(fd))} className="space-y-6" noValidate>
@@ -310,8 +312,8 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          style={accentColor ? { backgroundColor: accentColor } : undefined}
-          className="bg-wial-navy hover:bg-wial-navy-light inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          style={accentColor ? { backgroundColor: accentColor, color: buttonTextColor } : undefined}
+          className="bg-wial-navy hover:bg-wial-navy-light inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
           {isPending ? 'Saving...' : isEditing ? 'Save Event' : 'Create Event'}

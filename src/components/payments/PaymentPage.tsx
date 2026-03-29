@@ -6,6 +6,7 @@ import { useActionState } from 'react'
 import { createCheckoutSessionAction } from '@/features/payments/actions/createCheckoutSession'
 import { PAYMENT_AMOUNTS } from '@/lib/stripe/config'
 import { formatCurrency } from '@/lib/utils/format'
+import { getContrastTextColor, withAlpha } from '@/lib/utils/color'
 import { CreditCard, CheckCircle, XCircle, Lock } from 'lucide-react'
 import type { ActionResult } from '@/types'
 
@@ -34,8 +35,11 @@ function PaymentOption({
     FormData
   >(createCheckoutSessionAction, null)
 
+  const buttonText = getContrastTextColor(accentColor)
+  const priceColor = getContrastTextColor('#ffffff') === '#0b1f3a' ? '#0f2747' : '#003366'
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <h3 className="text-wial-navy text-base font-semibold">{title}</h3>
@@ -43,7 +47,7 @@ function PaymentOption({
         </div>
         <div
           className="shrink-0 text-2xl font-extrabold"
-          style={{ color: accentColor }}
+          style={{ color: priceColor }}
           aria-label={`Amount: ${formatCurrency(amount, currency)}`}
         >
           {formatCurrency(amount, currency)}
@@ -63,8 +67,8 @@ function PaymentOption({
         <button
           type="submit"
           disabled={isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
-          style={{ backgroundColor: accentColor }}
+          className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+          style={{ backgroundColor: accentColor, color: buttonText }}
           aria-label={`${t('checkout.proceedToPayment')} — ${title}`}
         >
           <CreditCard size={16} aria-hidden="true" />
@@ -105,19 +109,31 @@ export function PaymentPage({ chapterSlug, chapterName, accentColor, currency }:
     },
   ]
 
+  const headingColor = getContrastTextColor(accentColor)
+  const subtitleColor = withAlpha(headingColor, 0.82)
+  const glowColor = withAlpha(headingColor, 0.2)
+
   return (
     <>
       {/* Page header */}
-      <section className="py-12 text-center text-white" style={{ backgroundColor: accentColor }}>
-        <div className="mx-auto max-w-3xl px-6">
+      <section
+        className="relative overflow-hidden py-14 text-center"
+        style={{ backgroundColor: accentColor, color: headingColor }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(circle at 85% 0%, ${glowColor}, transparent 40%)` }}
+        />
+        <div className="relative mx-auto max-w-3xl px-6">
           <h1 className="text-4xl font-extrabold">{t('title')}</h1>
-          <p className="mt-4 text-white/80">
+          <p className="mt-4" style={{ color: subtitleColor }}>
             {chapterName} — {t('subtitle')}
           </p>
         </div>
       </section>
 
-      <section className="bg-gray-50 py-12">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-6 lg:px-8">
           {/* Success / cancel alerts */}
           {isSuccess && (

@@ -7,6 +7,7 @@ import { eventFilterSchema } from '@/lib/utils/validation'
 import { EventFilterBar } from '@/components/events/EventFilterBar'
 import { EventCard } from '@/components/events/EventCard'
 import type { EventType } from '@/types/database'
+import { getContrastTextColor, withAlpha } from '@/lib/utils/color'
 
 export const revalidate = 60
 
@@ -37,6 +38,13 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
     upcoming: filters.upcoming,
     limit: 24,
   })
+
+  const sectionBackground = chapter.accent_color ?? '#003366'
+  const headingColor = getContrastTextColor(sectionBackground)
+  const subheadingColor = withAlpha(headingColor, 0.82)
+  const glowColor = withAlpha(headingColor, 0.2)
+  const actionBackground =
+    headingColor === '#ffffff' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(11, 31, 58, 0.15)'
 
   // ── Check if current user can manage chapter events ───────────────────────
   const {
@@ -75,22 +83,26 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
     <>
       <section
         className="relative overflow-hidden py-14 text-white"
-        style={{ backgroundColor: chapter.accent_color }}
+        style={{ backgroundColor: sectionBackground, color: headingColor }}
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_0%,rgba(255,255,255,0.16),transparent_40%)]"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(circle at 85% 0%, ${glowColor}, transparent 40%)` }}
         />
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">Events</h1>
-              <p className="mt-3 text-white/80">Upcoming events in {chapter.name}.</p>
+              <p className="mt-3" style={{ color: subheadingColor }}>
+                Upcoming events in {chapter.name}.
+              </p>
             </div>
             {canManageEvents && (
               <Link
                 href={`/${slug}/events/manage`}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+                className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold backdrop-blur-sm transition-colors hover:brightness-95"
+                style={{ backgroundColor: actionBackground, color: headingColor }}
                 aria-label="Manage chapter events"
               >
                 <Settings size={15} aria-hidden="true" />

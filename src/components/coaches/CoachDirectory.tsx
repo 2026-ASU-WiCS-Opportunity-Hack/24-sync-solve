@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, X, Filter } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { CoachCard } from '@/components/coaches/CoachCard'
 import type { CoachWithBasicProfile } from '@/features/coaches/queries/getCoaches'
 import { CERTIFICATION_ORDER } from '@/lib/utils/constants'
@@ -64,7 +64,25 @@ export function CoachDirectory({
   return (
     <>
       {/* Search + Filters */}
-      <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 pb-4">
+          <div>
+            <p className="text-wial-navy text-sm font-semibold">Coach Directory Filters</p>
+            <p className="text-xs text-gray-500">Refine by name, certification, or chapter</p>
+          </div>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+              aria-label="Clear all filters"
+            >
+              <X size={13} aria-hidden="true" />
+              Reset filters
+            </button>
+          )}
+        </div>
+
         <div className="flex flex-col gap-4 md:flex-row">
           {/* Search input */}
           <div className="relative flex-1">
@@ -88,7 +106,7 @@ export function CoachDirectory({
                 if (localQ !== initialFilters.q) updateFilter('q', localQ)
               }}
               placeholder="Search by name, specialty, or location..."
-              className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-200 py-2.5 ps-9 pe-4 text-sm focus:ring-2 focus:outline-none"
+              className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 ps-9 pe-4 text-sm focus:bg-white focus:ring-2 focus:outline-none"
             />
           </div>
 
@@ -101,7 +119,7 @@ export function CoachDirectory({
               id="filter-cert"
               value={initialFilters.certification}
               onChange={(e) => updateFilter('certification', e.target.value)}
-              className="focus:ring-wial-navy/20 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
+              className="focus:ring-wial-navy/20 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
             >
               <option value="">All levels</option>
               {CERTIFICATION_ORDER.map((level) => (
@@ -121,7 +139,7 @@ export function CoachDirectory({
               id="filter-chapter"
               value={initialFilters.chapter}
               onChange={(e) => updateFilter('chapter', e.target.value)}
-              className="focus:ring-wial-navy/20 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
+              className="focus:ring-wial-navy/20 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
             >
               <option value="">All chapters</option>
               {chapters.map((ch) => (
@@ -133,23 +151,12 @@ export function CoachDirectory({
           </div>
 
           {/* Clear filters */}
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              aria-label="Clear all filters"
-            >
-              <X size={14} aria-hidden="true" />
-              Clear
-            </button>
-          )}
         </div>
       </div>
 
       {/* Results count */}
-      <div className="mb-4 flex items-center justify-between" aria-live="polite" aria-atomic="true">
-        <p className="text-sm text-gray-500">
+      <div className="mb-5 flex items-center justify-between" aria-live="polite" aria-atomic="true">
+        <p className="text-sm font-medium text-gray-600">
           {isPending ? (
             'Searching...'
           ) : (

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Calendar, MapPin, Video, ExternalLink } from 'lucide-react'
 import type { Event } from '@/types'
 import { formatDateRange, formatRelativeTime } from '@/lib/utils/format'
+import { getContrastTextColor, withAlpha } from '@/lib/utils/color'
 
 /** Default badge colors used in global (non-chapter) context */
 const TYPE_BADGE_COLORS: Record<string, string> = {
@@ -29,6 +30,7 @@ interface EventCardProps {
  */
 export function EventCard({ event, accentColor }: EventCardProps) {
   const hasAccent = Boolean(accentColor)
+  const accentTextColor = hasAccent ? getContrastTextColor(accentColor!) : '#ffffff'
 
   const badgeClass = [
     'rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide uppercase',
@@ -38,7 +40,7 @@ export function EventCard({ event, accentColor }: EventCardProps) {
     .join(' ')
 
   const badgeStyle = hasAccent
-    ? { color: accentColor!, backgroundColor: `${accentColor}20` }
+    ? { color: accentTextColor, backgroundColor: withAlpha(accentColor!, 0.22) }
     : undefined
 
   const learnMoreClass = [
@@ -138,7 +140,9 @@ export function EventCard({ event, accentColor }: EventCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className={registerClass}
-              style={hasAccent ? { backgroundColor: accentColor! } : undefined}
+              style={
+                hasAccent ? { backgroundColor: accentColor!, color: accentTextColor } : undefined
+              }
               aria-label={`Register for ${event.title} (opens in new tab)`}
             >
               Register

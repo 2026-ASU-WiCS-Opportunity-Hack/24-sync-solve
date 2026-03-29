@@ -4,6 +4,7 @@ import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
 import { getCoaches } from '@/features/coaches/queries/getCoaches'
 import { CoachDirectory } from '@/components/coaches/CoachDirectory'
 import { coachSearchSchema } from '@/lib/utils/validation'
+import { getContrastTextColor, withAlpha } from '@/lib/utils/color'
 
 export const revalidate = 60
 
@@ -50,19 +51,27 @@ export default async function ChapterCoachesPage({
     cursor: filters.cursor,
   })
 
+  const sectionBackground = chapter.accent_color ?? '#003366'
+  const headingColor = getContrastTextColor(sectionBackground)
+  const subheadingColor = withAlpha(headingColor, 0.82)
+  const glowColor = withAlpha(headingColor, 0.2)
+
   return (
     <>
       <section
         className="relative overflow-hidden py-14 text-white"
-        style={{ backgroundColor: chapter.accent_color ?? 'var(--color-wial-navy)' }}
+        style={{ backgroundColor: sectionBackground, color: headingColor }}
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.14),transparent_40%)]"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(circle at 80% 0%, ${glowColor}, transparent 40%)` }}
         />
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">Our Coaches</h1>
-          <p className="mt-3 text-white/80">Certified Action Learning coaches in {chapter.name}.</p>
+          <p className="mt-3" style={{ color: subheadingColor }}>
+            Certified Action Learning coaches in {chapter.name}.
+          </p>
         </div>
       </section>
 

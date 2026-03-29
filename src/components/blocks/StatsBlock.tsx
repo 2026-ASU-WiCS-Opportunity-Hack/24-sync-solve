@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { formatNumber } from '@/lib/utils/format'
+import { getContrastTextColor } from '@/lib/utils/color'
 
 const statsSchema = z.object({
   heading: z.string().optional(),
@@ -22,7 +23,10 @@ export default function StatsBlock({ content, accentColor }: StatsBlockProps) {
   const parsed = statsSchema.safeParse(content)
   const data = parsed.success ? parsed.data : statsSchema.parse({})
 
-  const accentStyle = accentColor ? { color: accentColor } : {}
+  const accentStyle =
+    accentColor && getContrastTextColor(accentColor) === '#ffffff'
+      ? { color: accentColor }
+      : { color: '#ee1111' }
 
   if (data.items.length === 0) return null
 
