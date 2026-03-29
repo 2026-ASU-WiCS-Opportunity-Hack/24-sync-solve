@@ -45,7 +45,14 @@
       "WebFetch(domain:next-intl.dev)",
       "WebFetch(domain:tiptap.dev)",
       "WebFetch(domain:react-spectrum.adobe.com)",
-      "WebFetch(domain:developer.mozilla.org)"
+      "WebFetch(domain:developer.mozilla.org)",
+      "Bash(/dev/null cat:*)",
+      "Bash(grep -r GlobalDOMAttributes node_modules/@react-types/shared/src/*.d.ts)",
+      "Bash(grep -r GlobalDOMAttributes node_modules/@react-types/shared/dist/*.d.ts)",
+      "Bash(grep -r name.*string node_modules/react-aria/dist/*.d.ts)",
+      "Bash(grep -r \"defaultSelectedKey\\\\|selectedKey\\\\|onSelectionChange\\\\|AriaSelectProps\" node_modules/@react-types/select/dist/*.d.ts)",
+      "Bash(find node_modules/@react-types -name select*)",
+      "Bash(node -e \":*)"
     ]
   }
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Plus, Calendar, CheckCircle, XCircle, Edit2, Trash2 } from 'lucide-react'
+import { Plus, Calendar, CheckCircle, XCircle, Edit2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
 import { getChapterEventsForAdmin } from '@/features/events/queries/getEvents'

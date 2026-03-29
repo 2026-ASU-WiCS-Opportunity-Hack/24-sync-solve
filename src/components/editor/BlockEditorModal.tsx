@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useTransition, lazy, Suspense } from 'react'
-import { X, Loader2 } from 'lucide-react'
+import { X, Loader2, History } from 'lucide-react'
 import { updateBlock } from '@/features/content/actions/updateBlock'
 import { useEditMode } from '@/features/content/hooks/useEditMode'
 import { BLOCK_REGISTRY } from '@/features/content/blocks/registry'
+import { BlockVersionHistory } from '@/components/editor/BlockVersionHistory'
 import type { ClientBlock } from '@/features/content/types'
 import type { BlockType } from '@/types'
 
@@ -74,6 +75,11 @@ const EDITORS: Record<
       default: m.DividerBlockEditor,
     }))
   ),
+  client_grid: lazy(() =>
+    import('@/components/editor/blocks/ClientGridBlockEditor').then((m) => ({
+      default: m.ClientGridBlockEditor,
+    }))
+  ),
 }
 
 export interface BlockEditorInnerProps {
@@ -97,6 +103,7 @@ export function BlockEditorModal({ block, onClose, onOptimisticUpdate }: BlockEd
   const { setIsDirty } = useEditMode()
   const [isPending, startTransition] = useTransition()
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'edit' | 'history'>('edit')
 
   const blockType = block.block_type as BlockType
   const EditorComponent = EDITORS[blockType]
@@ -146,54 +153,103 @@ export function BlockEditorModal({ block, onClose, onOptimisticUpdate }: BlockEd
     >
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">
-              Edit {registryEntry?.label ?? blockType}
-            </h2>
-            {registryEntry?.requiresApproval && (
-              <p className="mt-0.5 text-xs text-amber-600">
-                Changes require admin approval before publishing
-              </p>
-            )}
+        <div className="border-b border-gray-200 px-5 pt-4">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">
+                Edit {registryEntry?.label ?? blockType}
+              </h2>
+              {registryEntry?.requiresApproval && activeTab === 'edit' && (
+                <p className="mt-0.5 text-xs text-amber-600">
+                  Changes require admin approval before publishing
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close editor"
+              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close editor"
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-gray-300 focus:outline-none"
-          >
-            <X size={18} aria-hidden="true" />
-          </button>
+
+          {/* Tabs */}
+          <div className="-mb-px flex gap-4" role="tablist" aria-label="Editor tabs">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'edit'}
+              aria-controls="tab-edit"
+              onClick={() => setActiveTab('edit')}
+              className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
+                activeTab === 'edit'
+                  ? 'border-wial-navy text-wial-navy'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'history'}
+              aria-controls="tab-history"
+              onClick={() => setActiveTab('history')}
+              className={`flex items-center gap-1.5 border-b-2 pb-2 text-sm font-medium transition-colors ${
+                activeTab === 'history'
+                  ? 'border-wial-navy text-wial-navy'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <History size={14} aria-hidden="true" />
+              History
+            </button>
+          </div>
         </div>
 
-        {/* Editor body */}
+        {/* Panel body */}
         <div className="flex-1 overflow-y-auto p-5">
-          {saveError && (
-            <div
-              role="alert"
-              aria-live="polite"
-              className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {saveError}
+          {activeTab === 'edit' ? (
+            <>
+              {saveError && (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  {saveError}
+                </div>
+              )}
+
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 size={20} className="animate-spin text-gray-400" aria-hidden="true" />
+                    <span className="sr-only">Loading editor…</span>
+                  </div>
+                }
+              >
+                <EditorComponent
+                  initialContent={displayContent}
+                  onSave={handleSave}
+                  onCancel={onClose}
+                  isSaving={isPending}
+                />
+              </Suspense>
+            </>
+          ) : (
+            <div id="tab-history" role="tabpanel" aria-label="Version history">
+              <BlockVersionHistory
+                blockId={block.id}
+                onReverted={() => {
+                  setIsDirty(true)
+                  onClose()
+                }}
+              />
             </div>
           )}
-
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-12">
-                <Loader2 size={20} className="animate-spin text-gray-400" aria-hidden="true" />
-                <span className="sr-only">Loading editor…</span>
-              </div>
-            }
-          >
-            <EditorComponent
-              initialContent={displayContent}
-              onSave={handleSave}
-              onCancel={onClose}
-              isSaving={isPending}
-            />
-          </Suspense>
         </div>
       </div>
     </div>

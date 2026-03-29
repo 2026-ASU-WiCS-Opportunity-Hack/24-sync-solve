@@ -13,7 +13,7 @@ interface ContentDiffProps {
  * Renders a side-by-side (or stacked) diff of published vs draft content.
  * Highlights changed keys so reviewers know what changed.
  */
-export function ContentDiff({ published, draft, blockType }: ContentDiffProps) {
+export function ContentDiff({ published, draft, blockType: _blockType }: ContentDiffProps) {
   const [expanded, setExpanded] = useState(false)
 
   const changedKeys = getChangedKeys(published, draft)

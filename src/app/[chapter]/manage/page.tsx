@@ -2,7 +2,17 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Users, GraduationCap, ClipboardCheck, FileText } from 'lucide-react'
+import { getPaymentStats } from '@/features/payments/queries/getPayments'
+import { getCoachGrowth } from '@/features/chapters/queries/getChapterAdmin'
+import { formatCurrency } from '@/lib/utils/format'
+import {
+  Users,
+  GraduationCap,
+  ClipboardCheck,
+  FileText,
+  CreditCard,
+  TrendingUp,
+} from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Chapter Admin' }
 
@@ -31,12 +41,14 @@ export default async function ChapterManagePage({ params }: ChapterManagePagePro
     .eq('chapter_id', chapter.id)
   const pageIds = (chapterPages ?? []).map((p) => p.id)
 
-  // Fetch quick stats
+  // Fetch quick stats + analytics in parallel
   const [
     { count: memberCount },
     { count: coachCount },
     { count: pendingApplications },
     pendingApprovalsResult,
+    paymentStats,
+    coachGrowth,
   ] = await Promise.all([
     supabase
       .from('user_chapter_roles')
@@ -59,6 +71,8 @@ export default async function ChapterManagePage({ params }: ChapterManagePagePro
           .eq('status', 'pending_approval')
           .in('page_id', pageIds)
       : Promise.resolve({ count: 0 }),
+    getPaymentStats(supabase, chapter.id),
+    getCoachGrowth(supabase, { chapterId: chapter.id, months: 6 }),
   ])
 
   const pendingApprovals = pendingApprovalsResult.count ?? 0
@@ -122,6 +136,71 @@ export default async function ChapterManagePage({ params }: ChapterManagePagePro
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Analytics row */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Revenue last 30 days */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-5">
+          <div className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+            <CreditCard size={13} aria-hidden="true" />
+            Revenue (30 days)
+          </div>
+          <p className="text-2xl font-extrabold text-gray-900">
+            {formatCurrency(paymentStats.revenueLast30, 'USD')}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            {paymentStats.succeededLast30} successful payment
+            {paymentStats.succeededLast30 !== 1 ? 's' : ''}
+          </p>
+          <Link
+            href={`/${chapterSlug}/manage/payments`}
+            className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline"
+          >
+            View details →
+          </Link>
+        </div>
+
+        {/* Payment conversion rate */}
+        {paymentStats.totalLast30 > 0 && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-5">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              <TrendingUp size={13} aria-hidden="true" />
+              Conversion Rate
+            </div>
+            <p className="text-2xl font-extrabold text-gray-900">{paymentStats.conversionRate}%</p>
+            <p className="mt-1 text-xs text-gray-400">
+              {paymentStats.succeededLast30} of {paymentStats.totalLast30} payments succeeded
+            </p>
+          </div>
+        )}
+
+        {/* Coach growth bar chart */}
+        {coachGrowth.some((m) => m.count > 0) && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-5">
+            <div className="mb-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              Coach Growth (6 mo)
+            </div>
+            <div className="flex items-end gap-1.5" aria-label="Coach growth chart" role="img">
+              {(() => {
+                const max = Math.max(...coachGrowth.map((m) => m.count), 1)
+                return coachGrowth.map((m) => (
+                  <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
+                    <span className="text-[10px] font-semibold text-gray-700">
+                      {m.count > 0 ? m.count : ''}
+                    </span>
+                    <div
+                      className="bg-wial-navy w-full rounded-t"
+                      style={{ height: `${Math.max((m.count / max) * 48, 3)}px` }}
+                      aria-hidden="true"
+                    />
+                    <span className="text-[9px] text-gray-400">{m.month.slice(5)}</span>
+                  </div>
+                ))
+              })()}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Alert for pending items */}

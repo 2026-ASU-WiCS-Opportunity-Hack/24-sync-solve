@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createStripeClient } from '@/lib/stripe/client'
 import { PAYMENT_AMOUNTS } from '@/lib/stripe/config'
-import type { ActionResult, PaymentType } from '@/types'
+import type { ActionResult } from '@/types'
 
 const checkoutSchema = z.object({
   payment_type: z.enum([
@@ -15,7 +15,10 @@ const checkoutSchema = z.object({
     'event_registration',
   ]),
   chapter_slug: z.string().optional(),
+  event_id: z.string().uuid().optional(), // Required for event_registration
   amount_override: z.number().int().positive().optional(), // For variable membership dues
+  guest_email: z.string().email().optional(), // For unauthenticated event registration
+  guest_name: z.string().max(100).optional(), // For unauthenticated event registration
   success_url: z.string().url().optional(),
   cancel_url: z.string().url().optional(),
 })
@@ -38,9 +41,12 @@ export async function createCheckoutSessionAction(
   const raw = {
     payment_type: formData.get('payment_type') as string,
     chapter_slug: formData.get('chapter_slug') as string | undefined,
+    event_id: (formData.get('event_id') as string | null) ?? undefined,
     amount_override: formData.get('amount_override')
       ? Number(formData.get('amount_override'))
       : undefined,
+    guest_email: (formData.get('guest_email') as string | null) ?? undefined,
+    guest_name: (formData.get('guest_name') as string | null) ?? undefined,
   }
 
   const result = checkoutSchema.safeParse(raw)
@@ -48,7 +54,7 @@ export async function createCheckoutSessionAction(
     return { success: false, error: 'Invalid payment request.' }
   }
 
-  const { payment_type, chapter_slug } = result.data
+  const { payment_type, chapter_slug, event_id, guest_email, guest_name } = result.data
 
   // ── Determine amount (server-side only — never trust client amount) ────────────
   let amount: number
@@ -56,6 +62,24 @@ export async function createCheckoutSessionAction(
 
   if (payment_type === 'membership_dues' && result.data.amount_override) {
     amount = result.data.amount_override
+  } else if (payment_type === 'event_registration') {
+    // Must look up the event's ticket_price — client cannot supply amount
+    if (!event_id) {
+      return { success: false, error: 'Event ID is required for event registration.' }
+    }
+    const { data: eventRow } = await supabase
+      .from('events')
+      .select('ticket_price')
+      .eq('id', event_id)
+      .eq('is_published', true)
+      .single()
+
+    const ticketPrice = (eventRow as typeof eventRow & { ticket_price?: number | null })
+      ?.ticket_price
+    if (!ticketPrice || ticketPrice <= 0) {
+      return { success: false, error: 'This event does not have a ticket price set.' }
+    }
+    amount = ticketPrice
   } else {
     const amounts: Record<string, number | undefined> = {
       enrollment_fee: PAYMENT_AMOUNTS.ENROLLMENT_FEE,
@@ -93,12 +117,19 @@ export async function createCheckoutSessionAction(
   // ── Create Stripe Checkout Session ───────────────────────────────────────────
   const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
 
-  const successUrl = chapter_slug
-    ? `${siteUrl}/${chapter_slug}/pay?success=true`
-    : `${siteUrl}/payment/success`
-  const cancelUrl = chapter_slug
-    ? `${siteUrl}/${chapter_slug}/pay?cancelled=true`
-    : `${siteUrl}/payment/cancelled`
+  let successUrl: string
+  let cancelUrl: string
+
+  if (payment_type === 'event_registration' && event_id) {
+    successUrl = `${siteUrl}/events/${event_id}/register/success?session_id={CHECKOUT_SESSION_ID}`
+    cancelUrl = `${siteUrl}/events/${event_id}`
+  } else if (chapter_slug) {
+    successUrl = `${siteUrl}/${chapter_slug}/pay?success=true&session_id={CHECKOUT_SESSION_ID}`
+    cancelUrl = `${siteUrl}/${chapter_slug}/pay?cancelled=true`
+  } else {
+    successUrl = `${siteUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`
+    cancelUrl = `${siteUrl}/payment/cancelled`
+  }
 
   const paymentTypeLabels: Record<string, string> = {
     enrollment_fee: 'WIAL Enrollment Fee',
@@ -134,8 +165,11 @@ export async function createCheckoutSessionAction(
         user_id: user.id,
         payment_type,
         chapter_id: chapterId ?? '',
+        event_id: event_id ?? '',
+        guest_email: guest_email ?? '',
+        guest_name: guest_name ?? '',
       },
-      success_url: `${successUrl}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl,
       cancel_url: cancelUrl,
     })
   } catch (err) {

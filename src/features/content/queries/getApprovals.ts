@@ -1,6 +1,50 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, ContentBlock, Page } from '@/types'
 
+export interface ContentVersionItem {
+  id: string
+  version_number: number
+  content: Record<string, unknown>
+  status: string
+  changed_by_name: string | null
+  created_at: string
+}
+
+/**
+ * Fetch version history for a content block, newest first.
+ * Joins the changer's profile name for display.
+ */
+export async function getBlockVersionHistory(
+  supabase: SupabaseClient<Database>,
+  blockId: string,
+  limit = 20
+): Promise<ContentVersionItem[]> {
+  const { data, error } = await supabase
+    .from('content_versions')
+    .select(
+      `id, version_number, content, status, changed_by, created_at, changer:profiles!content_versions_changed_by_fkey(full_name)`
+    )
+    .eq('content_block_id', blockId)
+    .order('version_number', { ascending: false })
+    .limit(limit)
+
+  if (error || !data) return []
+
+  return data.map((row) => {
+    const { changer, ...rest } = row as typeof row & {
+      changer: { full_name: string | null } | null
+    }
+    return {
+      id: rest.id,
+      version_number: rest.version_number,
+      content: (rest.content ?? {}) as Record<string, unknown>,
+      status: rest.status,
+      changed_by_name: changer?.full_name ?? null,
+      created_at: rest.created_at,
+    }
+  })
+}
+
 export interface ApprovalItem extends ContentBlock {
   page: Pick<Page, 'title' | 'slug' | 'chapter_id'> | null
   chapter_name: string | null
@@ -110,7 +154,7 @@ export async function rejectContentBlock(
   const { error } = await supabase
     .from('content_blocks')
     .update({
-      status: 'published', // Keep showing the existing published_version
+      status: 'rejected',
       draft_version: null,
       rejection_reason: reason,
       approved_by: null,

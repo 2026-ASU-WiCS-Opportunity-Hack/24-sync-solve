@@ -1,0 +1,99 @@
+export type ResourceType = 'video' | 'article' | 'pdf' | 'link'
+
+export interface Resource {
+  id: string
+  chapter_id: string | null
+  title: string
+  description: string | null
+  type: ResourceType
+  url: string
+  thumbnail_url: string | null
+  category: string | null
+  tags: string[]
+  is_published: boolean
+  sort_order: number
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
+  video: 'Video',
+  article: 'Article',
+  pdf: 'PDF',
+  link: 'Link',
+}
+
+export const RESOURCE_TYPE_COLORS: Record<ResourceType, string> = {
+  video: 'bg-red-100 text-red-700',
+  article: 'bg-blue-100 text-blue-700',
+  pdf: 'bg-orange-100 text-orange-700',
+  link: 'bg-gray-100 text-gray-600',
+}
+
+/** Extract YouTube video ID from a URL, or null if not a YouTube link. */
+export function getYouTubeVideoId(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
+  )
+  return match?.[1] ?? null
+}
+
+/** Derive YouTube thumbnail URL from a video URL, or null. */
+export function getYouTubeThumbnail(url: string): string | null {
+  const id = getYouTubeVideoId(url)
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null
+}
+
+// ── Certification & completion types ──────────────────────────
+
+export type CertificationLevel = 'CALC' | 'PALC' | 'SALC' | 'MALC'
+
+export const CERTIFICATION_LEVEL_NAMES: Record<CertificationLevel, string> = {
+  CALC: 'Certified Action Learning Coach',
+  PALC: 'Professional Action Learning Coach',
+  SALC: 'Senior Action Learning Coach',
+  MALC: 'Master Action Learning Coach',
+}
+
+export const CERTIFICATION_LEVEL_ORDER: CertificationLevel[] = ['CALC', 'PALC', 'SALC', 'MALC']
+
+export interface ResourceCompletion {
+  id: string
+  user_id: string
+  resource_id: string
+  completed_at: string
+  expires_at: string
+}
+
+export interface CertificationRequirement {
+  id: string
+  level: CertificationLevel
+  resource_id: string
+  is_required: boolean
+  sort_order: number
+}
+
+export interface UserCertification {
+  id: string
+  user_id: string
+  level: CertificationLevel
+  status: 'pending_approval' | 'approved' | 'expired' | 'revoked'
+  applied_at: string
+  approved_at: string | null
+  approved_by: string | null
+  expires_at: string | null
+  notes: string | null
+}
+
+export interface CertificationProgress {
+  level: CertificationLevel
+  totalRequired: number
+  completedRequired: number
+  percentage: number
+  /** All required resources completed and not expired. */
+  isComplete: boolean
+  /** isComplete AND no pending/approved non-expired cert for this level. */
+  canApply: boolean
+  existing: UserCertification | null
+}

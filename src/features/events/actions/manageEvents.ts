@@ -2,9 +2,15 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { eventCreateSchema, eventUpdateSchema, uuidSchema } from '@/lib/utils/validation'
+import {
+  eventCreateSchema,
+  eventUpdateSchema,
+  uuidSchema,
+  translateZodErrors,
+} from '@/lib/utils/validation'
 import type { ActionResult, Event } from '@/types'
 import type { Json } from '@/types/database'
 
@@ -57,6 +63,7 @@ export async function createEventAction(
     is_virtual: formData.get('is_virtual') as string,
     virtual_link: (formData.get('virtual_link') as string) || '',
     max_attendees: (formData.get('max_attendees') as string) || '',
+    ticket_price_usd: (formData.get('ticket_price_usd') as string) || '',
     registration_url: (formData.get('registration_url') as string) || '',
     image_url: (formData.get('image_url') as string) || '',
     is_published: formData.get('is_published') as string,
@@ -64,18 +71,23 @@ export async function createEventAction(
 
   const result = eventCreateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
+
+  // Convert USD price to cents for storage; undefined = free
+  const { ticket_price_usd, ...eventFields } = result.data
+  const ticket_price = ticket_price_usd != null ? Math.round(ticket_price_usd * 100) : null
 
   const adminClient = createAdminClient()
 
   const { data: event, error } = await adminClient
     .from('events')
-    .insert({ ...result.data, chapter_id: chapterId })
+    .insert({ ...eventFields, ticket_price, chapter_id: chapterId })
     .select()
     .single()
 
@@ -136,6 +148,7 @@ export async function updateEventAction(
     is_virtual: formData.get('is_virtual') as string,
     virtual_link: (formData.get('virtual_link') as string) || '',
     max_attendees: (formData.get('max_attendees') as string) || '',
+    ticket_price_usd: (formData.get('ticket_price_usd') as string) || '',
     registration_url: (formData.get('registration_url') as string) || '',
     image_url: (formData.get('image_url') as string) || '',
     is_published: formData.get('is_published') as string,
@@ -143,14 +156,17 @@ export async function updateEventAction(
 
   const result = eventUpdateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 
-  const { id, ...updateData } = result.data
+  const { id, ticket_price_usd, ...restData } = result.data
+  const ticket_price = ticket_price_usd != null ? Math.round(ticket_price_usd * 100) : null
+  const updateData = { ...restData, ticket_price }
 
   const supabase = await createClient()
 

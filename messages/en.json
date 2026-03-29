@@ -2,7 +2,6 @@
   "nav": {
     "home": "Home",
     "about": "About",
-    "certification": "Certification",
     "coaches": "Find a Coach",
     "resources": "Resources",
     "events": "Events",
@@ -45,7 +44,23 @@
     },
     "about": {
       "heading": "What is Action Learning?",
-      "body": "Action Learning is a process that involves a small group working on real problems, taking action, and learning as individuals and as a team."
+      "body": "Action Learning is a process that involves a small group working on real problems, taking action, and learning as individuals and as a team.",
+      "learnMore": "Learn more about WIAL →"
+    },
+    "certification": {
+      "heading": "Four Levels of Certification",
+      "body": "WIAL certifications are recognized globally. Progress from entry-level CALC to master-level MALC and distinguish yourself as a practitioner of the highest caliber.",
+      "cta": "Explore Certification Paths"
+    },
+    "chapters": {
+      "heading": "A Global Community",
+      "body": "With chapters across 20+ countries, there is a WIAL community near you. Each chapter delivers local coaching, events, and certification support.",
+      "cta": "Find Your Chapter"
+    },
+    "finalCta": {
+      "heading": "Ready to Transform Your Organization?",
+      "body": "Join the global community of Action Learning coaches and practitioners.",
+      "cta": "Find a Coach"
     }
   },
   "auth": {
@@ -62,7 +77,22 @@
       "noAccount": "Don't have an account?",
       "signUpLink": "Sign up",
       "orContinueWith": "Or continue with",
-      "googleButton": "Continue with Google"
+      "googleButton": "Continue with Google",
+      "registeredMessage": "Account created! Check your email to confirm your address before logging in.",
+      "passwordUpdatedMessage": "Password updated successfully. Log in with your new password.",
+      "unauthorizedMessage": "You don't have permission to access that page.",
+      "authErrorMessage": "Authentication failed. Please try again."
+    },
+    "verifyEmail": {
+      "title": "Check your email",
+      "subtitle": "Verify your email address to continue",
+      "body": "We sent a verification link to your email address. Click it to activate your account, then log in.",
+      "resendButton": "Resend verification email",
+      "resending": "Sending…",
+      "resentSuccess": "Verification email sent! Check your inbox.",
+      "resentError": "Failed to send. Please try again.",
+      "backToLogin": "Back to login",
+      "alreadyVerified": "Already verified? Try logging in again."
     },
     "register": {
       "title": "Create your account",
@@ -103,18 +133,28 @@
   "coaches": {
     "directory": {
       "title": "Find an Action Learning Coach",
+      "chapterTitle": "Our Coaches",
       "subtitle": "Browse our global directory of certified coaches",
+      "chapterSubtitle": "Certified Action Learning coaches in {chapter}.",
+      "searchLabel": "Search coaches by name, specialty, or location",
       "searchPlaceholder": "Search by name, specialty, or location...",
+      "filterCertLabel": "Filter by certification level",
+      "filterChapterLabel": "Filter by chapter",
       "filterCertification": "Certification level",
       "filterCountry": "Country",
       "filterChapter": "Chapter",
       "allCertifications": "All levels",
       "allCountries": "All countries",
       "allChapters": "All chapters",
+      "clearFiltersLabel": "Clear all filters",
+      "clearButton": "Clear",
+      "searching": "Searching...",
       "noResults": "No coaches found matching your search.",
       "noResultsHint": "Try adjusting your filters or search terms.",
+      "clearAllFilters": "Clear all filters",
       "loadMore": "Load more coaches",
-      "coachCount": "{count} coaches found",
+      "coachCountZero": "No coaches found",
+      "coachCount": "{count}+ coaches found",
       "clearFilters": "Clear filters"
     },
     "card": {
@@ -145,36 +185,68 @@
     "edit": {
       "title": "My Coach Profile",
       "photoLabel": "Profile photo",
+      "aboutSection": "About You",
       "bioLabel": "Bio",
+      "bioHint": "Describe your background and approach to Action Learning (max 2000 characters).",
       "bioPlaceholder": "Tell coaches and organizations about your background and approach to Action Learning...",
+      "specializationsSection": "Specializations",
       "specializationsLabel": "Specializations",
+      "specializationsHint": "Add up to 20 areas of expertise.",
+      "addSpecializationLabel": "Add specialization",
+      "addSpecializationPlaceholder": "Type a specialization and press Enter",
+      "languagesSection": "Languages",
       "languagesLabel": "Languages",
+      "languagesHint": "Add languages you coach in (at least 1).",
+      "addLanguageLabel": "Add language",
+      "addLanguagePlaceholder": "Type a language and press Enter",
+      "addButton": "Add",
+      "removeItemLabel": "Remove {item}",
+      "locationSection": "Location & Contact",
       "locationCityLabel": "City",
       "locationCountryLabel": "Country",
       "contactEmailLabel": "Contact email",
+      "contactEmailPublicNote": "(shown publicly)",
       "linkedinLabel": "LinkedIn URL",
       "saveButton": "Save Changes",
       "saving": "Saving...",
       "savedSuccess": "Profile updated successfully.",
       "pendingApproval": "Your changes are pending admin review.",
-      "lockedFields": "Certification level and published status are managed by WIAL administrators."
+      "lockedFields": "Certification level and published status are managed by WIAL administrators.",
+      "lockedFieldsNote": "Note:"
     }
   },
   "events": {
     "list": {
       "title": "Events",
       "subtitle": "Upcoming workshops, webinars, and conferences",
+      "chapterSubtitle": "Upcoming events in {chapter}.",
       "noEvents": "No upcoming events at this time.",
+      "noEventsChapter": "No upcoming events. Check back soon.",
       "checkBack": "Check back soon for new events.",
       "viewAll": "View all events",
       "virtual": "Virtual",
       "inPerson": "In Person",
       "register": "Register",
       "learnMore": "Learn more",
+      "learnMoreArrow": "Learn more →",
       "free": "Free",
       "date": "{date}",
       "time": "{time}",
-      "location": "{location}"
+      "location": "{location}",
+      "manageEvents": "Manage Events",
+      "createFirst": "Create the first event →",
+      "ariaManageEvents": "Manage chapter events"
+    },
+    "filterBar": {
+      "allTypes": "All Events",
+      "workshop": "Workshops",
+      "webinar": "Webinars",
+      "conference": "Conferences",
+      "certification": "Certification",
+      "networking": "Networking",
+      "upcomingOnly": "Upcoming only",
+      "filterByTypeLabel": "Filter by event type",
+      "upcomingOnlyLabel": "Show only upcoming events"
     },
     "types": {
       "workshop": "Workshop",
@@ -183,6 +255,61 @@
       "certification": "Certification",
       "networking": "Networking",
       "other": "Event"
+    },
+    "form": {
+      "createTitle": "Create Event",
+      "editTitle": "Edit Event",
+      "titleLabel": "Event Title",
+      "titlePlaceholder": "e.g. WIAL USA Annual Conference 2026",
+      "typeLabel": "Event Type",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the event, objectives, and what attendees can expect...",
+      "startDateLabel": "Start Date & Time",
+      "endDateLabel": "End Date & Time",
+      "timezoneLabel": "Timezone",
+      "timezonePlaceholder": "e.g. America/New_York",
+      "isVirtualLabel": "This is a virtual / online event",
+      "locationNameLabel": "Location Name",
+      "locationNamePlaceholder": "e.g. Washington Convention Center",
+      "virtualLinkLabel": "Virtual Meeting Link",
+      "virtualLinkPlaceholder": "https://zoom.us/...",
+      "ticketPriceLabel": "Ticket Price (USD)",
+      "ticketPricePlaceholder": "Leave blank for a free event",
+      "ticketPriceHint": "Attendees will be directed to a Stripe checkout. Leave blank for free RSVP.",
+      "registrationUrlLabel": "External Registration URL",
+      "registrationUrlPlaceholder": "https://eventbrite.com/... (optional override)",
+      "registrationUrlHint": "Optional. If set, overrides the built-in registration and links here instead.",
+      "maxAttendeesLabel": "Max Attendees",
+      "maxAttendeesPlaceholder": "Leave blank for unlimited",
+      "imageUrlLabel": "Event Image URL",
+      "imageUrlPlaceholder": "https://...",
+      "isPublishedLabel": "Publish this event (make it visible on the public site)",
+      "saveButton": "Save Event",
+      "createButton": "Create Event",
+      "saving": "Saving..."
+    },
+    "registration": {
+      "pageTitle": "Register — {title}",
+      "registerHeading": "Register for this event",
+      "purchaseHeading": "Purchase your ticket",
+      "freeLabel": "Free",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Jane Doe",
+      "nameHint": "Used for your registration confirmation. Leave blank if logged in.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Required if you are not logged in. We'll send your confirmation here.",
+      "submitFree": "Confirm Free Registration",
+      "submitPaid": "Continue to Payment",
+      "submittingFree": "Registering…",
+      "submittingPaid": "Redirecting to payment…",
+      "stripeNote": "You will be redirected to Stripe for secure payment processing.",
+      "successTitle": "Registration Confirmed",
+      "successHeading": "You're registered!",
+      "successMessage": "Your registration for {title} is confirmed.",
+      "successEmailNote": "Check your email for a confirmation. We look forward to seeing you there.",
+      "viewEventDetails": "View Event Details",
+      "browseAllEvents": "Browse All Events"
     }
   },
   "payments": {
@@ -257,13 +384,28 @@
       "noChapters": "No chapters yet.",
       "fields": {
         "slug": "Slug",
+        "slugHint": "Lowercase letters, numbers, hyphens only.",
         "name": "Chapter Name",
         "country": "Country",
+        "countryCode": "Country Code",
+        "countryCodeHint": "ISO 3166-1 alpha-2 (e.g. US, NG, GB).",
         "timezone": "Timezone",
         "currency": "Currency",
         "accentColor": "Accent Color",
+        "accentColorPickerLabel": "Pick accent color",
         "contactEmail": "Contact Email",
-        "isActive": "Active"
+        "websiteUrl": "Website URL",
+        "isActive": "Active",
+        "isActiveLabel": "Active (chapter visible on site)"
+      },
+      "form": {
+        "ariaCreate": "Create chapter",
+        "ariaEdit": "Edit chapter",
+        "saveButton": "Save Changes",
+        "createButton": "Create Chapter",
+        "saving": "Saving…",
+        "creating": "Creating…",
+        "cancel": "Cancel"
       }
     },
     "approvals": {
@@ -288,6 +430,25 @@
     "heading": "My Dashboard",
     "subtitle": "Manage your WIAL profile and activity",
     "welcomeBack": "Welcome back",
+    "membership": {
+      "member": "Member",
+      "noMembership": "No membership",
+      "expires": "expires {date}"
+    },
+    "coachCta": {
+      "heading": "Become a WIAL Certified Coach",
+      "description": "Have your Credly badge? Apply to join our certified coach directory.",
+      "applyButton": "Apply Now"
+    },
+    "coachApplicationPending": {
+      "heading": "Coach application pending",
+      "message": "Your application is under review. You will be notified when a decision is made."
+    },
+    "chapterRoles": {
+      "chapterAdmin": "Chapter Admin",
+      "contentEditor": "Content Editor",
+      "manageButton": "Manage Chapter"
+    },
     "coachProfile": {
       "heading": "Coach Profile",
       "certLevel": "Certification Level",
@@ -421,6 +582,7 @@
     },
     "roleAssignment": {
       "heading": "Global Role",
+      "globalRoleLabel": "Global role for user",
       "updateButton": "Update",
       "updating": "Updating…",
       "successMessage": "Role updated successfully.",
@@ -530,7 +692,23 @@
       "coaches": "Coaches",
       "applications": "Applications",
       "approvals": "Approvals",
+      "events": "Events",
+      "payments": "Payments",
       "settings": "Settings"
+    },
+    "payments": {
+      "heading": "Payments",
+      "subtitle": "{count} payment record{count, plural, one {} other {s}} for {chapter}.",
+      "noPayments": "No payment records yet.",
+      "totalCollected": "Total Collected",
+      "colUser": "User",
+      "colType": "Type",
+      "colAmount": "Amount",
+      "colStatus": "Status",
+      "colDate": "Date",
+      "colReceipt": "Receipt",
+      "receiptLink": "View",
+      "noReceipt": "—"
     },
     "overview": {
       "heading": "Chapter Overview",
@@ -565,6 +743,134 @@
     "message": "Your account has been suspended and you cannot access the platform at this time.",
     "contactSupport": "If you believe this is a mistake, please contact {email} for assistance.",
     "returnHome": "← Return to homepage"
+  },
+  "validation": {
+    "slug": { "pattern": "Slug must contain only lowercase letters, numbers, and hyphens" },
+    "email": { "invalid": "Please enter a valid email address" },
+    "password": {
+      "tooShort": "Password must be at least 8 characters",
+      "tooLong": "Password must be less than 128 characters",
+      "required": "Password is required"
+    },
+    "hexColor": { "invalid": "Must be a valid hex color (e.g., #CC0000)" },
+    "url": { "invalid": "Must be a valid URL" },
+    "currencyCode": { "invalid": "Must be a valid ISO 4217 currency code (e.g., USD)" },
+    "countryCode": { "invalid": "Must be a valid 2-letter country code" },
+    "uuid": { "invalid": "Must be a valid UUID" },
+    "amount": {
+      "notInt": "Amount must be a whole number",
+      "notPositive": "Amount must be positive"
+    },
+    "name": { "tooShort": "Name must be at least 2 characters" },
+    "timezone": { "required": "Timezone is required" },
+    "login": { "passwordRequired": "Password is required" },
+    "register": { "nameRequired": "Full name is required" },
+    "resetPassword": { "noMatch": "Passwords do not match" },
+    "coachProfile": {
+      "bioTooLong": "Bio must be under 2000 characters",
+      "tooManySpecializations": "Maximum 20 specializations",
+      "languageRequired": "At least one language is required"
+    },
+    "credly": {
+      "invalidUrl": "Must be a valid Credly badge URL (https://www.credly.com/badges/...)"
+    },
+    "coachApplication": { "messageTooLong": "Message must be under 1000 characters" },
+    "suspension": {
+      "reasonRequired": "Reason is required",
+      "reasonTooLong": "Reason must be under 500 characters"
+    },
+    "event": {
+      "titleTooShort": "Title must be at least 3 characters",
+      "startDateRequired": "Start date is required",
+      "invalidDate": "Must be a valid date/time",
+      "priceTooLow": "Price must be at least $0.50",
+      "endBeforeStart": "End date must be on or after start date"
+    },
+    "eventRegistration": { "nameRequired": "Name is required" },
+    "contact": {
+      "nameRequired": "Name is required",
+      "messageRequired": "Message is required"
+    }
+  },
+  "resources": {
+    "title": "Resources",
+    "subtitle": "Videos, articles, PDFs, and tools for Action Learning practitioners.",
+    "manageResources": "Manage Resources",
+    "addResource": "Add Resource",
+    "noResources": {
+      "heading": "No resources yet",
+      "body": "Check back soon for videos, articles, and practitioner guides.",
+      "adminHint": "Add your first resource using the button above."
+    },
+    "manage": {
+      "title": "Manage Resources",
+      "published": "Published",
+      "draft": "Draft",
+      "backToResources": "← Back to Resources"
+    },
+    "form": {
+      "createTitle": "Add Resource",
+      "editTitle": "Edit Resource",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Introduction to Action Learning",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Brief description of this resource…",
+      "typeLabel": "Type",
+      "urlLabel": "URL",
+      "urlPlaceholder": "https://…",
+      "urlHintVideo": "Paste a YouTube URL to auto-generate a thumbnail.",
+      "urlHintPdf": "Upload a PDF via the file upload API, then paste the resulting URL.",
+      "urlHintOther": "Paste the full URL of the article or page.",
+      "thumbnailLabel": "Thumbnail URL",
+      "thumbnailPlaceholder": "https://… (optional — auto-derived for YouTube links)",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "e.g. Leadership, Research, Tools",
+      "isPublishedLabel": "Published (visible on public site)",
+      "saveButton": "Save Resource",
+      "createButton": "Add Resource",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "types": {
+      "video": "Video",
+      "article": "Article",
+      "pdf": "PDF",
+      "link": "Link"
+    },
+    "filters": {
+      "all": "All",
+      "filterByType": "Filter by type"
+    },
+    "card": {
+      "watch": "Watch",
+      "read": "Read",
+      "download": "Download",
+      "visit": "Visit",
+      "externalLink": "Opens in new tab"
+    },
+    "search": {
+      "placeholder": "Search resources…"
+    },
+    "scope": {
+      "all": "All Resources"
+    },
+    "completion": {
+      "completed": "Completed"
+    },
+    "certification": {
+      "sectionTitle": "Certification Progress",
+      "noRequirements": "No requirements defined yet",
+      "apply": "Apply for {level} Certification",
+      "applySuccess": "Application submitted for review",
+      "alreadyCertified": "Already certified",
+      "pending": "Pending approval",
+      "approved": "Certified",
+      "expired": "Expired",
+      "revoked": "Revoked",
+      "expiresOn": "Expires {date}",
+      "progress": "{completed} of {total} required resources completed",
+      "browseResources": "Browse Resources"
+    }
   },
   "a11y": {
     "openMenu": "Open navigation menu",

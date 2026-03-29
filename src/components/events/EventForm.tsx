@@ -1,39 +1,39 @@
 'use client'
 
-import { useActionState, useTransition } from 'react'
-import { Loader2 } from 'lucide-react'
+import { useActionState, useTransition, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import {
+  Button,
+  Checkbox,
+  Input,
+  Label,
+  ListBox,
+  ListBoxItem,
+  Select,
+  TextArea,
+} from '@heroui/react'
+import { TIMEZONES } from '@/lib/utils/constants'
 import type { ActionResult, Event } from '@/types'
 
 interface EventFormProps {
-  /** Server action bound with chapterId */
   action: (
     prevState: ActionResult<Event> | null,
     formData: FormData
   ) => Promise<ActionResult<Event>>
-  /** If editing, pre-filled event data */
   event?: Event
-  /** Chapter accent color for submit button */
   accentColor?: string | null
 }
 
-const EVENT_TYPES = [
-  { value: 'workshop', label: 'Workshop' },
-  { value: 'webinar', label: 'Webinar' },
-  { value: 'conference', label: 'Conference' },
-  { value: 'certification', label: 'Certification Program' },
-  { value: 'networking', label: 'Networking' },
-  { value: 'other', label: 'Other' },
-] as const
-
-/** Format a datetime-local input value from an ISO string */
 function toDatetimeLocal(iso: string | null | undefined): string {
   if (!iso) return ''
-  // Trim seconds & timezone for datetime-local
   return iso.slice(0, 16)
 }
 
 export function EventForm({ action, event, accentColor }: EventFormProps) {
+  const t = useTranslations('events.form')
+  const tTypes = useTranslations('events.types')
   const [, startTransition] = useTransition()
+  const [isVirtual, setIsVirtual] = useState(event?.is_virtual ?? false)
   const [state, formAction, isPending] = useActionState<ActionResult<Event> | null, FormData>(
     action,
     null
@@ -41,12 +41,19 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
 
   const isEditing = !!event
 
+  const EVENT_TYPES = [
+    { value: 'workshop', label: tTypes('workshop') },
+    { value: 'webinar', label: tTypes('webinar') },
+    { value: 'conference', label: tTypes('conference') },
+    { value: 'certification', label: tTypes('certification') },
+    { value: 'networking', label: tTypes('networking') },
+    { value: 'other', label: tTypes('other') },
+  ] as const
+
   return (
     <form action={(fd) => startTransition(() => formAction(fd))} className="space-y-6" noValidate>
-      {/* Hidden event id when editing */}
       {isEditing && <input type="hidden" name="id" value={event.id} />}
 
-      {/* Error banner */}
       {state && !state.success && (
         <div
           role="alert"
@@ -58,264 +65,298 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       )}
 
       {/* Title */}
-      <div>
-        <label htmlFor="event-title" className="block text-sm font-medium text-gray-700">
-          Event Title <span className="text-red-500">*</span>
-        </label>
-        <input
+      <div className="flex flex-col gap-1">
+        <Label id="event-title-label" htmlFor="event-title" isRequired>
+          {t('titleLabel')}
+        </Label>
+        <Input
           id="event-title"
+          aria-labelledby="event-title-label"
           name="title"
           type="text"
           required
           defaultValue={event?.title ?? ''}
-          className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="e.g. WIAL USA Annual Conference 2026"
+          placeholder={t('titlePlaceholder')}
+          aria-invalid={!!(state && !state.success && state.fieldErrors?.['title']) || undefined}
         />
         {state && !state.success && state.fieldErrors?.['title'] && (
-          <p className="mt-1 text-xs text-red-600">{state.fieldErrors['title'][0]}</p>
+          <p className="text-xs text-red-600" role="alert">
+            {state.fieldErrors['title'][0]}
+          </p>
         )}
       </div>
 
       {/* Event type */}
-      <div>
-        <label htmlFor="event-type" className="block text-sm font-medium text-gray-700">
-          Event Type <span className="text-red-500">*</span>
-        </label>
-        <select
-          id="event-type"
-          name="event_type"
-          required
-          defaultValue={event?.event_type ?? 'workshop'}
-          className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-        >
-          {EVENT_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-col gap-1">
+        <Label id="event-type-label" htmlFor="event-type-trigger" isRequired>
+          {t('typeLabel')}
+        </Label>
+        <Select name="event_type" isRequired aria-labelledby="event-type-label">
+          <Select.Trigger id="event-type-trigger">
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox aria-label={t('typeLabel')}>
+              {EVENT_TYPES.map((eventType) => (
+                <ListBoxItem key={eventType.value} id={eventType.value}>
+                  {eventType.label}
+                </ListBoxItem>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
       </div>
 
       {/* Description */}
-      <div>
-        <label htmlFor="event-description" className="block text-sm font-medium text-gray-700">
-          Description
-        </label>
-        <textarea
+      <div className="flex flex-col gap-1">
+        <Label id="event-description-label" htmlFor="event-description">
+          {t('descriptionLabel')}
+        </Label>
+        <TextArea
           id="event-description"
+          aria-labelledby="event-description-label"
           name="description"
           rows={4}
           defaultValue={event?.description ?? ''}
-          className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="Describe the event, objectives, and what attendees can expect..."
+          placeholder={t('descriptionPlaceholder')}
+          className="w-full"
         />
       </div>
 
       {/* Date & time */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="event-start" className="block text-sm font-medium text-gray-700">
-            Start Date & Time <span className="text-red-500">*</span>
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="event-start-label" htmlFor="event-start" isRequired>
+            {t('startDateLabel')}
+          </Label>
+          <Input
             id="event-start"
+            aria-labelledby="event-start-label"
             name="start_date"
             type="datetime-local"
             required
             defaultValue={toDatetimeLocal(event?.start_date)}
-            className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            aria-invalid={
+              !!(state && !state.success && state.fieldErrors?.['start_date']) || undefined
+            }
           />
           {state && !state.success && state.fieldErrors?.['start_date'] && (
-            <p className="mt-1 text-xs text-red-600">{state.fieldErrors['start_date'][0]}</p>
+            <p className="text-xs text-red-600" role="alert">
+              {state.fieldErrors['start_date'][0]}
+            </p>
           )}
         </div>
-        <div>
-          <label htmlFor="event-end" className="block text-sm font-medium text-gray-700">
-            End Date & Time
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="event-end-label" htmlFor="event-end">
+            {t('endDateLabel')}
+          </Label>
+          <Input
             id="event-end"
+            aria-labelledby="event-end-label"
             name="end_date"
             type="datetime-local"
             defaultValue={toDatetimeLocal(event?.end_date)}
-            className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            aria-invalid={
+              !!(state && !state.success && state.fieldErrors?.['end_date']) || undefined
+            }
           />
           {state && !state.success && state.fieldErrors?.['end_date'] && (
-            <p className="mt-1 text-xs text-red-600">{state.fieldErrors['end_date'][0]}</p>
+            <p className="text-xs text-red-600" role="alert">
+              {state.fieldErrors['end_date'][0]}
+            </p>
           )}
         </div>
       </div>
 
       {/* Timezone */}
-      <div>
-        <label htmlFor="event-timezone" className="block text-sm font-medium text-gray-700">
-          Timezone <span className="text-red-500">*</span>
-        </label>
-        <input
+      <div className="flex flex-col gap-1">
+        <Label id="event-timezone-label" htmlFor="event-timezone" isRequired>
+          {t('timezoneLabel')}
+        </Label>
+        <Input
           id="event-timezone"
+          aria-labelledby="event-timezone-label"
           name="timezone"
           type="text"
           required
           defaultValue={event?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone}
           list="timezone-list"
-          className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="e.g. America/New_York"
+          placeholder={t('timezonePlaceholder')}
         />
         <datalist id="timezone-list">
-          <option value="America/New_York" />
-          <option value="America/Chicago" />
-          <option value="America/Denver" />
-          <option value="America/Los_Angeles" />
-          <option value="Europe/London" />
-          <option value="Europe/Paris" />
-          <option value="Africa/Lagos" />
-          <option value="Asia/Tokyo" />
-          <option value="Asia/Shanghai" />
-          <option value="Australia/Sydney" />
-          <option value="America/Sao_Paulo" />
+          {TIMEZONES.map((tz) => (
+            <option key={tz} value={tz} />
+          ))}
         </datalist>
       </div>
 
       {/* Virtual / In-person */}
-      <div className="flex items-start gap-3">
-        <input
+      <div>
+        <input type="hidden" name="is_virtual" value={isVirtual ? 'true' : 'false'} readOnly />
+        <Checkbox
           id="event-virtual"
-          name="is_virtual"
-          type="checkbox"
-          defaultChecked={event?.is_virtual ?? false}
-          value="true"
-          onChange={(e) => {
-            // If unchecked we want is_virtual=false, but checkboxes only send value when checked
-            // The action handles missing value as "false" via transform
-            const hiddenInput = e.currentTarget.form?.elements.namedItem(
-              'is_virtual_hidden'
-            ) as HTMLInputElement | null
-            if (hiddenInput) hiddenInput.value = e.currentTarget.checked ? 'true' : 'false'
-          }}
-          className="accent-wial-navy mt-0.5 h-4 w-4"
-        />
-        <input
-          type="hidden"
-          name="is_virtual"
-          value={event?.is_virtual ? 'true' : 'false'}
-          id="is_virtual_hidden"
-        />
-        <label htmlFor="event-virtual" className="text-sm font-medium text-gray-700">
-          This is a virtual / online event
-        </label>
+          isSelected={isVirtual}
+          onChange={(checked: boolean) => setIsVirtual(checked)}
+        >
+          {t('isVirtualLabel')}
+        </Checkbox>
       </div>
 
       {/* Location / Virtual link */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="event-location" className="block text-sm font-medium text-gray-700">
-            Location
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="event-location-label" htmlFor="event-location">
+            {t('locationNameLabel')}
+          </Label>
+          <Input
             id="event-location"
+            aria-labelledby="event-location-label"
             name="location_name"
             type="text"
             defaultValue={event?.location_name ?? ''}
-            className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="e.g. Washington Convention Center"
+            placeholder={t('locationNamePlaceholder')}
           />
         </div>
-        <div>
-          <label htmlFor="event-virtual-link" className="block text-sm font-medium text-gray-700">
-            Virtual Meeting Link
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="event-virtual-link-label" htmlFor="event-virtual-link">
+            {t('virtualLinkLabel')}
+          </Label>
+          <Input
             id="event-virtual-link"
+            aria-labelledby="event-virtual-link-label"
             name="virtual_link"
             type="url"
             defaultValue={event?.virtual_link ?? ''}
-            className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="https://zoom.us/..."
+            placeholder={t('virtualLinkPlaceholder')}
+            aria-invalid={
+              !!(state && !state.success && state.fieldErrors?.['virtual_link']) || undefined
+            }
           />
           {state && !state.success && state.fieldErrors?.['virtual_link'] && (
-            <p className="mt-1 text-xs text-red-600">{state.fieldErrors['virtual_link'][0]}</p>
+            <p className="text-xs text-red-600" role="alert">
+              {state.fieldErrors['virtual_link'][0]}
+            </p>
           )}
         </div>
       </div>
 
+      {/* Ticket price */}
+      <div className="flex flex-col gap-1">
+        <Label id="event-ticket-price-label" htmlFor="event-ticket-price">
+          {t('ticketPriceLabel')}
+        </Label>
+        <p className="text-xs text-gray-500">{t('ticketPriceHint')}</p>
+        <div className="relative flex items-center">
+          <span className="pointer-events-none absolute inset-s-3 text-sm text-gray-500">$</span>
+          <Input
+            id="event-ticket-price"
+            aria-labelledby="event-ticket-price-label"
+            name="ticket_price_usd"
+            type="number"
+            min={0}
+            step={0.01}
+            defaultValue={
+              (event as Event & { ticket_price?: number | null })?.ticket_price != null
+                ? String(
+                    (
+                      (event as Event & { ticket_price?: number | null }).ticket_price! / 100
+                    ).toFixed(2)
+                  )
+                : ''
+            }
+            placeholder={t('ticketPricePlaceholder')}
+            className="ps-6"
+            aria-invalid={
+              !!(state && !state.success && state.fieldErrors?.['ticket_price_usd']) || undefined
+            }
+          />
+        </div>
+        {state && !state.success && state.fieldErrors?.['ticket_price_usd'] && (
+          <p className="text-xs text-red-600" role="alert">
+            {state.fieldErrors['ticket_price_usd'][0]}
+          </p>
+        )}
+      </div>
+
       {/* Registration & attendees */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor="event-registration-url"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Registration URL
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="event-registration-url-label" htmlFor="event-registration-url">
+            {t('registrationUrlLabel')}
+          </Label>
+          <p className="text-xs text-gray-500">{t('registrationUrlHint')}</p>
+          <Input
             id="event-registration-url"
+            aria-labelledby="event-registration-url-label"
             name="registration_url"
             type="url"
             defaultValue={event?.registration_url ?? ''}
-            className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="https://eventbrite.com/..."
+            placeholder={t('registrationUrlPlaceholder')}
+            aria-invalid={
+              !!(state && !state.success && state.fieldErrors?.['registration_url']) || undefined
+            }
           />
           {state && !state.success && state.fieldErrors?.['registration_url'] && (
-            <p className="mt-1 text-xs text-red-600">{state.fieldErrors['registration_url'][0]}</p>
+            <p className="text-xs text-red-600" role="alert">
+              {state.fieldErrors['registration_url'][0]}
+            </p>
           )}
         </div>
-        <div>
-          <label htmlFor="event-max-attendees" className="block text-sm font-medium text-gray-700">
-            Max Attendees
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="event-max-attendees-label" htmlFor="event-max-attendees">
+            {t('maxAttendeesLabel')}
+          </Label>
+          <Input
             id="event-max-attendees"
+            aria-labelledby="event-max-attendees-label"
             name="max_attendees"
             type="number"
-            min="1"
-            defaultValue={event?.max_attendees ?? ''}
-            className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="Leave blank for unlimited"
+            min={1}
+            defaultValue={event?.max_attendees != null ? String(event.max_attendees) : ''}
+            placeholder={t('maxAttendeesPlaceholder')}
           />
         </div>
       </div>
 
       {/* Image URL */}
-      <div>
-        <label htmlFor="event-image-url" className="block text-sm font-medium text-gray-700">
-          Event Image URL
-        </label>
-        <input
+      <div className="flex flex-col gap-1">
+        <Label id="event-image-url-label" htmlFor="event-image-url">
+          {t('imageUrlLabel')}
+        </Label>
+        <Input
           id="event-image-url"
+          aria-labelledby="event-image-url-label"
           name="image_url"
           type="url"
           defaultValue={event?.image_url ?? ''}
-          className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="https://..."
+          placeholder={t('imageUrlPlaceholder')}
         />
       </div>
 
       {/* Published toggle */}
-      <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-        <input
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <Checkbox
           id="event-published"
           name="is_published"
-          type="checkbox"
-          defaultChecked={event?.is_published ?? false}
           value="true"
-          className="accent-wial-navy h-4 w-4"
-        />
-        <label htmlFor="event-published" className="text-sm font-medium text-gray-700">
-          Publish this event (make it visible on the public site)
-        </label>
+          defaultSelected={event?.is_published ?? false}
+        >
+          {t('isPublishedLabel')}
+        </Checkbox>
       </div>
 
       {/* Submit */}
       <div className="flex justify-end gap-3">
-        <button
+        <Button
           type="submit"
-          disabled={isPending}
+          isDisabled={isPending}
+          isPending={isPending}
           style={accentColor ? { backgroundColor: accentColor } : undefined}
-          className="bg-wial-navy hover:bg-wial-navy-light inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-wial-navy hover:bg-wial-navy-light rounded-xl px-6 text-sm font-semibold text-white shadow-sm"
         >
-          {isPending && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
-          {isPending ? 'Saving...' : isEditing ? 'Save Event' : 'Create Event'}
-        </button>
+          {isPending ? t('saving') : isEditing ? t('saveButton') : t('createButton')}
+        </Button>
       </div>
     </form>
   )

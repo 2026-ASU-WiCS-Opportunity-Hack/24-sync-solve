@@ -16,21 +16,36 @@ export function usePermissions() {
   /**
    * Check if the current user has a permission.
    * @param permission - The permission to check.
-   * @param chapterId - If provided, also checks chapter-specific roles for that chapter.
+   * @param chapterId - If provided, checks chapter-specific roles for that chapter.
+   *
+   * Mirrors the server-side canPerformInChapter logic:
+   * - super_admin has all permissions globally
+   * - For chapter-scoped checks, user_chapter_roles is the source of truth
+   * - The global role only falls back for the user's primary chapter (user.chapterId)
    */
   function hasUserPermission(permission: Permission, chapterId?: string | null): boolean {
     if (!user || user.isSuspended) return false
 
-    // super_admin has all permissions globally
-    if (hasPermission(user.role, permission)) return true
+    // super_admin bypasses chapter scoping
+    if (user.role === 'super_admin') return hasPermission('super_admin', permission)
 
-    // Check chapter-specific roles from user_chapter_roles
     if (chapterId) {
+      // Check chapter-specific roles (user_chapter_roles)
       const roles: UserRole[] = user.chapterRoles[chapterId] ?? []
       if (hasAnyRolePermission(roles, permission)) return true
+
+      // Fall back to global role only for the user's primary chapter.
+      // This prevents chapter_lead from appearing to have manage access
+      // to chapters they don't belong to.
+      if (chapterId === user.chapterId) {
+        return hasPermission(user.role, permission)
+      }
+
+      return false
     }
 
-    return false
+    // No chapter context — use global role only
+    return hasPermission(user.role, permission)
   }
 
   return {

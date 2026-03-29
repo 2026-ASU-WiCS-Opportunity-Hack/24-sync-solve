@@ -28,12 +28,14 @@ export type BlockType =
   | 'stats'
   | 'video'
   | 'divider'
+  | 'client_grid'
 export type PaymentType =
   | 'enrollment_fee'
   | 'certification_fee'
   | 'membership_dues'
   | 'event_registration'
 export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded'
+export type RegistrationStatus = 'pending' | 'confirmed' | 'cancelled'
 export type EventType =
   | 'workshop'
   | 'webinar'
@@ -377,6 +379,7 @@ export interface Database {
           max_attendees: number | null
           registration_url: string | null
           image_url: string | null
+          ticket_price: number | null
           is_published: boolean
           created_by: string | null
           created_at: string
@@ -395,6 +398,7 @@ export interface Database {
           is_virtual?: boolean
           virtual_link?: string | null
           max_attendees?: number | null
+          ticket_price?: number | null
           registration_url?: string | null
           image_url?: string | null
           is_published?: boolean
@@ -458,6 +462,47 @@ export interface Database {
             columns: ['chapter_id']
             isOneToOne: false
             referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      event_registrations: {
+        Row: {
+          id: string
+          event_id: string
+          user_id: string | null
+          guest_name: string | null
+          guest_email: string | null
+          payment_id: string | null
+          status: RegistrationStatus
+          registered_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          user_id?: string | null
+          guest_name?: string | null
+          guest_email?: string | null
+          payment_id?: string | null
+          status?: RegistrationStatus
+          registered_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['event_registrations']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'event_registrations_event_id_fkey'
+            columns: ['event_id']
+            isOneToOne: false
+            referencedRelation: 'events'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'event_registrations_payment_id_fkey'
+            columns: ['payment_id']
+            isOneToOne: false
+            referencedRelation: 'payments'
             referencedColumns: ['id']
           },
         ]
@@ -589,6 +634,192 @@ export interface Database {
           },
         ]
       }
+      global_settings: {
+        Row: {
+          key: string
+          value: string
+          updated_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value?: string
+          updated_by?: string | null
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['global_settings']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'global_settings_updated_by_fkey'
+            columns: ['updated_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      resources: {
+        Row: {
+          id: string
+          chapter_id: string | null
+          title: string
+          description: string | null
+          type: 'video' | 'article' | 'pdf' | 'link'
+          url: string
+          thumbnail_url: string | null
+          category: string | null
+          tags: string[]
+          is_published: boolean
+          sort_order: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          chapter_id?: string | null
+          title: string
+          description?: string | null
+          type: 'video' | 'article' | 'pdf' | 'link'
+          url: string
+          thumbnail_url?: string | null
+          category?: string | null
+          tags?: string[]
+          is_published?: boolean
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['resources']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'resources_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'resources_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      resource_completions: {
+        Row: {
+          id: string
+          user_id: string
+          resource_id: string
+          completed_at: string
+          expires_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          resource_id: string
+          completed_at?: string
+          expires_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['resource_completions']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'resource_completions_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'resource_completions_resource_id_fkey'
+            columns: ['resource_id']
+            isOneToOne: false
+            referencedRelation: 'resources'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      certification_requirements: {
+        Row: {
+          id: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          resource_id: string
+          is_required: boolean
+          sort_order: number
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          resource_id: string
+          is_required?: boolean
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['certification_requirements']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'certification_requirements_resource_id_fkey'
+            columns: ['resource_id']
+            isOneToOne: false
+            referencedRelation: 'resources'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'certification_requirements_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      user_certifications: {
+        Row: {
+          id: string
+          user_id: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          status: 'pending_approval' | 'approved' | 'expired' | 'revoked'
+          applied_at: string
+          approved_at: string | null
+          approved_by: string | null
+          expires_at: string | null
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          status?: 'pending_approval' | 'approved' | 'expired' | 'revoked'
+          applied_at?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          expires_at?: string | null
+          notes?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['user_certifications']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'user_certifications_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_certifications_approved_by_fkey'
+            columns: ['approved_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -633,6 +864,7 @@ export interface Database {
       block_type: BlockType
       payment_type: PaymentType
       payment_status: PaymentStatus
+      registration_status: RegistrationStatus
       event_type: EventType
     }
   }

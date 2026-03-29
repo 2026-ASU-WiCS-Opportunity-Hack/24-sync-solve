@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation'
 import { Calendar, MapPin, Video, Users, ExternalLink, Clock, Tag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getEventById } from '@/features/events/queries/getEvents'
-import { formatDate, formatDateRange } from '@/lib/utils/format'
+import { formatDate, formatDateRange, formatCurrency } from '@/lib/utils/format'
+import type { Event } from '@/types'
 
 export const revalidate = 60
 
@@ -113,8 +114,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           </div>
 
           {/* Register CTA in hero */}
-          {event.registration_url && (
-            <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
+            {/* Internal registration (free RSVP or paid ticket) */}
+            {!(event as Event & { ticket_price?: number | null }).ticket_price &&
+            !event.registration_url ? null : event.registration_url ? (
               <a
                 href={event.registration_url}
                 target="_blank"
@@ -125,8 +128,17 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 Register Now
                 <ExternalLink size={14} aria-hidden="true" />
               </a>
-            </div>
-          )}
+            ) : (
+              <Link
+                href={`/events/${event.id}/register`}
+                className="bg-wial-red hover:bg-wial-red-light inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors"
+              >
+                {(event as Event & { ticket_price?: number | null }).ticket_price
+                  ? 'Buy Ticket'
+                  : 'Register — Free'}
+              </Link>
+            )}
+          </div>
         </div>
       </section>
 
@@ -226,8 +238,23 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 </div>
               )}
 
+              {/* Ticket price */}
+              {(event as Event & { ticket_price?: number | null }).ticket_price ? (
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <dl className="space-y-1 text-sm">
+                    <dt className="text-gray-500">Ticket Price</dt>
+                    <dd className="text-wial-navy font-semibold">
+                      {formatCurrency(
+                        (event as Event & { ticket_price?: number | null }).ticket_price!,
+                        'USD'
+                      )}
+                    </dd>
+                  </dl>
+                </div>
+              ) : null}
+
               {/* Register CTA sidebar */}
-              {event.registration_url && (
+              {event.registration_url ? (
                 <a
                   href={event.registration_url}
                   target="_blank"
@@ -238,6 +265,15 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   Register for This Event
                   <ExternalLink size={13} className="ms-1.5 inline" aria-hidden="true" />
                 </a>
+              ) : (
+                <Link
+                  href={`/events/${event.id}/register`}
+                  className="bg-wial-red hover:bg-wial-red-light block rounded-xl px-5 py-3 text-center text-sm font-semibold text-white shadow-sm transition-colors"
+                >
+                  {(event as Event & { ticket_price?: number | null }).ticket_price
+                    ? 'Buy Ticket'
+                    : 'Register — Free'}
+                </Link>
               )}
 
               {/* Back link */}

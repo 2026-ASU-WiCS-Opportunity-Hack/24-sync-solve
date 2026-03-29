@@ -1,7 +1,12 @@
 'use server'
 
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { forgotPasswordSchema, resetPasswordSchema } from '@/lib/utils/validation'
+import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  translateZodErrors,
+} from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
 export async function requestPasswordResetAction(
@@ -12,10 +17,11 @@ export async function requestPasswordResetAction(
 
   const result = forgotPasswordSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please enter a valid email address.',
-      fieldErrors: result.error.flatten().fieldErrors,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 
@@ -44,10 +50,11 @@ export async function updatePasswordAction(
 
   const result = resetPasswordSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

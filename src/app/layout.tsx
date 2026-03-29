@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const messages = await getMessages()
 
   return (
-    <html lang="en" className="h-full scroll-smooth">
+    <html lang="en" className="h-full scroll-smooth" data-scroll-behavior="smooth">
       <body className="text-wial-navy flex min-h-full flex-col bg-white font-sans antialiased">
         {/* Skip to content — first focusable element, required for a11y */}
         <a href="#main-content" className="skip-to-content">

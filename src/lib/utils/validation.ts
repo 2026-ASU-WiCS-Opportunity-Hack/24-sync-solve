@@ -3,33 +3,65 @@ import { z } from 'zod'
 /**
  * Shared Zod validation schemas.
  * Feature-specific schemas live in their feature/types.ts files.
+ *
+ * Error message strings are i18n keys within the `validation` namespace
+ * (e.g. 'slug.pattern' → messages/en.json `validation.slug.pattern`).
+ * Use `translateZodErrors` in server actions to resolve them before returning.
  */
+
+// ── Translation helper ─────────────────────────────────────────────────────────
+
+/**
+ * Maps Zod field error keys through the `validation` namespace translator.
+ * Call inside a server action after `schema.safeParse` fails:
+ *
+ * ```ts
+ * const tV = await getTranslations('validation')
+ * fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never))
+ * ```
+ */
+export function translateZodErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+  t: (key: string) => string
+): Record<string, string[]> {
+  return Object.fromEntries(
+    Object.entries(fieldErrors)
+      .filter(([, msgs]) => msgs !== undefined)
+      .map(([field, msgs]) => [
+        field,
+        (msgs ?? []).map((msg) => {
+          try {
+            return t(msg)
+          } catch {
+            return msg
+          }
+        }),
+      ])
+  )
+}
+
+// ── Primitive schemas ──────────────────────────────────────────────────────────
 
 /** Valid chapter slug: lowercase letters, numbers, hyphens */
 export const chapterSlugSchema = z
   .string()
   .min(2)
   .max(50)
-  .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens')
+  .regex(/^[a-z0-9-]+$/, 'slug.pattern')
 
 /** Email address */
-export const emailSchema = z.string().email('Please enter a valid email address')
+export const emailSchema = z.string().email('email.invalid')
 
 /** Password with minimum requirements */
-export const passwordSchema = z
-  .string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(128, 'Password must be less than 128 characters')
+export const passwordSchema = z.string().min(8, 'password.tooShort').max(128, 'password.tooLong')
 
 /** Hex color code */
-export const hexColorSchema = z
-  .string()
-  .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color (e.g., #CC0000)')
+export const hexColorSchema = z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'hexColor.invalid')
 
 /** URL (optional — empty string treated as null) */
 export const optionalUrlSchema = z
   .string()
-  .url('Must be a valid URL')
+  .url('url.invalid')
   .or(z.literal(''))
   .optional()
   .transform((val) => (val === '' ? undefined : val))
@@ -38,22 +70,19 @@ export const optionalUrlSchema = z
 export const currencyCodeSchema = z
   .string()
   .length(3)
-  .regex(/^[A-Z]{3}$/, 'Must be a valid ISO 4217 currency code (e.g., USD)')
+  .regex(/^[A-Z]{3}$/, 'currencyCode.invalid')
 
 /** ISO 3166-1 alpha-2 country code */
 export const countryCodeSchema = z
   .string()
   .length(2)
-  .regex(/^[A-Z]{2}$/, 'Must be a valid 2-letter country code')
+  .regex(/^[A-Z]{2}$/, 'countryCode.invalid')
 
 /** UUID */
-export const uuidSchema = z.string().uuid('Must be a valid UUID')
+export const uuidSchema = z.string().uuid('uuid.invalid')
 
 /** Positive integer amount in cents */
-export const amountInCentsSchema = z
-  .number()
-  .int('Amount must be a whole number')
-  .positive('Amount must be positive')
+export const amountInCentsSchema = z.number().int('amount.notInt').positive('amount.notPositive')
 
 /** Pagination cursor */
 export const paginationSchema = z.object({
@@ -79,14 +108,14 @@ export const contentBlockUpdateSchema = z.object({
 /** Login form */
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(1, 'login.passwordRequired'),
 })
 
 /** Registration form */
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  full_name: z.string().min(1, 'Full name is required').max(100),
+  full_name: z.string().min(1, 'register.nameRequired').max(100),
 })
 
 /** Forgot password form */
@@ -101,16 +130,16 @@ export const resetPasswordSchema = z
     confirm_password: passwordSchema,
   })
   .refine((data) => data.password === data.confirm_password, {
-    message: 'Passwords do not match',
+    message: 'resetPassword.noMatch',
     path: ['confirm_password'],
   })
 
 /** Chapter create form — all fields required */
 export const chapterCreateSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  name: z.string().min(2, 'name.tooShort').max(100),
   slug: chapterSlugSchema,
   country_code: countryCodeSchema,
-  timezone: z.string().min(1, 'Timezone is required').max(100),
+  timezone: z.string().min(1, 'timezone.required').max(100),
   currency: currencyCodeSchema,
   accent_color: hexColorSchema,
   contact_email: emailSchema
@@ -139,14 +168,20 @@ export type ChapterUpdateInput = z.infer<typeof chapterUpdateSchema>
 
 /** Coach profile self-service update (fields the coach can edit themselves) */
 export const coachProfileUpdateSchema = z.object({
-  bio: z.string().max(2000, 'Bio must be under 2000 characters').optional(),
+  bio: z.string().max(2000, 'coachProfile.bioTooLong').optional(),
+  photo_url: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
   specializations: z
     .array(z.string().min(1).max(100))
-    .max(20, 'Maximum 20 specializations')
+    .max(20, 'coachProfile.tooManySpecializations')
     .optional(),
   languages: z
     .array(z.string().min(1).max(50))
-    .min(1, 'At least one language is required')
+    .min(1, 'coachProfile.languageRequired')
     .max(10)
     .optional(),
   location_city: z
@@ -181,11 +216,8 @@ export type CoachProfileUpdateInput = z.infer<typeof coachProfileUpdateSchema>
 /** Credly badge URL */
 export const credlyUrlSchema = z
   .string()
-  .url('Must be a valid URL')
-  .refine(
-    (url) => url.startsWith('https://www.credly.com/badges/'),
-    'Must be a valid Credly badge URL (https://www.credly.com/badges/...)'
-  )
+  .url('url.invalid')
+  .refine((url) => url.startsWith('https://www.credly.com/badges/'), 'credly.invalidUrl')
 
 /** Coach self-application form */
 export const coachApplicationSchema = z.object({
@@ -193,7 +225,7 @@ export const coachApplicationSchema = z.object({
   credly_url: credlyUrlSchema,
   message: z
     .string()
-    .max(1000, 'Message must be under 1000 characters')
+    .max(1000, 'coachApplication.messageTooLong')
     .optional()
     .or(z.literal(''))
     .transform((v) => v || undefined),
@@ -213,7 +245,7 @@ export type RoleAssignmentInput = z.infer<typeof roleAssignmentSchema>
 /** Account suspension */
 export const suspensionSchema = z.object({
   user_id: uuidSchema,
-  reason: z.string().min(1, 'Reason is required').max(500, 'Reason must be under 500 characters'),
+  reason: z.string().min(1, 'suspension.reasonRequired').max(500, 'suspension.reasonTooLong'),
 })
 
 export type SuspensionInput = z.infer<typeof suspensionSchema>
@@ -226,12 +258,21 @@ export const roleSuspensionSchema = suspensionSchema.extend({
 
 export type RoleSuspensionInput = z.infer<typeof roleSuspensionSchema>
 
+/** Role-level unsuspension — same as roleSuspensionSchema but without mandatory reason */
+export const roleUnsuspensionSchema = z.object({
+  user_id: uuidSchema,
+  chapter_id: uuidSchema,
+  role: z.enum(['chapter_lead', 'content_editor', 'coach', 'user']),
+})
+
+export type RoleUnsuspensionInput = z.infer<typeof roleUnsuspensionSchema>
+
 /** Chapter request form */
 export const chapterRequestSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  name: z.string().min(2, 'name.tooShort').max(100),
   slug: chapterSlugSchema,
   country_code: countryCodeSchema,
-  timezone: z.string().min(1, 'Timezone is required').max(100),
+  timezone: z.string().min(1, 'timezone.required').max(100),
   currency: currencyCodeSchema,
   accent_color: hexColorSchema,
   contact_email: emailSchema
@@ -276,7 +317,7 @@ const EVENT_TYPES = [
 /** Event creation form */
 export const eventCreateSchema = z
   .object({
-    title: z.string().min(3, 'Title must be at least 3 characters').max(200),
+    title: z.string().min(3, 'event.titleTooShort').max(200),
     description: z
       .string()
       .max(5000)
@@ -286,15 +327,15 @@ export const eventCreateSchema = z
     event_type: z.enum(EVENT_TYPES),
     start_date: z
       .string()
-      .min(1, 'Start date is required')
-      .refine((v) => !isNaN(Date.parse(v)), 'Must be a valid date/time'),
+      .min(1, 'event.startDateRequired')
+      .refine((v) => !isNaN(Date.parse(v)), 'event.invalidDate'),
     end_date: z
       .string()
       .optional()
       .or(z.literal(''))
       .transform((v) => v || undefined)
-      .refine((v) => !v || !isNaN(Date.parse(v)), 'Must be a valid date/time'),
-    timezone: z.string().min(1, 'Timezone is required').max(100),
+      .refine((v) => !v || !isNaN(Date.parse(v)), 'event.invalidDate'),
+    timezone: z.string().min(1, 'timezone.required').max(100),
     location_name: z
       .string()
       .max(200)
@@ -313,6 +354,13 @@ export const eventCreateSchema = z
       .or(z.literal(''))
       .transform((v) => (v ? parseInt(v, 10) : undefined))
       .pipe(z.number().int().positive().optional()),
+    /** Ticket price in USD (displayed value). Stored as cents. Blank = free. */
+    ticket_price_usd: z
+      .string()
+      .optional()
+      .or(z.literal(''))
+      .transform((v) => (v ? parseFloat(v) : undefined))
+      .pipe(z.number().min(0.5, 'event.priceTooLow').optional()),
     registration_url: optionalUrlSchema,
     image_url: optionalUrlSchema,
     is_published: z
@@ -326,8 +374,24 @@ export const eventCreateSchema = z
       if (!data.end_date) return true
       return new Date(data.start_date) <= new Date(data.end_date)
     },
-    { message: 'End date must be on or after start date', path: ['end_date'] }
+    { message: 'event.endBeforeStart', path: ['end_date'] }
   )
+
+/** Event registration (RSVP or paid) */
+export const eventRegistrationSchema = z.object({
+  event_id: uuidSchema,
+  guest_name: z
+    .string()
+    .min(1, 'eventRegistration.nameRequired')
+    .max(100)
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+  guest_email: emailSchema
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+})
 
 export type EventCreateInput = z.infer<typeof eventCreateSchema>
 

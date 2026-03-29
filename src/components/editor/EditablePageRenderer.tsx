@@ -76,7 +76,7 @@ export function EditablePageRenderer({
 
   const displayBlocks = isEditMode
     ? blocks
-    : blocks.filter((b) => b.is_visible && b.status === 'published')
+    : blocks.filter((b) => b.is_visible && (b.status === 'published' || b.status === 'rejected'))
 
   return (
     <div data-edit-mode={isEditMode ? 'true' : undefined}>

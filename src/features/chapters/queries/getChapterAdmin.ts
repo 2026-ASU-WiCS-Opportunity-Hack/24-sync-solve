@@ -60,6 +60,55 @@ export async function getAllChaptersAdmin(
   }))
 }
 
+export interface MonthlyCoachGrowth {
+  /** YYYY-MM label */
+  month: string
+  count: number
+}
+
+/**
+ * Fetch count of new coach profiles per month for the last N months.
+ * Optionally scoped to a chapter.
+ */
+export async function getCoachGrowth(
+  supabase: SupabaseClient<Database>,
+  options: { chapterId?: string; months?: number } = {}
+): Promise<MonthlyCoachGrowth[]> {
+  const { chapterId, months = 6 } = options
+  const since = new Date()
+  since.setMonth(since.getMonth() - months)
+  since.setDate(1)
+  since.setHours(0, 0, 0, 0)
+
+  let query = supabase
+    .from('coach_profiles')
+    .select('created_at')
+    .gte('created_at', since.toISOString())
+
+  if (chapterId) query = query.eq('chapter_id', chapterId)
+
+  const { data, error } = await query
+  if (error || !data) return []
+
+  // Group by YYYY-MM
+  const countMap: Record<string, number> = {}
+  for (const row of data) {
+    const label = row.created_at.slice(0, 7) // "YYYY-MM"
+    countMap[label] = (countMap[label] ?? 0) + 1
+  }
+
+  // Generate all months in range, fill zeros
+  const result: MonthlyCoachGrowth[] = []
+  const cursor = new Date(since)
+  const now = new Date()
+  while (cursor <= now) {
+    const label = cursor.toISOString().slice(0, 7)
+    result.push({ month: label, count: countMap[label] ?? 0 })
+    cursor.setMonth(cursor.getMonth() + 1)
+  }
+  return result
+}
+
 /**
  * Fetch a single chapter by UUID (for admin edit form).
  */

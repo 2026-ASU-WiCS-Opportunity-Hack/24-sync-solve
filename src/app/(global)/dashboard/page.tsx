@@ -10,19 +10,23 @@ import {
   ShieldCheck,
   User,
   CreditCard,
-  Settings,
   ExternalLink,
   Receipt,
   Building2,
   CheckCircle2,
   AlertCircle,
+  BookOpen,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { UserMenu } from '@/components/layout/UserMenu'
 import { getCoachProfileByUserId } from '@/features/coaches/queries/getCoachById'
 import { getUserPayments } from '@/features/payments/queries/getPayments'
+import { getCertificationProgress } from '@/features/resources/queries/getCertificationProgress'
+import { CertificationProgressSection } from '@/components/resources/CertificationProgressSection'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
 import type { CertificationLevel, UserRole } from '@/types/database'
+import type { AuthUser, MembershipStatus } from '@/types'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -75,27 +79,29 @@ export default async function DashboardPage() {
   const isCoach = profile?.role === 'coach'
 
   // ── Parallel data fetch ────────────────────────────────────────────────────
-  const [coachProfile, payments, chapterRolesResult, pendingAppResult] = await Promise.all([
-    isCoach ? getCoachProfileByUserId(supabase, user.id) : Promise.resolve(null),
-    getUserPayments(supabase, user.id),
-    // Fetch all active chapter roles for multi-chapter management (Gap C)
-    supabase
-      .from('user_chapter_roles')
-      .select('role, chapter:chapters!user_chapter_roles_chapter_id_fkey(id, name, slug)')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .in('role', ['chapter_lead', 'content_editor']),
-    // Check for pending coach application (Gap G — show CTA only if none pending)
-    !isCoach
-      ? supabase
-          .from('coach_applications')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('status', 'pending')
-          .limit(1)
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-  ])
+  const [coachProfile, payments, chapterRolesResult, pendingAppResult, certProgress] =
+    await Promise.all([
+      isCoach ? getCoachProfileByUserId(supabase, user.id) : Promise.resolve(null),
+      getUserPayments(supabase, user.id),
+      // Fetch all active chapter roles for multi-chapter management (Gap C)
+      supabase
+        .from('user_chapter_roles')
+        .select('role, chapter:chapters!user_chapter_roles_chapter_id_fkey(id, name, slug)')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .in('role', ['chapter_lead', 'content_editor']),
+      // Check for pending coach application (Gap G — show CTA only if none pending)
+      !isCoach
+        ? supabase
+            .from('coach_applications')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'pending')
+            .limit(1)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      getCertificationProgress(supabase, user.id),
+    ])
 
   // ── Build managed chapters list (Gap C) ────────────────────────────────────
   const chaptersMap = new Map<string, ManagedChapter>()
@@ -143,7 +149,7 @@ export default async function DashboardPage() {
   const hasPendingApp = !!pendingAppResult?.data
   const showApplyCTA = !isCoach && !hasPendingApp && profile?.role === 'user'
 
-  const membershipStatus = profile?.membership_status ?? 'inactive'
+  const membershipStatus = profile?.membership_status ?? 'none'
   const membershipActive = membershipStatus === 'active'
 
   const name = profile?.full_name ?? user.email ?? 'User'
@@ -151,6 +157,19 @@ export default async function DashboardPage() {
     coachProfile &&
     (CERTIFICATION_LABELS[coachProfile.certification_level as CertificationLevel] ??
       coachProfile.certification_level)
+
+  // Build AuthUser for UserMenu (same shape as Header.tsx)
+  const authUser: AuthUser = {
+    id: user.id,
+    email: user.email ?? '',
+    role: (profile?.role ?? 'user') as UserRole,
+    chapterId: profile?.chapter_id ?? null,
+    fullName: profile?.full_name ?? null,
+    avatarUrl: profile?.avatar_url ?? null,
+    isSuspended: false,
+    membershipStatus: (profile?.membership_status ?? 'none') as MembershipStatus,
+    chapterRoles: {},
+  }
 
   return (
     <>
@@ -160,13 +179,15 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-5">
               {profile?.avatar_url ? (
-                <Image
-                  src={profile.avatar_url}
-                  alt={`${name}'s avatar`}
-                  width={56}
-                  height={56}
-                  className="size-14 rounded-full object-cover ring-2 ring-white/30"
-                />
+                <div className="relative size-14 overflow-hidden rounded-full ring-2 ring-white/30">
+                  <Image
+                    src={profile.avatar_url}
+                    alt={`${name}'s avatar`}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div
                   className="bg-wial-red flex size-14 shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white ring-2 ring-white/30"
@@ -181,8 +202,8 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Membership status badge */}
-            <div className="flex items-center gap-2">
+            {/* Right side: membership badge + account menu */}
+            <div className="flex items-center gap-3">
               {membershipActive ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-green-900/40 px-3 py-1.5 text-sm font-medium text-green-300 ring-1 ring-green-500/30">
                   <CheckCircle2 size={14} aria-hidden="true" />
@@ -199,6 +220,8 @@ export default async function DashboardPage() {
                   No membership
                 </span>
               )}
+              {/* Account menu — consistent with other page headers */}
+              <UserMenu user={authUser} />
             </div>
           </div>
         </div>
@@ -284,7 +307,7 @@ export default async function DashboardPage() {
                   <p className="font-medium text-gray-600">{t('coachProfile.noProfile')}</p>
                   <p className="mt-1 text-sm text-gray-400">{t('coachProfile.noProfileHint')}</p>
                   <Link
-                    href="/certification"
+                    href="/about"
                     className="bg-wial-red hover:bg-wial-red-dark mt-5 inline-block rounded-xl px-5 py-2 text-sm font-semibold text-white transition-colors"
                   >
                     {t('coachProfile.learnCertification')}
@@ -293,6 +316,21 @@ export default async function DashboardPage() {
               )}
             </div>
           )}
+
+          {/* ── Certification progress ──────────────────────────────────── */}
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-wial-navy text-lg font-semibold">Certification Progress</h2>
+              <Link
+                href="/resources"
+                className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+              >
+                <BookOpen size={14} aria-hidden="true" />
+                Browse Resources
+              </Link>
+            </div>
+            <CertificationProgressSection progress={certProgress} />
+          </div>
 
           {/* ── Apply to be a Coach CTA (Gap G) ─────────────────────────── */}
           {showApplyCTA && (
@@ -508,19 +546,6 @@ export default async function DashboardPage() {
                 <div>
                   <p className="font-medium text-gray-900">{t('quickActions.upcomingEvents')}</p>
                   <p className="text-xs text-gray-500">{t('quickActions.upcomingEventsHint')}</p>
-                </div>
-              </Link>
-
-              <Link
-                href="/account/settings"
-                className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
-                  <Settings size={18} aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{t('quickActions.accountSettings')}</p>
-                  <p className="text-xs text-gray-500">{t('quickActions.accountSettingsHint')}</p>
                 </div>
               </Link>
             </div>

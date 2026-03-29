@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
+import { Button, TextArea } from '@heroui/react'
 import { suspendAccountAction, unsuspendAccountAction } from '@/features/rbac/actions/suspension'
 import type { ActionResult } from '@/types'
 
@@ -37,13 +38,16 @@ export function AccountSuspensionControls({
         </div>
         <form action={unsuspendAction}>
           <input type="hidden" name="user_id" value={userId} />
-          <button
+          <Button
             type="submit"
-            disabled={isUnsuspending}
-            className="rounded-lg border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-100 disabled:opacity-50"
+            isDisabled={isUnsuspending}
+            isPending={isUnsuspending}
+            size="sm"
+            variant="outline"
+            className="rounded-lg text-xs font-semibold"
           >
             {isUnsuspending ? 'Unsuspending…' : 'Unsuspend Account'}
-          </button>
+          </Button>
         </form>
         {unsuspendState && !unsuspendState.success && (
           <p className="text-xs text-red-600" role="alert">
@@ -57,46 +61,58 @@ export function AccountSuspensionControls({
   return (
     <div className="space-y-2">
       {!showForm ? (
-        <button
+        <Button
           type="button"
-          onClick={() => setShowForm(true)}
-          className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"
+          onPress={() => setShowForm(true)}
+          size="sm"
+          variant="danger"
+          className="rounded-lg text-xs font-semibold"
         >
           Suspend Account
-        </button>
+        </Button>
       ) : (
         <form action={suspendAction} className="space-y-2">
           <input type="hidden" name="user_id" value={userId} />
-          <label
-            htmlFor={`suspend-reason-${userId}`}
-            className="block text-xs font-medium text-gray-700"
-          >
-            Reason for suspension
-          </label>
-          <textarea
-            id={`suspend-reason-${userId}`}
-            name="reason"
-            required
-            rows={2}
-            maxLength={500}
-            className="w-full rounded-lg border border-gray-300 px-2 py-1 text-xs focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
-            placeholder="Explain why this account is being suspended…"
-          />
+          <div>
+            <label
+              htmlFor={`suspend-reason-${userId}`}
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
+              Reason for suspension{' '}
+              <span className="text-red-500" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <TextArea
+              id={`suspend-reason-${userId}`}
+              name="reason"
+              required
+              rows={2}
+              maxLength={500}
+              placeholder="Explain why this account is being suspended…"
+              className="w-full"
+            />
+          </div>
           <div className="flex gap-2">
-            <button
+            <Button
               type="submit"
-              disabled={isSuspending}
-              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              isDisabled={isSuspending}
+              isPending={isSuspending}
+              size="sm"
+              variant="danger"
+              className="rounded-lg text-xs font-semibold text-white"
             >
               {isSuspending ? 'Suspending…' : 'Confirm Suspend'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              onClick={() => setShowForm(false)}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+              size="sm"
+              variant="outline"
+              onPress={() => setShowForm(false)}
+              className="rounded-lg text-xs font-semibold text-gray-700"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       )}

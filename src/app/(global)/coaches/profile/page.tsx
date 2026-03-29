@@ -51,7 +51,7 @@ export default async function CoachesProfilePage() {
                 administrators after certification.
               </p>
               <Link
-                href="/certification"
+                href="/about"
                 className="bg-wial-red hover:bg-wial-red-dark mt-6 inline-block rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
               >
                 Learn About Certification
@@ -85,13 +85,15 @@ export default async function CoachesProfilePage() {
           {/* Profile summary card */}
           <div className="flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
             {coach.photo_url ? (
-              <Image
-                src={coach.photo_url}
-                alt={`${name}'s profile photo`}
-                width={72}
-                height={72}
-                className="size-18 shrink-0 rounded-full object-cover ring-2 ring-gray-100"
-              />
+              <div className="relative size-[72px] shrink-0 overflow-hidden rounded-full ring-2 ring-gray-100">
+                <Image
+                  src={coach.photo_url}
+                  alt={`${name}'s profile photo`}
+                  fill
+                  sizes="72px"
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div
                 className="bg-wial-navy flex size-[72px] shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white"

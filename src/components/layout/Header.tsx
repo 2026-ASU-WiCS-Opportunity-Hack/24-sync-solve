@@ -2,28 +2,37 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { GLOBAL_NAV_LINKS, CHAPTER_NAV_LINKS } from '@/lib/utils/constants'
+import { getGlobalSettings } from '@/features/settings/queries/getSettings'
+import { updateGlobalSetting } from '@/features/settings/actions/updateSetting'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { RoleSwitcher } from '@/components/layout/RoleSwitcher'
+import { InlineEditableText } from '@/components/editor/InlineEditableText'
 import type { AuthUser, UserRole } from '@/types'
 
 interface HeaderProps {
   accentColor?: string
   chapterSlug?: string
   chapterName?: string
+  /** Whether the current viewer is super_admin (controls edit affordances) */
+  isSuperAdmin?: boolean
 }
 
-export async function Header({ accentColor, chapterSlug, chapterName }: HeaderProps) {
+export async function Header({
+  accentColor,
+  chapterSlug,
+  chapterName,
+  isSuperAdmin = false,
+}: HeaderProps) {
   const t = await getTranslations('nav')
 
-  // Get current user (server-side — secure)
   const supabase = await createClient()
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser()
 
   let currentUser: AuthUser | null = null
-  let managedChapters: {
+  const managedChapters: {
     chapterId: string
     chapterName: string
     chapterSlug: string
@@ -31,7 +40,6 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
   }[] = []
 
   if (authUser) {
-    // Parallel: profile + chapter roles
     const [profileResult, chapterRolesResult] = await Promise.all([
       supabase
         .from('profiles')
@@ -49,7 +57,6 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
 
     const profile = profileResult.data
 
-    // Build chapterRoles map
     const chapterRolesMap: Record<string, UserRole[]> = {}
     for (const row of chapterRolesResult.data ?? []) {
       const cid = row.chapter_id
@@ -65,11 +72,10 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
       fullName: profile?.full_name ?? null,
       avatarUrl: profile?.avatar_url ?? null,
       isSuspended: profile?.is_suspended ?? false,
-      membershipStatus: (profile?.membership_status ?? 'inactive') as AuthUser['membershipStatus'],
+      membershipStatus: (profile?.membership_status ?? 'none') as AuthUser['membershipStatus'],
       chapterRoles: chapterRolesMap,
     }
 
-    // Build chapter nav data for RoleSwitcher (only management roles)
     const managementRoles: UserRole[] = ['chapter_lead', 'content_editor']
     const seen = new Set<string>()
     for (const row of chapterRolesResult.data ?? []) {
@@ -86,7 +92,6 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
       })
     }
 
-    // Also include global chapter_lead managing their primary chapter
     if (profile?.role === 'chapter_lead' && profile.chapter_id && !seen.has(profile.chapter_id)) {
       const { data: primaryChap } = await supabase
         .from('chapters')
@@ -103,6 +108,11 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
       }
     }
   }
+
+  // Fetch editable global settings (only used on the global site header)
+  const settings = chapterSlug ? {} : await getGlobalSettings(supabase, ['header.site_subtitle'])
+
+  const siteSubtitle = settings['header.site_subtitle'] ?? 'Action Learning'
 
   const logoHref = chapterSlug ? `/${chapterSlug}` : '/'
   const logoName = chapterName ? `WIAL ${chapterName}` : 'WIAL'
@@ -123,9 +133,14 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
             </span>
           )}
           {!chapterName && (
-            <span className="hidden text-xs font-medium tracking-widest text-white/60 uppercase sm:block">
-              Action Learning
-            </span>
+            <InlineEditableText
+              value={siteSubtitle}
+              onSave={updateGlobalSetting.bind(null, 'header.site_subtitle')}
+              isSuperAdmin={isSuperAdmin}
+              as="span"
+              className="hidden text-xs font-medium tracking-widest text-white/60 uppercase sm:block"
+              label="Site subtitle (next to logo)"
+            />
           )}
         </Link>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import { Button, ListBox, ListBoxItem, Select } from '@heroui/react'
 import { assignRoleAction, revokeRoleAction } from '@/features/rbac/actions/roleManagement'
 import { ROLE_LABELS, ROLE_COLORS } from '@/lib/utils/constants'
 import type { ActionResult, UserRole } from '@/types'
@@ -49,14 +50,17 @@ export function UserRoleManager({
                 <input type="hidden" name="user_id" value={userId} />
                 <input type="hidden" name="chapter_id" value={chapterId} />
                 <input type="hidden" name="role" value={role} />
-                <button
+                <Button
                   type="submit"
-                  disabled={isRevoking}
-                  className="ms-0.5 text-current opacity-60 hover:opacity-100 focus:outline-none"
+                  isDisabled={isRevoking}
+                  isIconOnly
+                  size="sm"
+                  variant="ghost"
+                  className="ms-0.5 h-3 min-h-3 w-3 min-w-3 opacity-60 hover:opacity-100"
                   aria-label={`Revoke ${ROLE_LABELS[role] ?? role} role`}
                 >
                   ×
-                </button>
+                </Button>
               </form>
             )}
           </span>
@@ -71,32 +75,45 @@ export function UserRoleManager({
         <form action={assignAction} className="flex items-center gap-2">
           <input type="hidden" name="user_id" value={userId} />
           <input type="hidden" name="chapter_id" value={chapterId} />
-          <label htmlFor={`role-select-${userId}`} className="sr-only">
-            Assign role
-          </label>
-          <select
-            id={`role-select-${userId}`}
-            name="role"
-            className="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-            defaultValue=""
-            required
-          >
-            <option value="" disabled>
-              Add role…
-            </option>
-            {availableToAssign.map((role) => (
-              <option key={role} value={role}>
-                {ROLE_LABELS[role] ?? role}
-              </option>
-            ))}
-          </select>
-          <button
+          <div>
+            <label
+              id={`role-select-${userId}-label`}
+              htmlFor={`role-select-${userId}-trigger`}
+              className="sr-only"
+            >
+              Assign role
+            </label>
+            <Select
+              name="role"
+              isRequired
+              className="min-w-32"
+              aria-labelledby={`role-select-${userId}-label`}
+            >
+              <Select.Trigger id={`role-select-${userId}-trigger`}>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox aria-label="Assign role">
+                  {availableToAssign.map((role) => (
+                    <ListBoxItem key={role} id={role}>
+                      {ROLE_LABELS[role] ?? role}
+                    </ListBoxItem>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+          </div>
+          <Button
             type="submit"
-            disabled={isAssigning}
-            className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            isDisabled={isAssigning}
+            isPending={isAssigning}
+            size="sm"
+            variant="primary"
+            className="rounded-lg text-xs font-semibold"
           >
             {isAssigning ? '…' : 'Assign'}
-          </button>
+          </Button>
         </form>
       )}
 

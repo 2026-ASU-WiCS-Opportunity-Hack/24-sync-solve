@@ -16,7 +16,7 @@ export function DeleteEventButton({
   eventId,
   eventTitle,
   chapterId,
-  chapterSlug,
+  chapterSlug: _chapterSlug,
 }: DeleteEventButtonProps) {
   const [isPending, startTransition] = useTransition()
 

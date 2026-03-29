@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import { Button, Input, Label, TextArea } from '@heroui/react'
 import { requestNewChapterAction } from '@/features/chapters/actions/requestChapter'
 import type { ActionResult, ChapterRequest } from '@/types'
 
@@ -22,52 +23,48 @@ export function ChapterRequestForm() {
   return (
     <form action={formAction} className="space-y-5">
       {/* Chapter Name */}
-      <div>
-        <label htmlFor="chapter-name" className="block text-sm font-medium text-gray-700">
-          Chapter Name{' '}
-          <span className="text-red-500" aria-hidden="true">
-            *
-          </span>
-        </label>
-        <input
+      <div className="flex flex-col gap-1">
+        <Label id="chapter-name-label" htmlFor="chapter-name" isRequired>
+          Chapter Name
+        </Label>
+        <Input
           id="chapter-name"
+          aria-labelledby="chapter-name-label"
           name="name"
           type="text"
           required
           maxLength={100}
           placeholder="e.g. WIAL Nigeria"
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          aria-invalid={!!state?.fieldErrors?.['name'] || undefined}
         />
         {state?.fieldErrors?.['name'] && (
-          <p className="mt-1 text-xs text-red-600" role="alert">
+          <p className="text-xs text-red-600" role="alert">
             {state.fieldErrors['name'][0]}
           </p>
         )}
       </div>
 
       {/* URL Slug */}
-      <div>
-        <label htmlFor="chapter-slug" className="block text-sm font-medium text-gray-700">
-          URL Slug{' '}
-          <span className="text-red-500" aria-hidden="true">
-            *
-          </span>
-        </label>
-        <p className="mt-0.5 text-xs text-gray-500">
+      <div className="flex flex-col gap-1">
+        <Label id="chapter-slug-label" htmlFor="chapter-slug" isRequired>
+          URL Slug
+        </Label>
+        <p className="text-xs text-gray-500">
           Used in the URL, e.g. <span className="font-medium">nigeria</span> → wial.org/nigeria
         </p>
-        <input
+        <Input
           id="chapter-slug"
+          aria-labelledby="chapter-slug-label"
           name="slug"
           type="text"
           required
           maxLength={30}
           placeholder="e.g. nigeria"
           pattern="[a-z0-9-]+"
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          aria-invalid={!!state?.fieldErrors?.['slug'] || undefined}
         />
         {state?.fieldErrors?.['slug'] && (
-          <p className="mt-1 text-xs text-red-600" role="alert">
+          <p className="text-xs text-red-600" role="alert">
             {state.fieldErrors['slug'][0]}
           </p>
         )}
@@ -75,73 +72,67 @@ export function ChapterRequestForm() {
 
       <div className="grid gap-5 sm:grid-cols-3">
         {/* Country Code */}
-        <div>
-          <label htmlFor="country-code" className="block text-sm font-medium text-gray-700">
-            Country Code{' '}
-            <span className="text-red-500" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="country-code-label" htmlFor="country-code" isRequired>
+            Country Code
+          </Label>
+          <Input
             id="country-code"
+            aria-labelledby="country-code-label"
             name="country_code"
             type="text"
             required
             maxLength={2}
-            minLength={2}
             placeholder="NG"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            className="uppercase"
+            aria-invalid={!!state?.fieldErrors?.['country_code'] || undefined}
           />
           {state?.fieldErrors?.['country_code'] && (
-            <p className="mt-1 text-xs text-red-600" role="alert">
+            <p className="text-xs text-red-600" role="alert">
               {state.fieldErrors['country_code'][0]}
             </p>
           )}
         </div>
 
         {/* Timezone */}
-        <div>
-          <label htmlFor="timezone" className="block text-sm font-medium text-gray-700">
-            Timezone{' '}
-            <span className="text-red-500" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="timezone-label" htmlFor="timezone" isRequired>
+            Timezone
+          </Label>
+          <Input
             id="timezone"
+            aria-labelledby="timezone-label"
             name="timezone"
             type="text"
             required
             placeholder="Africa/Lagos"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            aria-invalid={!!state?.fieldErrors?.['timezone'] || undefined}
           />
           {state?.fieldErrors?.['timezone'] && (
-            <p className="mt-1 text-xs text-red-600" role="alert">
+            <p className="text-xs text-red-600" role="alert">
               {state.fieldErrors['timezone'][0]}
             </p>
           )}
         </div>
 
         {/* Currency */}
-        <div>
-          <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
-            Currency{' '}
-            <span className="text-red-500" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <input
+        <div className="flex flex-col gap-1">
+          <Label id="currency-label" htmlFor="currency" isRequired>
+            Currency
+          </Label>
+          <Input
             id="currency"
+            aria-labelledby="currency-label"
             name="currency"
             type="text"
             required
             maxLength={3}
-            minLength={3}
             placeholder="NGN"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            className="uppercase"
+            aria-invalid={!!state?.fieldErrors?.['currency'] || undefined}
           />
           {state?.fieldErrors?.['currency'] && (
-            <p className="mt-1 text-xs text-red-600" role="alert">
+            <p className="text-xs text-red-600" role="alert">
               {state.fieldErrors['currency'][0]}
             </p>
           )}
@@ -150,20 +141,20 @@ export function ChapterRequestForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         {/* Contact Email */}
-        <div>
-          <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700">
+        <div className="flex flex-col gap-1">
+          <Label id="contact-email-label" htmlFor="contact-email">
             Contact Email <span className="font-normal text-gray-400">(optional)</span>
-          </label>
-          <input
+          </Label>
+          <Input
             id="contact-email"
+            aria-labelledby="contact-email-label"
             name="contact_email"
             type="email"
             placeholder="chapter@wial.org"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
-        {/* Accent Color */}
+        {/* Accent Color — no HeroUI color picker; keep native input */}
         <div>
           <label htmlFor="accent-color" className="block text-sm font-medium text-gray-700">
             Accent Color <span className="font-normal text-gray-400">(optional)</span>
@@ -173,23 +164,24 @@ export function ChapterRequestForm() {
             name="accent_color"
             type="color"
             defaultValue="#CC0000"
-            className="mt-1 h-[38px] w-full cursor-pointer rounded-xl border border-gray-300 px-1 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            className="mt-1 h-9.5 w-full cursor-pointer rounded-xl border border-gray-300 px-1 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           />
         </div>
       </div>
 
       {/* Message */}
       <div>
-        <label htmlFor="request-message" className="block text-sm font-medium text-gray-700">
+        <Label id="request-message-label" htmlFor="request-message">
           Message <span className="font-normal text-gray-400">(optional)</span>
-        </label>
-        <textarea
+        </Label>
+        <TextArea
           id="request-message"
+          aria-labelledby="request-message-label"
           name="message"
           rows={4}
           maxLength={2000}
           placeholder="Describe your proposed chapter, its region, and your plans…"
-          className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          className="mt-1 w-full"
         />
       </div>
 
@@ -203,13 +195,15 @@ export function ChapterRequestForm() {
         </p>
       )}
 
-      <button
+      <Button
         type="submit"
-        disabled={isPending}
-        className="bg-wial-navy hover:bg-wial-navy-dark w-full rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50"
+        isDisabled={isPending}
+        isPending={isPending}
+        fullWidth
+        className="bg-wial-navy hover:bg-wial-navy-dark rounded-xl text-sm font-semibold text-white"
       >
         {isPending ? 'Submitting…' : 'Submit Chapter Request'}
-      </button>
+      </Button>
     </form>
   )
 }

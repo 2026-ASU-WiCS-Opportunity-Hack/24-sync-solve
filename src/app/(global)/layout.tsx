@@ -26,13 +26,14 @@ export default async function GlobalLayout({ children }: GlobalLayoutProps) {
     canEdit = profile?.role === 'super_admin'
   }
 
+  // On the global site, canEdit === isSuperAdmin (only super_admin can edit global pages)
   return (
     <EditModeProvider canEdit={canEdit} chapterId={null}>
-      <Header />
+      <Header isSuperAdmin={canEdit} />
       <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
         {children}
       </main>
-      <Footer />
+      <Footer isSuperAdmin={canEdit} />
       {canEdit && <EditModeToggle />}
     </EditModeProvider>
   )

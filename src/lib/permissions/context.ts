@@ -16,6 +16,13 @@ export interface PermissionContext {
   /** chapterId → active roles in that chapter */
   chapterRoles: Map<string, UserRole[]>
   isSuspended: boolean
+  /**
+   * The user's primary chapter (profiles.chapter_id).
+   * Used as a fallback when the user has a chapter-scoped global role
+   * (e.g. chapter_lead) but no user_chapter_roles entry for a chapter.
+   * NEVER grants access to a chapter other than this one.
+   */
+  primaryChapterId: string | null
 }
 
 // ── Context builder ─────────────────────────────────────────────────────────
@@ -37,7 +44,7 @@ export async function getPermissionContext(): Promise<PermissionContext | null> 
 
   // Parallel fetch: profile + chapter roles
   const [profileResult, chapterRolesResult] = await Promise.all([
-    supabase.from('profiles').select('role, is_suspended').eq('id', user.id).single(),
+    supabase.from('profiles').select('role, is_suspended, chapter_id').eq('id', user.id).single(),
     supabase
       .from('user_chapter_roles')
       .select('chapter_id, role')
@@ -47,7 +54,7 @@ export async function getPermissionContext(): Promise<PermissionContext | null> 
 
   if (!profileResult.data) return null
 
-  const { role, is_suspended } = profileResult.data
+  const { role, is_suspended, chapter_id } = profileResult.data
 
   // Build chapterId → roles[] map
   const chapterRoles = new Map<string, UserRole[]>()
@@ -62,6 +69,7 @@ export async function getPermissionContext(): Promise<PermissionContext | null> 
     globalRole: role as UserRole,
     chapterRoles,
     isSuspended: is_suspended ?? false,
+    primaryChapterId: chapter_id ?? null,
   }
 }
 
@@ -94,15 +102,19 @@ export function canPerformInChapter(
     if (chapterSpecificRoles.length > 0) {
       if (hasAnyRolePermission(chapterSpecificRoles, permission)) return true
     }
-  }
 
-  // Fall back to global role (e.g. chapter_lead with profile.chapter_id set)
-  if (chapterId === null) {
-    // Global pages: only super_admin (handled above)
+    // Fall back to global role ONLY for the user's primary chapter.
+    // This supports legacy single-chapter chapter_leads who have
+    // profiles.chapter_id set but no user_chapter_roles entry.
+    // It MUST NOT grant access to any other chapter — that's the security invariant.
+    if (chapterId === ctx.primaryChapterId) {
+      return hasPermission(ctx.globalRole, permission)
+    }
+
     return false
   }
 
-  return hasPermission(ctx.globalRole, permission)
+  return false
 }
 
 // ── Action guard ────────────────────────────────────────────────────────────

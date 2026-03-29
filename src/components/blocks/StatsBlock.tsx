@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { formatNumber } from '@/lib/utils/format'
 
 const statsSchema = z.object({
   heading: z.string().optional(),

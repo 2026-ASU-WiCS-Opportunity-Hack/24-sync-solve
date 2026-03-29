@@ -111,11 +111,6 @@ body {
   top: 0;
 }
 
-/* Chapter accent color override — injected per chapter via data attribute */
-[data-chapter-accent] {
-  --color-chapter-accent: attr(data-chapter-accent);
-}
-
 /* Rich text rendered content (from tiptap JSON) */
 .prose-content {
   line-height: 1.7;

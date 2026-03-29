@@ -2,7 +2,9 @@
 
 import { useState, useTransition, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, X, Filter } from 'lucide-react'
+import { Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { Button, Input, ListBox, ListBoxItem, Select } from '@heroui/react'
 import { CoachCard } from '@/components/coaches/CoachCard'
 import type { CoachWithBasicProfile } from '@/features/coaches/queries/getCoaches'
 import { CERTIFICATION_ORDER } from '@/lib/utils/constants'
@@ -59,6 +61,7 @@ export function CoachDirectory({
     initialFilters.country ||
     initialFilters.chapter
 
+  const t = useTranslations('coaches.directory')
   const coachCount = initialCoaches.length
 
   return (
@@ -67,82 +70,94 @@ export function CoachDirectory({
       <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row">
           {/* Search input */}
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400"
-              aria-hidden="true"
-            />
-            <label htmlFor="coach-search" className="sr-only">
-              Search coaches by name, specialty, or location
-            </label>
-            <input
-              id="coach-search"
-              type="search"
-              value={localQ}
-              onChange={(e) => setLocalQ(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') updateFilter('q', localQ)
-              }}
-              onBlur={() => {
-                if (localQ !== initialFilters.q) updateFilter('q', localQ)
-              }}
-              placeholder="Search by name, specialty, or location..."
-              className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-200 py-2.5 ps-9 pe-4 text-sm focus:ring-2 focus:outline-none"
-            />
+          <div className="flex-1">
+            <div className="relative flex items-center">
+              <Search
+                size={16}
+                className="pointer-events-none absolute inset-s-3 text-gray-400"
+                aria-hidden="true"
+              />
+              <Input
+                id="coach-search"
+                type="search"
+                value={localQ}
+                onChange={(e) => setLocalQ(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateFilter('q', localQ)
+                }}
+                onBlur={() => {
+                  if (localQ !== initialFilters.q) updateFilter('q', localQ)
+                }}
+                placeholder={t('searchPlaceholder')}
+                aria-label={t('searchLabel')}
+                className="w-full ps-9"
+              />
+            </div>
           </div>
 
           {/* Certification filter */}
           <div>
-            <label htmlFor="filter-cert" className="sr-only">
-              Filter by certification level
+            <label id="cert-filter-label" htmlFor="cert-filter-trigger" className="sr-only">
+              {t('filterCertLabel')}
             </label>
-            <select
-              id="filter-cert"
-              value={initialFilters.certification}
-              onChange={(e) => updateFilter('certification', e.target.value)}
-              className="focus:ring-wial-navy/20 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
+            <Select
+              aria-labelledby="cert-filter-label"
+              selectedKey={initialFilters.certification || null}
+              onSelectionChange={(key) => updateFilter('certification', String(key ?? ''))}
             >
-              <option value="">All levels</option>
-              {CERTIFICATION_ORDER.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
+              <Select.Trigger id="cert-filter-trigger">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox aria-label={t('filterCertLabel')}>
+                  {CERTIFICATION_ORDER.map((level) => (
+                    <ListBoxItem key={level} id={level}>
+                      {level}
+                    </ListBoxItem>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
           </div>
 
           {/* Chapter filter */}
           <div>
-            <label htmlFor="filter-chapter" className="sr-only">
-              Filter by chapter
+            <label id="chapter-filter-label" htmlFor="chapter-filter-trigger" className="sr-only">
+              {t('filterChapterLabel')}
             </label>
-            <select
-              id="filter-chapter"
-              value={initialFilters.chapter}
-              onChange={(e) => updateFilter('chapter', e.target.value)}
-              className="focus:ring-wial-navy/20 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
+            <Select
+              aria-labelledby="chapter-filter-label"
+              selectedKey={initialFilters.chapter || null}
+              onSelectionChange={(key) => updateFilter('chapter', String(key ?? ''))}
             >
-              <option value="">All chapters</option>
-              {chapters.map((ch) => (
-                <option key={ch.id} value={ch.slug}>
-                  {ch.name}
-                </option>
-              ))}
-            </select>
+              <Select.Trigger id="chapter-filter-trigger">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox aria-label={t('filterChapterLabel')}>
+                  {chapters.map((ch) => (
+                    <ListBoxItem key={ch.slug} id={ch.slug}>
+                      {ch.name}
+                    </ListBoxItem>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
           </div>
 
           {/* Clear filters */}
           {hasActiveFilters && (
-            <button
+            <Button
               type="button"
-              onClick={clearFilters}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              aria-label="Clear all filters"
+              onPress={clearFilters}
+              variant="outline"
+              aria-label={t('clearFiltersLabel')}
             >
               <X size={14} aria-hidden="true" />
-              Clear
-            </button>
+              {t('clearButton')}
+            </Button>
           )}
         </div>
       </div>
@@ -151,9 +166,9 @@ export function CoachDirectory({
       <div className="mb-4 flex items-center justify-between" aria-live="polite" aria-atomic="true">
         <p className="text-sm text-gray-500">
           {isPending ? (
-            'Searching...'
+            t('searching')
           ) : (
-            <>{coachCount === 0 ? 'No coaches found' : `${coachCount}+ coaches found`}</>
+            <>{coachCount === 0 ? t('coachCountZero') : t('coachCount', { count: coachCount })}</>
           )}
         </p>
       </div>
@@ -167,15 +182,16 @@ export function CoachDirectory({
         </div>
       ) : initialCoaches.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="font-medium text-gray-500">No coaches found matching your search.</p>
-          <p className="mt-2 text-sm text-gray-400">Try adjusting your filters or search terms.</p>
-          <button
+          <p className="font-medium text-gray-500">{t('noResults')}</p>
+          <p className="mt-2 text-sm text-gray-400">{t('noResultsHint')}</p>
+          <Button
             type="button"
-            onClick={clearFilters}
+            onPress={clearFilters}
+            variant="ghost"
             className="text-wial-red hover:text-wial-red-dark mt-4 text-sm font-medium"
           >
-            Clear all filters
-          </button>
+            {t('clearAllFilters')}
+          </Button>
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -188,13 +204,14 @@ export function CoachDirectory({
       {/* Load more */}
       {initialNextCursor && (
         <div className="mt-8 text-center">
-          <button
+          <Button
             type="button"
-            onClick={() => updateFilter('cursor', initialNextCursor)}
-            className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onPress={() => updateFilter('cursor', initialNextCursor)}
+            variant="outline"
+            className="text-sm font-medium text-gray-700"
           >
-            Load more coaches
-          </button>
+            {t('loadMore')}
+          </Button>
         </div>
       )}
     </>

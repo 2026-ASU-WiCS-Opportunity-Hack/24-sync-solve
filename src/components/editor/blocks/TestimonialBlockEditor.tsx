@@ -139,7 +139,7 @@ export function TestimonialBlockEditor({
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">Photo</label>
+                <p className="mb-1 block text-xs font-medium text-gray-600">Photo</p>
                 <ImageUpload
                   value={item.photo_url ?? ''}
                   onChange={(url) => onChange({ ...item, photo_url: url || undefined })}

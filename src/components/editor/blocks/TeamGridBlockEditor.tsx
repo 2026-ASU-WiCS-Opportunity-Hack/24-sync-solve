@@ -132,7 +132,7 @@ export function TeamGridBlockEditor({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">Photo</label>
+                <p className="mb-1 block text-xs font-medium text-gray-600">Photo</p>
                 <ImageUpload
                   value={member.photo_url ?? ''}
                   onChange={(url) => onChange({ ...member, photo_url: url || undefined })}

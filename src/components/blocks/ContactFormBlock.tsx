@@ -2,6 +2,7 @@
 
 import { useActionState, useTransition } from 'react'
 import { z } from 'zod'
+import { Button, Input, TextArea } from '@heroui/react'
 import { submitContactForm } from '@/features/chapters/actions/submitContactForm'
 
 const contactSchema = z.object({
@@ -56,33 +57,39 @@ export default function ContactFormBlock({ content, accentColor }: ContactFormBl
               <div>
                 <label
                   htmlFor="contact-name"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
+                  className="mb-1 block text-sm font-medium text-gray-700"
                 >
-                  Name
+                  Name{' '}
+                  <span className="text-red-500" aria-hidden="true">
+                    *
+                  </span>
                 </label>
-                <input
+                <Input
                   id="contact-name"
                   name="name"
                   type="text"
                   required
                   autoComplete="name"
-                  className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:outline-none"
+                  className="w-full"
                 />
               </div>
               <div>
                 <label
                   htmlFor="contact-email"
-                  className="mb-1.5 block text-sm font-medium text-gray-700"
+                  className="mb-1 block text-sm font-medium text-gray-700"
                 >
-                  Email
+                  Email{' '}
+                  <span className="text-red-500" aria-hidden="true">
+                    *
+                  </span>
                 </label>
-                <input
+                <Input
                   id="contact-email"
                   name="email"
                   type="email"
                   required
                   autoComplete="email"
-                  className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:outline-none"
+                  className="w-full"
                 />
               </div>
             </div>
@@ -90,28 +97,26 @@ export default function ContactFormBlock({ content, accentColor }: ContactFormBl
             <div>
               <label
                 htmlFor="contact-message"
-                className="mb-1.5 block text-sm font-medium text-gray-700"
+                className="mb-1 block text-sm font-medium text-gray-700"
               >
-                Message
+                Message{' '}
+                <span className="text-red-500" aria-hidden="true">
+                  *
+                </span>
               </label>
-              <textarea
-                id="contact-message"
-                name="message"
-                rows={5}
-                required
-                className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:outline-none"
-              />
+              <TextArea id="contact-message" name="message" required rows={5} className="w-full" />
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={isPending}
-              className="bg-wial-red hover:bg-wial-red-dark w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-60"
+              isDisabled={isPending}
+              isPending={isPending}
+              fullWidth
+              className="rounded-lg text-sm font-semibold text-white"
               style={accentStyle}
-              aria-busy={isPending}
             >
               {isPending ? 'Sending...' : 'Send Message'}
-            </button>
+            </Button>
           </form>
         )}
       </div>

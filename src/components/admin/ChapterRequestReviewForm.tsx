@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
+import { Button, TextArea } from '@heroui/react'
 import { reviewChapterRequestAction } from '@/features/chapters/actions/requestChapter'
 import type { ActionResult } from '@/types'
 
@@ -32,18 +33,21 @@ export function ChapterRequestReviewForm({ requestId }: ChapterRequestReviewForm
         <div>
           <label
             htmlFor={`reject-notes-${requestId}`}
-            className="block text-xs font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-gray-700"
           >
-            Reason for rejection <span className="text-red-500">*</span>
+            Reason for rejection{' '}
+            <span className="text-red-500" aria-hidden="true">
+              *
+            </span>
           </label>
-          <textarea
+          <TextArea
             id={`reject-notes-${requestId}`}
             name="review_notes"
             required
             rows={2}
             maxLength={1000}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             placeholder="Explain why this request is being rejected…"
+            className="w-full"
           />
         </div>
       )}
@@ -55,36 +59,41 @@ export function ChapterRequestReviewForm({ requestId }: ChapterRequestReviewForm
       )}
 
       <div className="flex gap-3">
-        <button
+        <Button
           type="submit"
-          disabled={isPending}
-          onClick={() => setDecision('approved')}
-          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+          isDisabled={isPending}
+          isPending={isPending && decision === 'approved'}
+          variant="primary"
+          onPress={() => setDecision('approved')}
+          className="rounded-lg text-sm font-semibold text-white"
         >
           {isPending && decision === 'approved' ? 'Approving…' : 'Approve'}
-        </button>
-        <button
+        </Button>
+        <Button
           type={decision === 'rejected' ? 'submit' : 'button'}
-          disabled={isPending}
-          onClick={() => {
+          isDisabled={isPending}
+          isPending={isPending && decision === 'rejected'}
+          variant="danger"
+          onPress={() => {
             if (decision !== 'rejected') setDecision('rejected')
           }}
-          className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+          className="rounded-lg text-sm font-semibold"
         >
           {isPending && decision === 'rejected'
             ? 'Rejecting…'
             : decision === 'rejected'
               ? 'Confirm Reject'
               : 'Reject'}
-        </button>
+        </Button>
         {decision === 'rejected' && (
-          <button
+          <Button
             type="button"
-            onClick={() => setDecision(null)}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            variant="outline"
+            onPress={() => setDecision(null)}
+            className="rounded-lg text-sm font-medium text-gray-700"
           >
             Cancel
-          </button>
+          </Button>
         )}
       </div>
     </form>

@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 /**
  * Server-rendered tiptap JSON content.
  * Converts tiptap's ProseMirror JSON to semantic HTML.

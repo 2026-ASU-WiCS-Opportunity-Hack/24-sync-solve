@@ -41,7 +41,7 @@ export default async function ChapterManageLayout({ children, params }: ChapterM
     canPerformInChapter(ctx, chapterData.id, 'role:assign_coach')
 
   if (!canManage) {
-    redirect('/dashboard')
+    redirect('/unauthorized')
   }
 
   // Badge counts for sidebar
