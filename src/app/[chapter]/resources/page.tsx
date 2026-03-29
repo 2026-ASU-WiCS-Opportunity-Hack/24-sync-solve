@@ -3,19 +3,23 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { getResources, getResourceCategories } from '@/features/resources/queries/getResources'
+import { getResources } from '@/features/resources/queries/getResources'
 import { getUserCompletions } from '@/features/resources/queries/getCompletions'
 import { getPermissionContext, canPerformInChapter } from '@/lib/permissions/context'
 import { ResourceCard } from '@/components/resources/ResourceCard'
-import { ResourceFilters } from '@/components/resources/ResourceFilters'
-import { ResourceScopeToggle } from '@/components/resources/ResourceScopeToggle'
+import { ResourceSearchEngine } from '@/components/resources/ResourceSearchEngine'
+import { prefillMissingResourceAIAction } from '@/features/resources/actions/generateResourceAI'
 import type { ResourceType } from '@/features/resources/types'
+import {
+  filterResourcesByCollection,
+  type ResourceCollection,
+} from '@/features/resources/utils/collectionFilter'
 
 export const revalidate = 60
 
 interface ChapterResourcesPageProps {
   params: Promise<{ chapter: string }>
-  searchParams: Promise<{ type?: string; category?: string; q?: string; scope?: string }>
+  searchParams: Promise<{ q?: string; type?: string; collection?: string }>
 }
 
 export async function generateMetadata({ params }: ChapterResourcesPageProps): Promise<Metadata> {
@@ -31,7 +35,7 @@ export default async function ChapterResourcesPage({
   searchParams,
 }: ChapterResourcesPageProps) {
   const { chapter: chapterSlug } = await params
-  const { type: typeParam, category: categoryParam, q: searchParam, scope } = await searchParams
+  const { q: searchParam, type: typeParam, collection: collectionParam } = await searchParams
 
   const supabase = await createClient()
 
@@ -44,32 +48,56 @@ export default async function ChapterResourcesPage({
 
   if (!chapterRow) notFound()
 
-  const VALID_TYPES: ResourceType[] = ['video', 'article', 'pdf', 'link']
+  const VALID_TYPES: ResourceType[] = ['video', 'article', 'link']
+  const VALID_COLLECTIONS: ResourceCollection[] = ['all', 'journals', 'courses', 'webinars']
   const currentType: ResourceType | null = VALID_TYPES.includes(typeParam as ResourceType)
     ? (typeParam as ResourceType)
     : null
-  const currentCategory = categoryParam ?? null
+  const currentCollection: ResourceCollection = VALID_COLLECTIONS.includes(
+    collectionParam as ResourceCollection
+  )
+    ? (collectionParam as ResourceCollection)
+    : 'all'
   const currentSearch = searchParam ?? null
-  const currentScope: 'chapter' | 'all' = scope === 'all' ? 'all' : 'chapter'
-
-  // Chapter filter: show chapter resources by default; 'all' scope removes filter
-  const chapterId = currentScope === 'all' ? undefined : chapterRow.id
 
   const ctx = await getPermissionContext()
   const canManage =
     ctx !== null && !ctx.isSuspended && canPerformInChapter(ctx, chapterRow.id, 'content:create')
 
-  const [{ items: resources, total }, categories, completedIds] = await Promise.all([
+  const [resourcesResult, completedIds] = await Promise.all([
     getResources(supabase, {
-      chapterId,
+      chapterId: chapterRow.id,
       type: currentType,
-      category: currentCategory,
       search: currentSearch,
       publishedOnly: !canManage,
     }),
-    getResourceCategories(supabase, { chapterId }),
     ctx ? getUserCompletions(supabase, ctx.userId) : Promise.resolve(null),
   ])
+
+  let resources = resourcesResult.items
+
+  if (canManage) {
+    const missingSummaryIds = resources
+      .filter(
+        (resource) => !resource.ai_summary && ['video', 'article', 'pdf'].includes(resource.type)
+      )
+      .map((resource) => resource.id)
+
+    if (missingSummaryIds.length > 0) {
+      await prefillMissingResourceAIAction(missingSummaryIds)
+
+      const refreshed = await getResources(supabase, {
+        chapterId: chapterRow.id,
+        type: currentType,
+        search: currentSearch,
+        publishedOnly: !canManage,
+      })
+      resources = refreshed.items
+    }
+  }
+
+  const filteredResources = filterResourcesByCollection(resources, currentCollection)
+  const total = filteredResources.length
 
   return (
     <main id="main-content">
@@ -80,7 +108,7 @@ export default async function ChapterResourcesPage({
             <div>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Resources</h1>
               <p className="mt-4 max-w-2xl text-lg text-white/80">
-                Action Learning resources curated for the {chapterRow.name} chapter.
+                AI-powered search across curated Action Learning resources for {chapterRow.name}.
               </p>
             </div>
             {canManage && (
@@ -98,32 +126,26 @@ export default async function ChapterResourcesPage({
       {/* Filters + grid */}
       <section className="bg-gray-50 py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Scope toggle */}
-          <div className="mb-6">
-            <Suspense>
-              <ResourceScopeToggle currentScope={currentScope} chapterName={chapterRow.name} />
-            </Suspense>
-          </div>
-
-          {/* Filter tabs */}
+          {/* Search engine */}
           <div className="mb-8">
             <Suspense>
-              <ResourceFilters
-                currentType={currentType}
-                currentCategory={currentCategory}
+              <ResourceSearchEngine
                 currentSearch={currentSearch}
-                categories={categories}
+                currentType={currentType}
+                currentCollection={currentCollection}
               />
             </Suspense>
           </div>
 
           {/* Resource count */}
           <p className="mb-6 text-sm text-gray-500" aria-live="polite">
-            {total === 0 ? 'No resources found.' : `${total} resource${total !== 1 ? 's' : ''}`}
+            {total === 0
+              ? 'No results found. Try a different keyword.'
+              : `${total} result${total !== 1 ? 's' : ''}`}
           </p>
 
           {/* Grid */}
-          {resources.length === 0 ? (
+          {filteredResources.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-white py-20 text-center">
               <p className="font-medium text-gray-500">No resources yet.</p>
               {canManage ? (
@@ -139,10 +161,11 @@ export default async function ChapterResourcesPage({
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {resources.map((resource) => (
+              {filteredResources.map((resource) => (
                 <ResourceCard
                   key={resource.id}
                   resource={resource}
+                  canGenerateAI={canManage}
                   isCompleted={completedIds ? completedIds.has(resource.id) : undefined}
                 />
               ))}

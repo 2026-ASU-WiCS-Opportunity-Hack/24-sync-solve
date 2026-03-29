@@ -669,6 +669,10 @@ export interface Database {
           thumbnail_url: string | null
           category: string | null
           tags: string[]
+          ai_summary: string | null
+          ai_summary_generated_at: string | null
+          ai_marketing: Json | null
+          ai_marketing_generated_at: string | null
           is_published: boolean
           sort_order: number
           created_by: string | null
@@ -685,6 +689,10 @@ export interface Database {
           thumbnail_url?: string | null
           category?: string | null
           tags?: string[]
+          ai_summary?: string | null
+          ai_summary_generated_at?: string | null
+          ai_marketing?: Json | null
+          ai_marketing_generated_at?: string | null
           is_published?: boolean
           sort_order?: number
           created_by?: string | null

@@ -8,6 +8,7 @@ import {
   canPerformInChapter,
   getPermissionContext,
 } from '@/lib/permissions/context'
+import { generateResourceMarketingAction } from '@/features/resources/actions/generateResourceAI'
 import type { ActionResult } from '@/types'
 
 const resourceSchema = z.object({
@@ -49,19 +50,28 @@ export async function createResourceAction(
     const parsed = resourceSchema.parse(formData)
     const supabase = await createClient()
 
-    const { error } = await supabase.from('resources').insert({
-      title: parsed.title,
-      description: parsed.description ?? null,
-      type: parsed.type,
-      url: parsed.url,
-      thumbnail_url: parsed.thumbnail_url || null,
-      category: parsed.category || null,
-      is_published: parsed.is_published,
-      chapter_id: chapterId,
-      created_by: ctx.userId,
-    })
+    const { data, error } = await supabase
+      .from('resources')
+      .insert({
+        title: parsed.title,
+        description: parsed.description ?? null,
+        type: parsed.type,
+        url: parsed.url,
+        thumbnail_url: parsed.thumbnail_url || null,
+        category: parsed.category || null,
+        is_published: parsed.is_published,
+        chapter_id: chapterId,
+        created_by: ctx.userId,
+      })
+      .select('id')
+      .single()
 
     if (error) throw new Error(error.message)
+
+    // Prefill AI summary + promoter cache at upload time so end users can open ready-made content.
+    if (data?.id) {
+      await generateResourceMarketingAction(data.id)
+    }
 
     revalidatePath('/resources')
     revalidatePath('/resources/manage')
@@ -94,6 +104,10 @@ export async function updateResourceAction(
         thumbnail_url: parsed.thumbnail_url || null,
         category: parsed.category || null,
         is_published: parsed.is_published,
+        ai_summary: null,
+        ai_summary_generated_at: null,
+        ai_marketing: null,
+        ai_marketing_generated_at: null,
       })
       .eq('id', resourceId)
 
