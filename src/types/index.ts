@@ -7,6 +7,7 @@ export type {
   Database,
   Json,
   UserRole,
+  MembershipStatus,
   CertificationLevel,
   ContentStatus,
   BlockType,
@@ -19,7 +20,7 @@ export type {
 // Domain types (derived from DB rows, with richer shapes)
 // ============================================================
 
-import type { Database, UserRole } from './database'
+import type { Database, UserRole, MembershipStatus } from './database'
 
 export type Chapter = Database['public']['Tables']['chapters']['Row']
 export type Profile = Database['public']['Tables']['profiles']['Row']
@@ -30,6 +31,8 @@ export type ContentVersion = Database['public']['Tables']['content_versions']['R
 export type Event = Database['public']['Tables']['events']['Row']
 export type Payment = Database['public']['Tables']['payments']['Row']
 export type AuditLog = Database['public']['Tables']['audit_log']['Row']
+export type CoachApplication = Database['public']['Tables']['coach_applications']['Row']
+export type ChapterRequest = Database['public']['Tables']['chapter_requests']['Row']
 
 /** Coach with profile joined */
 export interface CoachWithProfile extends CoachProfile {
@@ -50,6 +53,10 @@ export interface AuthUser {
   chapterId: string | null
   fullName: string | null
   avatarUrl: string | null
+  isSuspended: boolean
+  membershipStatus: MembershipStatus
+  /** chapterId → active roles from user_chapter_roles */
+  chapterRoles: Record<string, UserRole[]>
 }
 
 /** Content block with its page context */

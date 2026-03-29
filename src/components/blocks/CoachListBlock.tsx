@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getCoaches } from '@/features/coaches/queries/getCoaches'
-import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
 
 const coachListSchema = z.object({
   heading: z.string().optional().default('Our Certified Coaches'),

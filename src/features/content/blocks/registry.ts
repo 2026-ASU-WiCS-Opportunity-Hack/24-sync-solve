@@ -113,6 +113,13 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockRegistryEntry> = {
     editorComponent: '@/components/editor/blocks/DividerBlockEditor',
     icon: 'minus',
   },
+  client_grid: {
+    label: 'Client Showcase',
+    requiresApproval: false,
+    displayComponent: '@/components/blocks/ClientGridBlock',
+    editorComponent: '@/components/editor/blocks/ClientGridBlockEditor',
+    icon: 'building-2',
+  },
 }
 
 /**
@@ -137,6 +144,7 @@ export { default as ContactFormBlock } from '@/components/blocks/ContactFormBloc
 export { default as VideoBlock } from '@/components/blocks/VideoBlock'
 export { default as TeamGridBlock } from '@/components/blocks/TeamGridBlock'
 export { default as DividerBlock } from '@/components/blocks/DividerBlock'
+export { default as ClientGridBlock } from '@/components/blocks/ClientGridBlock'
 
 // Dynamic export type for block components
 export type BlockComponentProps = {

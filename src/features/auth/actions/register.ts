@@ -1,8 +1,9 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { registerSchema } from '@/lib/utils/validation'
+import { registerSchema, translateZodErrors } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
 export async function registerAction(
@@ -17,10 +18,11 @@ export async function registerAction(
 
   const result = registerSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

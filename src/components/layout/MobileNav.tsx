@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
+import { Button } from '@heroui/react'
 import { GLOBAL_NAV_LINKS, CHAPTER_NAV_LINKS } from '@/lib/utils/constants'
 import { logoutAction } from '@/features/auth/actions/login'
 import type { AuthUser } from '@/types'
@@ -20,16 +21,18 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
 
   return (
     <div className="lg:hidden">
-      <button
+      <Button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light rounded p-2 text-white focus:ring-2 focus:ring-white focus:outline-none"
+        isIconOnly
+        onPress={() => setIsOpen(!isOpen)}
+        variant="ghost"
+        className="hover:bg-wial-navy-light rounded p-2 text-white"
         aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-expanded={isOpen}
         aria-controls="mobile-menu"
       >
         {isOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
-      </button>
+      </Button>
 
       {/* Dropdown */}
       {isOpen && (
@@ -66,12 +69,14 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                   </Link>
                 )}
                 <form action={logoutAction}>
-                  <button
+                  <Button
                     type="submit"
-                    className="hover:bg-wial-navy-light w-full rounded px-3 py-2.5 text-start text-sm font-medium text-white/80 hover:text-white"
+                    variant="ghost"
+                    fullWidth
+                    className="hover:bg-wial-navy-light justify-start rounded px-3 py-2.5 text-start text-sm font-medium text-white/80 hover:text-white"
                   >
                     Log Out
-                  </button>
+                  </Button>
                 </form>
               </>
             ) : (

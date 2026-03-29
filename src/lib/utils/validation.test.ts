@@ -4,7 +4,6 @@ import {
   emailSchema,
   passwordSchema,
   hexColorSchema,
-  optionalUrlSchema,
   currencyCodeSchema,
   countryCodeSchema,
   uuidSchema,
@@ -13,11 +12,8 @@ import {
   coachSearchSchema,
   loginSchema,
   registerSchema,
-  forgotPasswordSchema,
   resetPasswordSchema,
   chapterCreateSchema,
-  coachProfileUpdateSchema,
-  eventCreateSchema,
   eventFilterSchema,
 } from '@/lib/utils/validation'
 

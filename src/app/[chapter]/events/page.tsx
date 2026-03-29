@@ -1,5 +1,6 @@
 import { Calendar, Settings } from 'lucide-react'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
 import { getUpcomingEvents } from '@/features/events/queries/getEvents'
@@ -18,6 +19,7 @@ interface ChapterEventsPageProps {
 export default async function ChapterEventsPage({ params, searchParams }: ChapterEventsPageProps) {
   const { chapter: slug } = await params
   const rawParams = await searchParams
+  const t = await getTranslations('events.list')
 
   const supabase = await createClient()
   const chapter = await getChapterBySlug(supabase, slug)
@@ -77,17 +79,19 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-extrabold">Events</h1>
-              <p className="mt-3 text-white/80">Upcoming events in {chapter.name}.</p>
+              <h1 className="text-4xl font-extrabold">{t('title')}</h1>
+              <p className="mt-3 text-white/80">
+                {t('chapterSubtitle', { chapter: chapter.name })}
+              </p>
             </div>
             {canManageEvents && (
               <Link
                 href={`/${slug}/events/manage`}
                 className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
-                aria-label="Manage chapter events"
+                aria-label={t('ariaManageEvents')}
               >
                 <Settings size={15} aria-hidden="true" />
-                Manage Events
+                {t('manageEvents')}
               </Link>
             )}
           </div>
@@ -105,14 +109,14 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
           {events.length === 0 ? (
             <div className="mt-6 py-20 text-center">
               <Calendar size={40} className="mx-auto mb-4 text-gray-300" aria-hidden="true" />
-              <p className="font-medium text-gray-500">No upcoming events. Check back soon.</p>
+              <p className="font-medium text-gray-500">{t('noEventsChapter')}</p>
               {canManageEvents && (
                 <Link
                   href={`/${slug}/events/manage/create`}
                   className="mt-4 inline-block text-sm font-medium hover:underline"
                   style={{ color: chapter.accent_color }}
                 >
-                  Create the first event →
+                  {t('createFirst')}
                 </Link>
               )}
             </div>

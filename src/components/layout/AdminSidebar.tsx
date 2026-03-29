@@ -11,6 +11,7 @@ import {
   CreditCard,
   ExternalLink,
   BookOpen,
+  BookUser,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
@@ -23,9 +24,10 @@ interface NavItem {
 
 interface AdminSidebarProps {
   pendingApprovals?: number
+  pendingApplications?: number
 }
 
-export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
+export function AdminSidebar({ pendingApprovals = 0, pendingApplications = 0 }: AdminSidebarProps) {
   const pathname = usePathname()
 
   const navItems: NavItem[] = [
@@ -40,6 +42,12 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
       icon: ClipboardCheck,
       badge: pendingApprovals > 0 ? pendingApprovals : undefined,
     },
+    {
+      href: '/admin/chapter-requests',
+      label: 'Applications',
+      icon: BookUser,
+      badge: pendingApplications > 0 ? pendingApplications : undefined,
+    },
     { href: '/admin/payments', label: 'Payments', icon: CreditCard },
   ]
 
@@ -53,9 +61,9 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
       {/* Logo */}
       <div className="border-wial-navy-dark flex h-16 items-center border-b px-6">
         <Link
-          href="/admin"
+          href="/"
           className="focus:ring-offset-wial-navy flex items-center gap-2 rounded focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none"
-          aria-label="WIAL Admin — Go to dashboard"
+          aria-label="WIAL — Go to home page"
         >
           <span className="text-lg font-extrabold text-white">WIAL</span>
           <span className="text-xs font-semibold tracking-widest text-white/50 uppercase">

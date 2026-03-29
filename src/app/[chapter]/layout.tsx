@@ -50,23 +50,40 @@ export default async function ChapterLayout({ children, params }: ChapterLayoutP
   // Check edit permissions server-side (for UI — auth enforced again in server actions)
   const canEdit = await canEditChapter(chapter.id)
 
+  // isSuperAdmin is resolved separately — chapter leads have canEdit=true but must NOT
+  // see edit affordances on the global Header/Footer template regions.
+  let isSuperAdmin = false
+  if (canEdit) {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+    if (authUser) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authUser.id)
+        .single()
+      isSuperAdmin = profile?.role === 'super_admin'
+    }
+  }
+
   return (
     <EditModeProvider canEdit={canEdit} chapterId={chapter.id}>
       <Header
         accentColor={chapter.accent_color}
         chapterSlug={chapter.slug}
         chapterName={chapter.name}
+        isSuperAdmin={isSuperAdmin}
       />
       <main
         id="main-content"
         className="flex-1 focus:outline-none"
         tabIndex={-1}
         style={{ '--color-chapter-accent': chapter.accent_color } as React.CSSProperties}
-        data-chapter-accent={chapter.accent_color}
       >
         {children}
       </main>
-      <Footer />
+      <Footer isSuperAdmin={isSuperAdmin} />
       {canEdit && <EditModeToggle />}
     </EditModeProvider>
   )

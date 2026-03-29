@@ -71,6 +71,7 @@ export function RichTextEditor({ value, onChange, disabled = false, label }: Ric
         validate: (href) => isSafeUrl(href),
       }),
     ],
+    immediatelyRender: false,
     content: value ?? null,
     editable: !disabled,
     onUpdate: ({ editor: ed }) => {

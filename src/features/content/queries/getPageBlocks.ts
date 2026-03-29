@@ -30,7 +30,7 @@ export async function getPageWithBlocks(
     .order('sort_order', { ascending: true })
 
   if (!includeAll) {
-    blocksQuery.eq('is_visible', true).eq('status', 'published')
+    blocksQuery.eq('is_visible', true).in('status', ['published', 'rejected'])
   }
 
   const { data: blocks, error: blocksError } = await blocksQuery

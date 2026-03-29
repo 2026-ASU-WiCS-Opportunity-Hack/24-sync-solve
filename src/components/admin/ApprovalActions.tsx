@@ -3,8 +3,9 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { approveBlock, rejectBlock } from '@/features/content/actions/contentApproval'
 import { Check, X } from 'lucide-react'
+import { Button, TextArea } from '@heroui/react'
+import { approveBlock, rejectBlock } from '@/features/content/actions/contentApproval'
 
 interface ApprovalActionsProps {
   blockId: string
@@ -51,64 +52,89 @@ export function ApprovalActions({ blockId }: ApprovalActionsProps) {
     <div className="space-y-3">
       {!showRejectForm ? (
         <div className="flex gap-2">
-          <button
+          <Button
             type="button"
-            onClick={handleApprove}
-            disabled={isPendingApprove || isPendingReject}
-            className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 focus:ring-2 focus:ring-green-400 focus:outline-none disabled:opacity-60"
-            aria-busy={isPendingApprove}
+            onPress={handleApprove}
+            isDisabled={isPendingApprove || isPendingReject}
+            isPending={isPendingApprove}
+            size="sm"
+            variant="primary"
+            className="rounded-lg text-xs font-semibold text-white"
           >
-            <Check size={13} aria-hidden="true" />
-            {isPendingApprove ? 'Approving…' : 'Approve & Publish'}
-          </button>
-          <button
+            {isPendingApprove ? (
+              'Approving…'
+            ) : (
+              <>
+                <Check size={13} aria-hidden="true" />
+                Approve &amp; Publish
+              </>
+            )}
+          </Button>
+          <Button
             type="button"
-            onClick={() => setShowRejectForm(true)}
-            disabled={isPendingApprove}
-            className="flex items-center gap-1.5 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-400 focus:outline-none disabled:opacity-60"
+            onPress={() => setShowRejectForm(true)}
+            isDisabled={isPendingApprove}
+            size="sm"
+            variant="danger"
+            className="rounded-lg text-xs font-semibold"
           >
             <X size={13} aria-hidden="true" />
             Reject
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="space-y-2">
-          <label htmlFor={`reason-${blockId}`} className="block text-xs font-medium text-gray-700">
-            Reason for rejection{' '}
-            <span className="text-red-500" aria-hidden="true">
-              *
-            </span>
-          </label>
-          <textarea
-            id={`reason-${blockId}`}
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            rows={2}
-            placeholder="Explain why this content was rejected…"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-red-400 focus:ring-2 focus:ring-red-400/30 focus:outline-none"
-            aria-required="true"
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleReject}
-              disabled={isPendingReject}
-              className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 focus:ring-2 focus:ring-red-400 focus:outline-none disabled:opacity-60"
-              aria-busy={isPendingReject}
+          <div>
+            <label
+              htmlFor={`reason-${blockId}`}
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
-              <X size={13} aria-hidden="true" />
-              {isPendingReject ? 'Rejecting…' : 'Confirm Rejection'}
-            </button>
-            <button
+              Reason for rejection{' '}
+              <span className="text-red-500" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <TextArea
+              id={`reason-${blockId}`}
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              required
+              rows={2}
+              placeholder="Explain why this content was rejected…"
+              className="w-full"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
               type="button"
-              onClick={() => {
+              onPress={handleReject}
+              isDisabled={isPendingReject}
+              isPending={isPendingReject}
+              size="sm"
+              variant="danger"
+              className="rounded-lg text-xs font-semibold text-white"
+            >
+              {isPendingReject ? (
+                'Rejecting…'
+              ) : (
+                <>
+                  <X size={13} aria-hidden="true" />
+                  Confirm Rejection
+                </>
+              )}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onPress={() => {
                 setShowRejectForm(false)
                 setRejectionReason('')
               }}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+              className="rounded-lg text-xs font-semibold text-gray-600"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

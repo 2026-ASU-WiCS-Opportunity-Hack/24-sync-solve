@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { AuthUser } from '@/types'
+import type { AuthUser, UserRole } from '@/types'
 import type { User } from '@supabase/supabase-js'
 
 /**
@@ -24,19 +24,40 @@ export function useAuth() {
         return
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, chapter_id, full_name, avatar_url')
-        .eq('id', authUser.id)
-        .single()
+      // Parallel fetch: profile + chapter roles
+      const [profileResult, chapterRolesResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('role, chapter_id, full_name, avatar_url, is_suspended, membership_status')
+          .eq('id', authUser.id)
+          .single(),
+        supabase
+          .from('user_chapter_roles')
+          .select('chapter_id, role')
+          .eq('user_id', authUser.id)
+          .eq('is_active', true),
+      ])
+
+      const profile = profileResult.data
+
+      // Build chapterId → roles[] map
+      const chapterRoles: Record<string, UserRole[]> = {}
+      for (const row of chapterRolesResult.data ?? []) {
+        const existing = chapterRoles[row.chapter_id] ?? []
+        existing.push(row.role as UserRole)
+        chapterRoles[row.chapter_id] = existing
+      }
 
       setUser({
         id: authUser.id,
         email: authUser.email ?? '',
-        role: profile?.role ?? 'public',
+        role: (profile?.role ?? 'user') as UserRole,
         chapterId: profile?.chapter_id ?? null,
         fullName: profile?.full_name ?? null,
         avatarUrl: profile?.avatar_url ?? null,
+        isSuspended: profile?.is_suspended ?? false,
+        membershipStatus: (profile?.membership_status ?? 'none') as AuthUser['membershipStatus'],
+        chapterRoles,
       })
       setIsLoading(false)
     }

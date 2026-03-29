@@ -10,7 +10,10 @@ import type { Database } from '@/types/database'
 export async function updateSession(
   request: NextRequest,
   response: NextResponse
-): Promise<{ response: NextResponse; user: { id: string; email?: string } | null }> {
+): Promise<{
+  response: NextResponse
+  user: { id: string; email?: string; email_confirmed_at?: string | null } | null
+}> {
   const supabase = createServerClient<Database>(
     process.env['NEXT_PUBLIC_SUPABASE_URL']!,
     process.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY']!,

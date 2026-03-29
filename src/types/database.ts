@@ -10,7 +10,8 @@
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-export type UserRole = 'super_admin' | 'chapter_lead' | 'content_editor' | 'coach' | 'public'
+export type UserRole = 'super_admin' | 'chapter_lead' | 'content_editor' | 'coach' | 'user' | 'public'
+export type MembershipStatus = 'none' | 'active' | 'expired'
 export type CertificationLevel = 'CALC' | 'PALC' | 'SALC' | 'MALC'
 export type ContentStatus = 'draft' | 'published' | 'pending_approval' | 'rejected'
 export type BlockType =
@@ -27,12 +28,14 @@ export type BlockType =
   | 'stats'
   | 'video'
   | 'divider'
+  | 'client_grid'
 export type PaymentType =
   | 'enrollment_fee'
   | 'certification_fee'
   | 'membership_dues'
   | 'event_registration'
 export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded'
+export type RegistrationStatus = 'pending' | 'confirmed' | 'cancelled'
 export type EventType =
   | 'workshop'
   | 'webinar'
@@ -92,6 +95,12 @@ export interface Database {
           phone: string | null
           role: UserRole
           chapter_id: string | null
+          is_suspended: boolean
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
+          membership_status: MembershipStatus
+          membership_expires_at: string | null
           created_at: string
           updated_at: string
         }
@@ -103,6 +112,12 @@ export interface Database {
           phone?: string | null
           role?: UserRole
           chapter_id?: string | null
+          is_suspended?: boolean
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
+          membership_status?: MembershipStatus
+          membership_expires_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -124,6 +139,10 @@ export interface Database {
           chapter_id: string
           role: UserRole
           granted_by: string | null
+          is_active: boolean
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
           created_at: string
         }
         Insert: {
@@ -132,6 +151,10 @@ export interface Database {
           chapter_id: string
           role: UserRole
           granted_by?: string | null
+          is_active?: boolean
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['user_chapter_roles']['Insert']>
@@ -166,12 +189,17 @@ export interface Database {
           photo_url: string | null
           contact_email: string | null
           linkedin_url: string | null
+          credly_url: string | null
           is_published: boolean
           is_verified: boolean
           certification_date: string | null
           recertification_due: string | null
           coaching_hours: number
+          coaching_hours_verified: number | null
           pending_changes: Json | null
+          profile_visibility_suspended: boolean
+          visibility_suspended_at: string | null
+          visibility_suspended_by: string | null
           search_vector: string | null
           created_at: string
           updated_at: string
@@ -189,12 +217,17 @@ export interface Database {
           photo_url?: string | null
           contact_email?: string | null
           linkedin_url?: string | null
+          credly_url?: string | null
           is_published?: boolean
           is_verified?: boolean
           certification_date?: string | null
           recertification_due?: string | null
           coaching_hours?: number
+          coaching_hours_verified?: number | null
           pending_changes?: Json | null
+          profile_visibility_suspended?: boolean
+          visibility_suspended_at?: string | null
+          visibility_suspended_by?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -346,6 +379,7 @@ export interface Database {
           max_attendees: number | null
           registration_url: string | null
           image_url: string | null
+          ticket_price: number | null
           is_published: boolean
           created_by: string | null
           created_at: string
@@ -364,6 +398,7 @@ export interface Database {
           is_virtual?: boolean
           virtual_link?: string | null
           max_attendees?: number | null
+          ticket_price?: number | null
           registration_url?: string | null
           image_url?: string | null
           is_published?: boolean
@@ -431,6 +466,47 @@ export interface Database {
           },
         ]
       }
+      event_registrations: {
+        Row: {
+          id: string
+          event_id: string
+          user_id: string | null
+          guest_name: string | null
+          guest_email: string | null
+          payment_id: string | null
+          status: RegistrationStatus
+          registered_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          user_id?: string | null
+          guest_name?: string | null
+          guest_email?: string | null
+          payment_id?: string | null
+          status?: RegistrationStatus
+          registered_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['event_registrations']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'event_registrations_event_id_fkey'
+            columns: ['event_id']
+            isOneToOne: false
+            referencedRelation: 'events'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'event_registrations_payment_id_fkey'
+            columns: ['payment_id']
+            isOneToOne: false
+            referencedRelation: 'payments'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       audit_log: {
         Row: {
           id: string
@@ -461,6 +537,289 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['audit_log']['Insert']>
         Relationships: []
       }
+      coach_applications: {
+        Row: {
+          id: string
+          user_id: string
+          chapter_id: string
+          credly_url: string
+          credly_verified: boolean
+          certification_level: CertificationLevel | null
+          message: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          reviewed_by: string | null
+          reviewed_at: string | null
+          review_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          chapter_id: string
+          credly_url: string
+          credly_verified?: boolean
+          certification_level?: CertificationLevel | null
+          message?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          review_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['coach_applications']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'coach_applications_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'coach_applications_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      chapter_requests: {
+        Row: {
+          id: string
+          requested_by: string
+          slug: string
+          name: string
+          country_code: string
+          timezone: string
+          currency: string
+          accent_color: string
+          contact_email: string | null
+          message: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          reviewed_by: string | null
+          reviewed_at: string | null
+          review_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          requested_by: string
+          slug: string
+          name: string
+          country_code: string
+          timezone?: string
+          currency?: string
+          accent_color?: string
+          contact_email?: string | null
+          message?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          review_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['chapter_requests']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'chapter_requests_requested_by_fkey'
+            columns: ['requested_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      global_settings: {
+        Row: {
+          key: string
+          value: string
+          updated_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value?: string
+          updated_by?: string | null
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['global_settings']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'global_settings_updated_by_fkey'
+            columns: ['updated_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      resources: {
+        Row: {
+          id: string
+          chapter_id: string | null
+          title: string
+          description: string | null
+          type: 'video' | 'article' | 'pdf' | 'link'
+          url: string
+          thumbnail_url: string | null
+          category: string | null
+          tags: string[]
+          is_published: boolean
+          sort_order: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          chapter_id?: string | null
+          title: string
+          description?: string | null
+          type: 'video' | 'article' | 'pdf' | 'link'
+          url: string
+          thumbnail_url?: string | null
+          category?: string | null
+          tags?: string[]
+          is_published?: boolean
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['resources']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'resources_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'resources_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      resource_completions: {
+        Row: {
+          id: string
+          user_id: string
+          resource_id: string
+          completed_at: string
+          expires_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          resource_id: string
+          completed_at?: string
+          expires_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['resource_completions']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'resource_completions_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'resource_completions_resource_id_fkey'
+            columns: ['resource_id']
+            isOneToOne: false
+            referencedRelation: 'resources'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      certification_requirements: {
+        Row: {
+          id: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          resource_id: string
+          is_required: boolean
+          sort_order: number
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          resource_id: string
+          is_required?: boolean
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['certification_requirements']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'certification_requirements_resource_id_fkey'
+            columns: ['resource_id']
+            isOneToOne: false
+            referencedRelation: 'resources'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'certification_requirements_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      user_certifications: {
+        Row: {
+          id: string
+          user_id: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          status: 'pending_approval' | 'approved' | 'expired' | 'revoked'
+          applied_at: string
+          approved_at: string | null
+          approved_by: string | null
+          expires_at: string | null
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          level: 'CALC' | 'PALC' | 'SALC' | 'MALC'
+          status?: 'pending_approval' | 'approved' | 'expired' | 'revoked'
+          applied_at?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          expires_at?: string | null
+          notes?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['user_certifications']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'user_certifications_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_certifications_approved_by_fkey'
+            columns: ['approved_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -488,14 +847,24 @@ export interface Database {
         Args: { p_chapter_id: string }
         Returns: undefined
       }
+      get_user_chapter_roles: {
+        Args: { p_user_id: string }
+        Returns: Array<{ chapter_id: string; role: UserRole }>
+      }
+      count_active_super_admins: {
+        Args: Record<string, never>
+        Returns: number
+      }
     }
     Enums: {
       user_role: UserRole
+      membership_status: MembershipStatus
       certification_level: CertificationLevel
       content_status: ContentStatus
       block_type: BlockType
       payment_type: PaymentType
       payment_status: PaymentStatus
+      registration_status: RegistrationStatus
       event_type: EventType
     }
   }

@@ -1,14 +1,15 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { coachProfileUpdateSchema } from '@/lib/utils/validation'
+import { coachProfileUpdateSchema, translateZodErrors } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
 /**
  * Server action: update coach's own profile fields.
- * Coaches can only edit their own editable fields (bio, specializations, etc.).
- * Certification level and published status require admin action.
+ * Coaches can only edit their own editable fields (bio, specializations, coaching_hours, etc.).
+ * Certification level, published status, and verified status require admin action.
  */
 export async function updateCoachProfileAction(
   _prevState: ActionResult | null,
@@ -22,6 +23,17 @@ export async function updateCoachProfileAction(
 
   if (!user) {
     return { success: false, error: 'Authentication required.' }
+  }
+
+  // ── Check suspension ────────────────────────────────────────────────────────
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_suspended')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.is_suspended) {
+    return { success: false, error: 'Your account is suspended.' }
   }
 
   // ── Verify coach profile exists for this user ──────────────────────────────
@@ -41,20 +53,23 @@ export async function updateCoachProfileAction(
 
   const raw = {
     bio: (formData.get('bio') as string) || undefined,
+    photo_url: (formData.get('photo_url') as string) || '',
     specializations: specializationsRaw.filter(Boolean),
     languages: languagesRaw.filter(Boolean),
     location_city: (formData.get('location_city') as string) || '',
     location_country: (formData.get('location_country') as string) || '',
     contact_email: (formData.get('contact_email') as string) || '',
     linkedin_url: (formData.get('linkedin_url') as string) || '',
+    coaching_hours: (formData.get('coaching_hours') as string) || '',
   }
 
   const result = coachProfileUpdateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 
@@ -68,7 +83,8 @@ export async function updateCoachProfileAction(
 
   // ── Revalidate public coach directory ──────────────────────────────────────
   revalidatePath('/coaches')
-  revalidatePath(`/coaches/profile`)
+  revalidatePath('/coaches/profile')
+  revalidatePath(`/coaches/${existing.id}`)
 
   return {
     success: true,

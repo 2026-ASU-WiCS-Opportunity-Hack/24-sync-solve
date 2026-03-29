@@ -1,6 +1,6 @@
 'use client'
 
-import { Pencil, Eye, Loader2 } from 'lucide-react'
+import { Pencil, Eye } from 'lucide-react'
 import { useEditMode } from '@/features/content/hooks/useEditMode'
 
 /**

@@ -14,14 +14,33 @@ export const WIAL_BRAND = {
   WHITE: '#FFFFFF',
 } as const
 
-/** User role hierarchy (lower index = less privileged) */
+/** User role hierarchy (lower index = less privileged).
+ *  'public' kept for DB enum compatibility but never assigned to real users. */
 export const ROLE_HIERARCHY = [
-  'public',
+  'user',
   'coach',
   'content_editor',
   'chapter_lead',
   'super_admin',
 ] as const
+
+/** Human-readable role labels (UI label: chapter_lead → "Chapter Admin") */
+export const ROLE_LABELS: Record<string, string> = {
+  super_admin: 'Super Admin',
+  chapter_lead: 'Chapter Admin',
+  content_editor: 'Content Editor',
+  coach: 'Coach',
+  user: 'User',
+} as const
+
+/** Tailwind badge color classes per role */
+export const ROLE_COLORS: Record<string, string> = {
+  super_admin: 'bg-red-100 text-red-700',
+  chapter_lead: 'bg-purple-100 text-purple-700',
+  content_editor: 'bg-blue-100 text-blue-700',
+  coach: 'bg-green-100 text-green-700',
+  user: 'bg-gray-100 text-gray-600',
+} as const
 
 /** Certification level display names */
 export const CERTIFICATION_LABELS = {
@@ -54,25 +73,44 @@ export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'im
 /** Default chapter accent color */
 export const DEFAULT_ACCENT_COLOR = '#CC0000'
 
+/** Common IANA timezone identifiers used across chapter and event forms */
+export const TIMEZONES = [
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Los_Angeles',
+  'America/Sao_Paulo',
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Berlin',
+  'Africa/Lagos',
+  'Africa/Nairobi',
+  'Asia/Dubai',
+  'Asia/Kolkata',
+  'Asia/Singapore',
+  'Asia/Shanghai',
+  'Asia/Tokyo',
+  'Australia/Sydney',
+  'Pacific/Auckland',
+  'UTC',
+] as const
+
 /** Site URL — server-side only */
 export const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
 
 /** Navigation links for global site */
 export const GLOBAL_NAV_LINKS = [
   { href: '/about', labelKey: 'nav.about' },
-  { href: '/certification', labelKey: 'nav.certification' },
   { href: '/coaches', labelKey: 'nav.coaches' },
   { href: '/resources', labelKey: 'nav.resources' },
   { href: '/events', labelKey: 'nav.events' },
-  { href: '/contact', labelKey: 'nav.contact' },
 ] as const
 
 /** Navigation links for chapter sub-sites */
 export const CHAPTER_NAV_LINKS = [
-  { href: '', labelKey: 'nav.home' },
   { href: '/about', labelKey: 'nav.about' },
   { href: '/coaches', labelKey: 'nav.coaches' },
+  { href: '/resources', labelKey: 'nav.resources' },
   { href: '/events', labelKey: 'nav.events' },
-  { href: '/contact', labelKey: 'nav.contact' },
   { href: '/pay', labelKey: 'nav.pay' },
 ] as const

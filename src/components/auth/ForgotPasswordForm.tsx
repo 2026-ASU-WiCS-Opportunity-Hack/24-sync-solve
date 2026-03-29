@@ -2,6 +2,7 @@
 
 import { useActionState, useTransition } from 'react'
 import Link from 'next/link'
+import { Button, Input, Label } from '@heroui/react'
 import { requestPasswordResetAction } from '@/features/auth/actions/resetPassword'
 import type { ActionResult } from '@/types'
 
@@ -39,42 +40,44 @@ export function ForgotPasswordForm() {
       action={(formData) => startTransition(() => formAction(formData))}
       noValidate
       aria-label="Reset password"
+      className="space-y-4"
     >
       {state && !state.success && state.error && (
         <div
           role="alert"
           aria-live="polite"
-          className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
+          className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
         >
           {state.error}
         </div>
       )}
 
-      <div className="mb-4">
-        <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700">
+      <div className="flex flex-col gap-1">
+        <Label id="email-label" htmlFor="email" isRequired>
           Email address
-        </label>
-        <input
+        </Label>
+        <Input
           id="email"
+          aria-labelledby="email-label"
           name="email"
           type="email"
           autoComplete="email"
           required
           placeholder="you@example.com"
-          className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:outline-none"
         />
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isPending}
-        className="bg-wial-navy hover:bg-wial-navy-dark focus:ring-wial-navy w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-        aria-busy={isPending}
+        isDisabled={isPending}
+        isPending={isPending}
+        fullWidth
+        className="bg-wial-navy hover:bg-wial-navy-dark rounded-lg text-sm font-semibold text-white"
       >
         {isPending ? 'Sending...' : 'Send Reset Link'}
-      </button>
+      </Button>
 
-      <p className="mt-4 text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-gray-500">
         <Link href="/login" className="text-wial-red hover:text-wial-red-dark font-medium">
           ← Back to login
         </Link>

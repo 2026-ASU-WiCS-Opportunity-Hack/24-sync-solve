@@ -3,6 +3,7 @@ import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
 import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
 import { canEditChapter } from '@/lib/utils/serverAuth'
+import ContactFormBlock from '@/components/blocks/ContactFormBlock'
 
 export const revalidate = 3600
 
@@ -20,22 +21,37 @@ export default async function ChapterAboutPage({ params }: ChapterAboutPageProps
   const isEditor = await canEditChapter(chapter.id)
   const result = await getPageWithBlocks(supabase, chapter.id, 'about', isEditor)
 
-  return result ? (
-    <EditablePageRenderer
-      initialBlocks={result.blocks}
-      pageId={result.page.id}
-      chapterId={chapter.id}
-      accentColor={chapter.accent_color}
-    />
-  ) : (
-    <div className="bg-white py-20">
-      <div className="mx-auto max-w-3xl px-6">
-        <h1 className="text-wial-navy text-4xl font-bold">About {chapter.name}</h1>
-        <p className="mt-6 text-gray-600">
-          {chapter.name} is a regional chapter of the World Institute for Action Learning, serving
-          the {chapter.country_code} region.
-        </p>
-      </div>
-    </div>
+  return (
+    <>
+      {result ? (
+        <EditablePageRenderer
+          initialBlocks={result.blocks}
+          pageId={result.page.id}
+          chapterId={chapter.id}
+          accentColor={chapter.accent_color}
+        />
+      ) : (
+        <div className="bg-white py-20">
+          <div className="mx-auto max-w-3xl px-6">
+            <h1 className="text-wial-navy text-4xl font-bold">About {chapter.name}</h1>
+            <p className="mt-6 text-gray-600">
+              {chapter.name} is a regional chapter of the World Institute for Action Learning,
+              serving the {chapter.country_code} region.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Contact section — always present below the about content */}
+      <section id="contact" className="border-t border-gray-100 bg-gray-50">
+        <ContactFormBlock
+          content={{
+            heading: `Contact ${chapter.name}`,
+            recipient_email: chapter.contact_email ?? undefined,
+          }}
+          accentColor={chapter.accent_color}
+        />
+      </section>
+    </>
   )
 }

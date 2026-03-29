@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: {
@@ -17,12 +18,12 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <div className="w-full max-w-md">
         {/* WIAL Logo */}
         <div className="mb-8 text-center">
-          <a href="/" className="inline-block">
+          <Link href="/" className="inline-block">
             <span className="text-3xl font-bold tracking-tight text-white">WIAL</span>
             <span className="text-wial-red mt-1 block text-xs font-semibold tracking-widest uppercase">
               World Institute for Action Learning
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Auth card */}

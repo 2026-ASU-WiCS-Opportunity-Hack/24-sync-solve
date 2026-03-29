@@ -1,8 +1,9 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { loginSchema } from '@/lib/utils/validation'
+import { loginSchema, translateZodErrors } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
 export async function loginAction(
@@ -16,10 +17,11 @@ export async function loginAction(
 
   const result = loginSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Invalid input.',
-      fieldErrors: result.error.flatten().fieldErrors,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

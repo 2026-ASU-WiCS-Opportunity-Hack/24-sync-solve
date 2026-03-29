@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
 import { getCoaches } from '@/features/coaches/queries/getCoaches'
@@ -29,6 +30,7 @@ export default async function ChapterCoachesPage({
   searchParams,
 }: ChapterCoachesPageProps) {
   const [{ chapter: slug }, rawParams] = await Promise.all([params, searchParams])
+  const t = await getTranslations('coaches.directory')
 
   const supabase = await createClient()
   const chapter = await getChapterBySlug(supabase, slug)
@@ -57,8 +59,8 @@ export default async function ChapterCoachesPage({
         style={{ backgroundColor: chapter.accent_color ?? 'var(--color-wial-navy)' }}
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold">Our Coaches</h1>
-          <p className="mt-3 text-white/80">Certified Action Learning coaches in {chapter.name}.</p>
+          <h1 className="text-4xl font-extrabold">{t('chapterTitle')}</h1>
+          <p className="mt-3 text-white/80">{t('chapterSubtitle', { chapter: chapter.name })}</p>
         </div>
       </section>
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { requiresApproval, BLOCK_REGISTRY } from '@/features/content/blocks/registry'
+import { requiresApproval } from '@/features/content/blocks/registry'
 import type { BlockUpdateResult } from '@/features/content/types'
 import type { BlockType, Json } from '@/types'
 

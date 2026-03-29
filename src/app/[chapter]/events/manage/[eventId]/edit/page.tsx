@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
-import { getEventById } from '@/features/events/queries/getEvents'
 import { EventForm } from '@/components/events/EventForm'
 import { updateEventAction } from '@/features/events/actions/manageEvents'
 

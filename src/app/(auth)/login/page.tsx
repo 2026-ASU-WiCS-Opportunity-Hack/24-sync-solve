@@ -28,7 +28,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           aria-live="polite"
           className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700"
         >
-          Account created! Please check your email to confirm your address before logging in.
+          {t('registeredMessage')}
         </div>
       )}
 
@@ -38,7 +38,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           aria-live="polite"
           className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700"
         >
-          Password updated successfully. Please log in with your new password.
+          {t('passwordUpdatedMessage')}
         </div>
       )}
 
@@ -48,7 +48,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           aria-live="polite"
           className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
         >
-          You don&apos;t have permission to access that page.
+          {t('unauthorizedMessage')}
         </div>
       )}
 
@@ -58,7 +58,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           aria-live="polite"
           className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
         >
-          Authentication failed. Please try again.
+          {t('authErrorMessage')}
         </div>
       )}
 
