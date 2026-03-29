@@ -14,7 +14,6 @@ import type { TeachingCoachPreview } from '@/features/resources/queries/getCoach
 interface ResourceCardProps {
   resource: Resource
   teachingCoaches?: TeachingCoachPreview[]
-  canGenerateAI?: boolean
   /** Pass true/false when the user is authenticated to show the completion badge. */
   isCompleted?: boolean
 }
@@ -53,12 +52,7 @@ const CTA_LABELS: Record<ResourceDisplayType, string> = {
   webinar: 'Watch',
 }
 
-export function ResourceCard({
-  resource,
-  teachingCoaches = [],
-  isCompleted,
-  canGenerateAI = false,
-}: ResourceCardProps) {
+export function ResourceCard({ resource, teachingCoaches = [], isCompleted }: ResourceCardProps) {
   const looksLikeWebinar = /webinar/i.test(resource.url) || /webinar/i.test(resource.category ?? '')
   const safeType: ResourceDisplayType = looksLikeWebinar
     ? 'webinar'
@@ -178,7 +172,6 @@ export function ResourceCard({
         <ResourceAIControls
           resourceId={resource.id}
           resourceType={resource.type}
-          canGenerateAI={canGenerateAI}
           initialSummary={resource.ai_summary}
           initialMarketing={resource.ai_marketing}
           initialTranscript={resource.transcript}

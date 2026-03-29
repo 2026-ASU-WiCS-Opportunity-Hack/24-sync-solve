@@ -4,8 +4,7 @@ import { revalidatePath } from 'next/cache'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { canPerformInChapter, getPermissionContext } from '@/lib/permissions/context'
-import { hasPermission } from '@/lib/permissions/permissions'
+import { getPermissionContext } from '@/lib/permissions/context'
 import { transcribeFromUrl, isDirectMediaUrl } from '@/lib/elevenlabs/transcription'
 import type { ActionResult } from '@/types'
 import type { ResourceType } from '@/features/resources/types'
@@ -39,20 +38,6 @@ async function fetchResourceForTranscription(
   if (!data) throw new Error('Resource not found.')
 
   return data as ResourceForTranscription
-}
-
-async function ensureCanTranscribe(resource: ResourceForTranscription): Promise<void> {
-  const ctx = await getPermissionContext()
-  if (!ctx) throw new Error('Authentication required.')
-  if (ctx.isSuspended) throw new Error('Your account is suspended.')
-
-  const allowed = resource.chapter_id
-    ? canPerformInChapter(ctx, resource.chapter_id, 'content:create')
-    : hasPermission(ctx.globalRole, 'content:create')
-
-  if (!allowed) {
-    throw new Error('You do not have permission to transcribe resources.')
-  }
 }
 
 /**
@@ -120,7 +105,6 @@ export async function transcribeVideoAction(
   try {
     // ── Load resource ───────────────────────────────────────────────────────
     const resource = await fetchResourceForTranscription(resourceId)
-    await ensureCanTranscribe(resource)
 
     if (resource.type !== 'video') {
       return { success: false, error: 'Transcription is only available for video resources.' }

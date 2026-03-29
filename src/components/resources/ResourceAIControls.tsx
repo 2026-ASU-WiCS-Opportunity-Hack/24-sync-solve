@@ -78,7 +78,6 @@ function normalizeMarketing(marketing: ResourceMarketing | null): ResourceMarket
 interface ResourceAIControlsProps {
   resourceId: string
   resourceType: ResourceType
-  canGenerateAI: boolean
   initialSummary: string | null
   initialMarketing: ResourceMarketing | null
   initialTranscript?: string | null
@@ -88,7 +87,6 @@ interface ResourceAIControlsProps {
 export function ResourceAIControls({
   resourceId,
   resourceType,
-  canGenerateAI,
   initialSummary,
   initialMarketing,
   initialTranscript = null,
@@ -135,10 +133,6 @@ export function ResourceAIControls({
     'border-teal-300 bg-teal-50 text-teal-800 hover:bg-teal-100 focus:ring-teal-300'
 
   async function handleGenerateSummary() {
-    if (!canGenerateAI) {
-      toast.error('You do not have permission to generate AI content.')
-      return
-    }
     setIsGeneratingSummary(true)
     const res = await generateResourceSummaryAction(resourceId)
     setIsGeneratingSummary(false)
@@ -167,10 +161,6 @@ export function ResourceAIControls({
   }
 
   async function handleGenerateMarketing() {
-    if (!canGenerateAI) {
-      toast.error('You do not have permission to generate promoter copy.')
-      return
-    }
     setIsGeneratingMarketing(true)
     const res = await generateResourceMarketingAction(resourceId)
     setIsGeneratingMarketing(false)
@@ -185,11 +175,6 @@ export function ResourceAIControls({
   }
 
   async function handleOpenLinkedIn() {
-    if (!canGenerateAI) {
-      toast.error('You do not have permission to generate promoter copy.')
-      return
-    }
-
     setIsLinkedInOpen(true)
     if (!marketing) {
       await handleGenerateMarketing()
@@ -197,11 +182,6 @@ export function ResourceAIControls({
   }
 
   async function handleOpenEmail() {
-    if (!canGenerateAI) {
-      toast.error('You do not have permission to generate promoter copy.')
-      return
-    }
-
     setIsEmailOpen(true)
     if (!marketing) {
       await handleGenerateMarketing()
@@ -216,11 +196,6 @@ export function ResourceAIControls({
   }
 
   async function handleTranscribe() {
-    if (!canGenerateAI) {
-      toast.error('You do not have permission to transcribe resources.')
-      return
-    }
-
     // Toggle view if already transcribed
     if (transcript) {
       setIsTranscriptExpanded((prev) => !prev)
@@ -311,58 +286,56 @@ export function ResourceAIControls({
         </button>
       )}
 
-      {canGenerateAI && (
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={handleSummaryClick}
+          disabled={isGeneratingSummary || summaryUnavailable}
+          className={`${actionButtonBase} ${summaryButtonClass}`}
+          title={summaryUnavailable ? 'Available for video, article, and PDF only.' : undefined}
+        >
+          <Sparkles size={12} aria-hidden="true" />
+          {summaryUnavailable
+            ? 'AI Summary (N/A)'
+            : isGeneratingSummary
+              ? 'Generating...'
+              : 'AI Summary'}
+        </button>
+
+        {/* Transcribe button — video only */}
+        {isVideoType && (
           <button
             type="button"
-            onClick={handleSummaryClick}
-            disabled={isGeneratingSummary || summaryUnavailable}
-            className={`${actionButtonBase} ${summaryButtonClass}`}
-            title={summaryUnavailable ? 'Available for video, article, and PDF only.' : undefined}
+            onClick={() => void handleTranscribe()}
+            disabled={transcriptStatus === 'processing'}
+            className={`${actionButtonBase} border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100 focus:ring-violet-300`}
+            aria-label={transcriptButtonLabel}
           >
-            <Sparkles size={12} aria-hidden="true" />
-            {summaryUnavailable
-              ? 'AI Summary (N/A)'
-              : isGeneratingSummary
-                ? 'Generating...'
-                : 'AI Summary'}
+            <FileText size={12} aria-hidden="true" />
+            {transcriptStatus === 'failed' ? 'Retry Transcription' : transcriptButtonLabel}
           </button>
+        )}
 
-          {/* Transcribe button — video only */}
-          {isVideoType && (
-            <button
-              type="button"
-              onClick={() => void handleTranscribe()}
-              disabled={transcriptStatus === 'processing'}
-              className={`${actionButtonBase} border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100 focus:ring-violet-300`}
-              aria-label={transcriptButtonLabel}
-            >
-              <FileText size={12} aria-hidden="true" />
-              {transcriptStatus === 'failed' ? 'Retry Transcription' : transcriptButtonLabel}
-            </button>
-          )}
+        <button
+          type="button"
+          onClick={() => void handleOpenLinkedIn()}
+          disabled={isGeneratingMarketing}
+          className={`${actionButtonBase} ${linkedinButtonClass}`}
+        >
+          <Megaphone size={12} aria-hidden="true" />
+          Promote on LinkedIn
+        </button>
 
-          <button
-            type="button"
-            onClick={handleOpenLinkedIn}
-            disabled={isGeneratingMarketing}
-            className={`${actionButtonBase} ${linkedinButtonClass}`}
-          >
-            <Megaphone size={12} aria-hidden="true" />
-            Promote on LinkedIn
-          </button>
-
-          <button
-            type="button"
-            onClick={handleOpenEmail}
-            disabled={isGeneratingMarketing}
-            className={`${actionButtonBase} ${emailButtonClass}`}
-          >
-            <Megaphone size={12} aria-hidden="true" />
-            Promote in Email
-          </button>
-        </div>
-      )}
+        <button
+          type="button"
+          onClick={() => void handleOpenEmail()}
+          disabled={isGeneratingMarketing}
+          className={`${actionButtonBase} ${emailButtonClass}`}
+        >
+          <Megaphone size={12} aria-hidden="true" />
+          Promote in Email
+        </button>
+      </div>
 
       {isLinkedInOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">

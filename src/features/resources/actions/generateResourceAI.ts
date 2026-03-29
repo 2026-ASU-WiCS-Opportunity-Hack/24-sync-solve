@@ -4,8 +4,6 @@ import { generateText } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { canPerformInChapter, getPermissionContext } from '@/lib/permissions/context'
-import { hasPermission } from '@/lib/permissions/permissions'
 import type { ActionResult } from '@/types'
 import type { ResourceMarketing, ResourceType } from '@/features/resources/types'
 import type { Json } from '@/types/database'
@@ -172,20 +170,6 @@ async function getResourceOrThrow(resourceId: string): Promise<ResourceRow> {
   return data as ResourceRow
 }
 
-async function ensureCanGenerate(resource: ResourceRow): Promise<void> {
-  const ctx = await getPermissionContext()
-  if (!ctx) throw new Error('Authentication required.')
-  if (ctx.isSuspended) throw new Error('Your account is suspended.')
-
-  const allowed = resource.chapter_id
-    ? canPerformInChapter(ctx, resource.chapter_id, 'content:create')
-    : hasPermission(ctx.globalRole, 'content:create')
-
-  if (!allowed) {
-    throw new Error('You do not have permission to generate AI content for this resource.')
-  }
-}
-
 async function ensureCombinedAICache(resource: ResourceRow): Promise<{
   summary: string
   marketing: ResourceMarketing
@@ -259,7 +243,6 @@ export async function generateResourceSummaryAction(
 ): Promise<ActionResult<{ summary: string }>> {
   try {
     const resource = await getResourceOrThrow(resourceId)
-    await ensureCanGenerate(resource)
 
     if (!['video', 'article', 'pdf'].includes(resource.type)) {
       return { success: false, error: 'AI summary is supported only for video, article, and PDF.' }
@@ -287,7 +270,6 @@ export async function generateResourceMarketingAction(
 ): Promise<ActionResult<{ marketing: ResourceMarketing }>> {
   try {
     const resource = await getResourceOrThrow(resourceId)
-    await ensureCanGenerate(resource)
 
     const { marketing, fromCache } = await ensureCombinedAICache(resource)
 

@@ -154,7 +154,6 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
                   key={resource.id}
                   resource={resource}
                   teachingCoaches={resourceCoachMap[resource.id] ?? []}
-                  canGenerateAI={canManage}
                   isCompleted={completedIds ? completedIds.has(resource.id) : undefined}
                 />
               ))}
