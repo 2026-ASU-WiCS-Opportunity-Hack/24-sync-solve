@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import { Play, FileText, FileDown, ExternalLink } from 'lucide-react'
+import { Play, FileText, Download, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import {
   RESOURCE_TYPE_LABELS,
   RESOURCE_TYPE_COLORS,
@@ -8,9 +9,11 @@ import {
 import { ResourceCardClient } from '@/components/resources/ResourceCardClient'
 import { ResourceAIControls } from '@/components/resources/ResourceAIControls'
 import type { Resource } from '@/features/resources/types'
+import type { TeachingCoachPreview } from '@/features/resources/queries/getCoachCourseMappings'
 
 interface ResourceCardProps {
   resource: Resource
+  teachingCoaches?: TeachingCoachPreview[]
   canGenerateAI?: boolean
   /** Pass true/false when the user is authenticated to show the completion badge. */
   isCompleted?: boolean
@@ -50,7 +53,8 @@ const CTA_LABELS: Record<ResourceDisplayType, string> = {
   webinar: 'Watch',
 }
 
-export function ResourceCard({ resource, isCompleted, canGenerateAI = false }: ResourceCardProps) {
+
+export function ResourceCard({ resource, teachingCoaches = [], isCompleted, canGenerateAI = false }: ResourceCardProps) {
   const looksLikeWebinar = /webinar/i.test(resource.url) || /webinar/i.test(resource.category ?? '')
   const safeType: ResourceDisplayType = looksLikeWebinar
     ? 'webinar'
@@ -103,10 +107,70 @@ export function ResourceCard({ resource, isCompleted, canGenerateAI = false }: R
         <h3 className="text-wial-navy line-clamp-2 text-sm leading-snug font-semibold">
           {resource.title}
         </h3>
-        {resource.description && (
+
+        {/* Presenter / Authors Meta */}
+        {(resource.presenter || (resource.authors && resource.authors.length > 0)) && (
+          <p className="text-[11px] font-medium text-gray-500">
+            {resource.type === 'webinar' && resource.presenter && (
+              <span>By {resource.presenter}</span>
+            )}
+            {resource.type === 'article' && resource.authors && (
+              <span>
+                {resource.authors.join(', ')}
+                {resource.published_year && ` • ${resource.published_year}`}
+              </span>
+            )}
+          </p>
+        )}
+
+        {/* AI Summary */}
+        {resource.summary && (
+          <div className="rounded-lg bg-blue-50/50 p-2.5">
+            <p className="line-clamp-3 text-xs leading-relaxed text-blue-900 italic">
+              "{resource.summary}"
+            </p>
+          </div>
+        )}
+
+        {resource.description && !resource.summary && (
           <p className="line-clamp-2 text-xs text-gray-500">{resource.description}</p>
         )}
 
+        {teachingCoaches.length > 0 && (
+          <div className="mt-1">
+            <p className="text-[11px] font-medium text-gray-500">Taught by</p>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {teachingCoaches.slice(0, 3).map((coach) => (
+                <Link
+                  key={coach.coachId}
+                  href={`/coaches/${coach.coachId}`}
+                  className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-brand-shell)] hover:bg-red-100"
+                >
+                  {coach.name}
+                </Link>
+              ))}
+              {teachingCoaches.length > 3 && (
+                <span className="text-[10px] font-medium text-gray-400">
+                  +{teachingCoaches.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Key Findings Tags */}
+        {resource.relevance_tags && resource.relevance_tags.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-1">
+            {resource.relevance_tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
         <ResourceAIControls
           resourceId={resource.id}
           resourceType={resource.type}

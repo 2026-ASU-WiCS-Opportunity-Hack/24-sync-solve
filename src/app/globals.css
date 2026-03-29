@@ -12,15 +12,24 @@
   --color-wial-navy: #003366;
   --color-wial-navy-light: #004488;
   --color-wial-navy-dark: #002244;
+  --color-wial-navy-deep: #001a33;
   --color-wial-red: #cc0000;
   --color-wial-red-light: #ee1111;
   --color-wial-red-dark: #aa0000;
+  --color-wial-shell: #e0004d;
+  --color-wial-shell-dark: #bf0041;
   --color-wial-white: #ffffff;
+  --color-wial-cloud: #f5f8fc;
 
   /* Semantic tokens */
   --color-brand-primary: var(--color-wial-navy);
   --color-brand-accent: var(--color-wial-red);
   --color-brand-surface: var(--color-wial-white);
+  --color-brand-shell: var(--color-wial-shell);
+  --color-brand-shell-strong: var(--color-wial-shell-dark);
+  --color-brand-shell-border: rgb(255 255 255 / 0.14);
+  --color-brand-shell-link: rgb(255 255 255 / 0.82);
+  --color-brand-shell-link-hover: var(--color-wial-white);
 
   /* Chapter accent override (set via CSS custom property per chapter) */
   --color-chapter-accent: var(--color-wial-red);
@@ -81,7 +90,7 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-wial-white);
+  background-color: var(--color-wial-cloud);
   color: var(--color-wial-navy);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

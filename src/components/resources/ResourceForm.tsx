@@ -26,8 +26,9 @@ interface ResourceFormProps {
 
 const TYPE_OPTIONS = [
   { value: 'video', label: 'Video (YouTube or other video link)' },
-  { value: 'article', label: 'Article (external blog post or web page)' },
-  { value: 'pdf', label: 'PDF (downloadable document)' },
+  { value: 'article', label: 'Article (journal article or web page)' },
+  { value: 'pdf', label: 'PDF (downloadable research/document)' },
+  { value: 'webinar', label: 'Webinar (recorded or upcoming)' },
   { value: 'link', label: 'Link (any other URL)' },
 ] as const
 
@@ -99,7 +100,7 @@ export function ResourceForm({
           aria-labelledby="res-type-label"
           selectedKey={form.type}
           onSelectionChange={(key) => {
-            const val = String(key ?? '') as ResourceFormData['type']
+            const val = String(key ?? '') as any
             if (val) set('type', val)
           }}
         >
@@ -117,6 +118,56 @@ export function ResourceForm({
             </ListBox>
           </Select.Popover>
         </Select>
+      </div>
+
+      {/* Meta Fields (Authors / Presenter) */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {form.type === 'webinar' && (
+          <div className="flex flex-col gap-1">
+            <Label id="res-presenter-label" htmlFor="res-presenter">
+              Presenter
+            </Label>
+            <Input
+              id="res-presenter"
+              value={form.presenter ?? ''}
+              onChange={(e) => set('presenter', e.target.value)}
+              placeholder="e.g. Dr. Jane Smith"
+            />
+          </div>
+        )}
+
+        {form.type === 'article' && (
+          <>
+            <div className="flex flex-col gap-1">
+              <Label id="res-authors-label" htmlFor="res-authors">
+                Authors (comma separated)
+              </Label>
+              <Input
+                id="res-authors"
+                value={form.authors?.join(', ') ?? ''}
+                onChange={(e) =>
+                  set(
+                    'authors',
+                    e.target.value.split(',').map((s) => s.trim())
+                  )
+                }
+                placeholder="e.g. Jenkins, S., Marquardt, M."
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label id="res-year-label" htmlFor="res-year">
+                Published Year
+              </Label>
+              <Input
+                id="res-year"
+                type="number"
+                value={form.published_year ?? ''}
+                onChange={(e) => set('published_year', parseInt(e.target.value) || null)}
+                placeholder="2024"
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* URL */}

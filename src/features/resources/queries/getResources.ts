@@ -54,7 +54,7 @@ export async function getResources(
     query = query.eq('is_published', true)
   }
 
-  if (type) {
+  if (type && type !== 'webinar') {
     query = query.eq('type', type)
   }
 

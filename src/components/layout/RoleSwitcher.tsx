@@ -42,7 +42,7 @@ export function RoleSwitcher({ chapters }: RoleSwitcherProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white focus:ring-2 focus:ring-white focus:outline-none"
+        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--color-brand-shell)]/90 transition-colors hover:bg-red-50 hover:text-[var(--color-brand-shell)] focus:ring-2 focus:ring-[var(--color-brand-shell)] focus:outline-none"
         aria-label="Switch chapter context"
         aria-expanded={isOpen}
         aria-haspopup="true"

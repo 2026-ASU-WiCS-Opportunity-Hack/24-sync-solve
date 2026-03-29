@@ -26,14 +26,15 @@ export async function Footer({ isSuperAdmin = false }: FooterProps) {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-wial-navy border-t border-gray-200 text-white">
+    <footer className="border-t border-red-200 bg-white text-[var(--color-brand-shell)]">
+      <div className="h-1 w-full bg-[var(--color-brand-shell-strong)]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block">
-              <span className="text-2xl font-extrabold text-white">WIAL</span>
-              <span className="mt-1 block text-xs font-semibold tracking-widest text-white/70 uppercase">
+              <span className="text-2xl font-extrabold text-[var(--color-brand-shell)]">WIAL</span>
+              <span className="mt-1 block text-xs font-semibold tracking-[0.18em] text-[var(--color-brand-shell)]/70 uppercase">
                 World Institute for Action Learning
               </span>
             </Link>
@@ -43,14 +44,14 @@ export async function Footer({ isSuperAdmin = false }: FooterProps) {
               onSave={updateGlobalSetting.bind(null, 'footer.tagline')}
               isSuperAdmin={isSuperAdmin}
               as="p"
-              className="mt-4 max-w-sm text-sm leading-relaxed text-white/70"
+              className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--color-brand-shell)]/80"
               label="Footer tagline"
             />
           </div>
 
           {/* Quick links */}
           <div>
-            <h2 className="text-sm font-semibold tracking-wider text-white/70 uppercase">
+            <h2 className="text-sm font-semibold tracking-wider text-[var(--color-brand-shell)]/70 uppercase">
               {t('footer.links.heading')}
             </h2>
             <ul className="mt-4 space-y-2" role="list">
@@ -58,7 +59,7 @@ export async function Footer({ isSuperAdmin = false }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
+                    className="text-sm text-[var(--color-brand-shell)]/85 transition-colors hover:text-[var(--color-brand-shell)]"
                   >
                     {t(`nav.${link.labelKey.replace('nav.', '')}` as Parameters<typeof t>[0])}
                   </Link>
@@ -70,7 +71,7 @@ export async function Footer({ isSuperAdmin = false }: FooterProps) {
           {/* Chapters */}
           {chapters && chapters.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold tracking-wider text-white/70 uppercase">
+              <h2 className="text-sm font-semibold tracking-wider text-[var(--color-brand-shell)]/70 uppercase">
                 {t('footer.chapters.heading')}
               </h2>
               <ul className="mt-4 space-y-2" role="list">
@@ -78,7 +79,7 @@ export async function Footer({ isSuperAdmin = false }: FooterProps) {
                   <li key={chapter.slug}>
                     <Link
                       href={`/${chapter.slug}`}
-                      className="text-sm text-white/70 transition-colors hover:text-white"
+                      className="text-sm text-[var(--color-brand-shell)]/85 transition-colors hover:text-[var(--color-brand-shell)]"
                     >
                       {chapter.name}
                     </Link>
@@ -90,15 +91,21 @@ export async function Footer({ isSuperAdmin = false }: FooterProps) {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
-          <p className="text-xs text-white/70">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-red-200 pt-8 sm:flex-row">
+          <p className="text-xs text-[var(--color-brand-shell)]/70">
             {t('footer.legal.copyright', { year: currentYear })}
           </p>
           <div className="flex gap-4">
-            <Link href="/privacy" className="text-xs text-white/70 hover:text-white">
+            <Link
+              href="/privacy"
+              className="text-xs text-[var(--color-brand-shell)]/70 hover:text-[var(--color-brand-shell)]/90"
+            >
               {t('footer.legal.privacy')}
             </Link>
-            <Link href="/terms" className="text-xs text-white/70 hover:text-white">
+            <Link
+              href="/terms"
+              className="text-xs text-[var(--color-brand-shell)]/70 hover:text-[var(--color-brand-shell)]/90"
+            >
               {t('footer.legal.terms')}
             </Link>
           </div>

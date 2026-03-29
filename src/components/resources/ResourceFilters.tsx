@@ -55,25 +55,6 @@ export function ResourceFilters({
 
   return (
     <div className={`space-y-4 ${isPending ? 'opacity-60' : ''}`}>
-      {/* Search input */}
-      <div className="max-w-md">
-        <div className="relative flex items-center">
-          <Search
-            size={16}
-            className="pointer-events-none absolute inset-s-3 text-gray-400"
-            aria-hidden="true"
-          />
-          <Input
-            type="search"
-            defaultValue={currentSearch ?? ''}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder={t('search.placeholder')}
-            aria-label={t('search.placeholder')}
-            className="w-full ps-9"
-          />
-        </div>
-      </div>
-
       {/* Type + category filters */}
       <div className="flex flex-wrap gap-2" aria-label={t('filters.filterByType')}>
         <Button

@@ -60,6 +60,9 @@ export default async function ChapterEditResourcePage({ params }: ChapterEditRes
             url: resource.url,
             thumbnail_url: resource.thumbnail_url ?? '',
             category: resource.category ?? '',
+            authors: resource.authors ?? undefined,
+            presenter: resource.presenter ?? undefined,
+            published_year: resource.published_year ?? undefined,
             is_published: resource.is_published,
           }}
           submitLabel="Save Changes"

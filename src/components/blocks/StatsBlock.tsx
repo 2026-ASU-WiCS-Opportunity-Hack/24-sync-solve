@@ -95,7 +95,7 @@ export default function StatsBlock({ content, accentColor }: StatsBlockProps) {
             <div key={i} className="text-center">
               <dt className="order-2 mt-2 text-sm font-medium text-white/70">{item.label}</dt>
               <dd
-                className="order-1 text-4xl font-extrabold tracking-tight sm:text-5xl"
+                className="order-1 text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
                 style={accentStyle}
               >
                 {item.value}

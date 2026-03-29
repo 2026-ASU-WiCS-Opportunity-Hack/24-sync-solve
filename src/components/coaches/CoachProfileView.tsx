@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { CERTIFICATION_LABELS, CERTIFICATION_ORDER } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/format'
 import type { CoachFullProfile } from '@/features/coaches/queries/getCoachById'
+import type { CoursePreview } from '@/features/resources/queries/getCoachCourseMappings'
 import type { CertificationLevel } from '@/types/database'
 
 /** Certification level color map — mirrors the public coach detail page */
@@ -15,6 +16,7 @@ const CERT_COLORS: Record<string, { bg: string; text: string; ring: string }> = 
 
 interface CoachProfileViewProps {
   coach: CoachFullProfile
+  courses?: CoursePreview[]
 }
 
 /**
@@ -29,7 +31,7 @@ interface CoachProfileViewProps {
  * The page-level hero (name, photo, back link) is intentionally kept
  * in each consuming page so each context can style it appropriately.
  */
-export function CoachProfileView({ coach }: CoachProfileViewProps) {
+export function CoachProfileView({ coach, courses = [] }: CoachProfileViewProps) {
   const name = coach.profile?.full_name ?? 'Coach'
   const certLabel =
     CERTIFICATION_LABELS[coach.certification_level as CertificationLevel] ??
@@ -241,12 +243,45 @@ export function CoachProfileView({ coach }: CoachProfileViewProps) {
           </div>
         )}
 
-        {/* Empty state — show something when profile is sparse */}
-        {!coach.bio && coach.specializations.length === 0 && !coach.chapter && (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
-            <p className="text-sm text-gray-500">Profile details have not been filled in yet.</p>
+        {courses.length > 0 && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-wial-navy mb-4 text-lg font-semibold">
+              Courses This Coach Teaches
+            </h2>
+            <ul className="space-y-2">
+              {courses.map((course) => (
+                <li
+                  key={course.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 px-3 py-2"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{course.title}</p>
+                    <p className="text-xs text-gray-500">{course.type.toUpperCase()}</p>
+                  </div>
+                  <a
+                    href={course.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-wial-red hover:text-wial-red-dark inline-flex items-center gap-1 text-xs font-semibold"
+                  >
+                    View Course
+                    <ExternalLink size={12} aria-hidden="true" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
+
+        {/* Empty state — show something when profile is sparse */}
+        {!coach.bio &&
+          coach.specializations.length === 0 &&
+          !coach.chapter &&
+          courses.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
+              <p className="text-sm text-gray-500">Profile details have not been filled in yet.</p>
+            </div>
+          )}
       </div>
     </div>
   )

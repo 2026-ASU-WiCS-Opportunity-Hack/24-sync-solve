@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
@@ -118,17 +119,25 @@ export async function Header({
   const logoName = chapterName ? `WIAL ${chapterName}` : 'WIAL'
 
   return (
-    <header className="bg-wial-navy sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-red-200 bg-white text-[var(--color-brand-shell)] shadow-[0_8px_24px_rgb(15_23_42/0.08)]">
+      <div className="h-1 w-full bg-[var(--color-brand-shell-strong)]" aria-hidden="true" />
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
           href={logoHref}
-          className="focus:ring-offset-wial-navy flex items-center gap-2 rounded focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none"
+          className="flex items-center gap-2 rounded focus:ring-2 focus:ring-[var(--color-brand-shell)] focus:ring-offset-2 focus:ring-offset-white focus:outline-none"
           aria-label={`${logoName} home`}
         >
-          <span className="text-xl font-extrabold tracking-tight text-white">WIAL</span>
+          <Image
+            src="/logo.png"
+            alt="WIAL"
+            width={140}
+            height={44}
+            priority
+            className="h-9 w-auto"
+          />
           {chapterName && (
-            <span className="hidden text-sm font-semibold text-white/70 sm:block">
+            <span className="hidden text-sm font-semibold text-[var(--color-brand-shell)]/80 sm:block">
               {chapterName}
             </span>
           )}
@@ -138,7 +147,7 @@ export async function Header({
               onSave={updateGlobalSetting.bind(null, 'header.site_subtitle')}
               isSuperAdmin={isSuperAdmin}
               as="span"
-              className="hidden text-xs font-medium tracking-widest text-white/60 uppercase sm:block"
+              className="hidden text-xs font-medium tracking-[0.18em] text-[var(--color-brand-shell)]/70 uppercase sm:block"
               label="Site subtitle (next to logo)"
             />
           )}
@@ -150,7 +159,7 @@ export async function Header({
             <Link
               key={link.href}
               href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}
-              className="hover:bg-wial-navy-light rounded px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white focus:ring-2 focus:ring-white focus:outline-none"
+              className="rounded px-3 py-2 text-sm font-medium text-[var(--color-brand-shell)]/90 transition-colors hover:bg-red-50 hover:text-[var(--color-brand-shell)] focus:ring-2 focus:ring-[var(--color-brand-shell)] focus:outline-none"
             >
               {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
             </Link>

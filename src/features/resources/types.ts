@@ -1,4 +1,4 @@
-export type ResourceType = 'video' | 'article' | 'pdf' | 'link'
+export type ResourceType = 'video' | 'article' | 'pdf' | 'link' | 'webinar'
 
 export interface ResourceEmailOption {
   subject: string
@@ -27,8 +27,29 @@ export interface Resource {
   is_published: boolean
   sort_order: number
   created_by: string | null
+
+  // AI-enhanced fields
+  raw_text?: string | null
+  summary?: string | null
+  key_findings?: KeyFinding[] | null
+  relevance_tags?: string[] | null
+  translations?: Record<string, { summary: string }> | null
+  embedding?: number[] | null
+
+  // Unified metadata fields
+  authors?: string[] | null
+  published_year?: number | null
+  presenter?: string | null
+  scheduled_at?: string | null
+  marketing?: any | null
+
   created_at: string
   updated_at: string
+}
+
+export interface KeyFinding {
+  finding: string
+  tags: string[]
 }
 
 export const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
@@ -36,6 +57,7 @@ export const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
   article: 'Article',
   pdf: 'PDF',
   link: 'Link',
+  webinar: 'Webinar',
 }
 
 export const RESOURCE_TYPE_COLORS: Record<ResourceType, string> = {
@@ -43,6 +65,7 @@ export const RESOURCE_TYPE_COLORS: Record<ResourceType, string> = {
   article: 'bg-blue-100 text-blue-700',
   pdf: 'bg-orange-100 text-orange-700',
   link: 'bg-gray-100 text-gray-600',
+  webinar: 'bg-indigo-100 text-indigo-700',
 }
 
 /** Extract YouTube video ID from a URL, or null if not a YouTube link. */
