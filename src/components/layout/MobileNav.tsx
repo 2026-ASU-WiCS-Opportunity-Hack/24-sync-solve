@@ -25,7 +25,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light rounded-full p-2 text-white focus:ring-2 focus:ring-white focus:outline-none"
+        className="rounded-full border border-gray-300 p-2 text-[#0f3f76] transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-[#003366] focus:outline-none"
         aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-expanded={isOpen}
         aria-controls="mobile-menu"
@@ -37,7 +37,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
       {isOpen && (
         <div
           id="mobile-menu"
-          className="border-wial-navy-dark absolute inset-x-3 top-[calc(100%+0.5rem)] z-50 rounded-2xl border bg-gradient-to-br from-[#003366] to-[#02294d] p-2 shadow-2xl"
+          className="absolute inset-x-3 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl"
           role="navigation"
           aria-label="Mobile navigation"
         >
@@ -47,22 +47,22 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 key={link.href}
                 href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}
                 onClick={handleClose}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
+                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-[#153a67] transition-colors hover:bg-gray-100"
               >
                 {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
               </Link>
             ))}
 
-            <div className="my-2 border-t border-white/10" />
+            <div className="my-2 border-t border-gray-200" />
 
             {user ? (
               <>
-                <div className="px-3 py-2 text-xs text-white/50">{user.email}</div>
+                <div className="px-3 py-2 text-xs text-gray-500">{user.email}</div>
                 {(user.role === 'super_admin' || user.role === 'chapter_lead') && (
                   <Link
                     href={user.role === 'super_admin' ? '/admin' : `/${user.chapterId}/edit`}
                     onClick={handleClose}
-                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-[#153a67] transition-colors hover:bg-gray-100"
                   >
                     {t('dashboard')}
                   </Link>
@@ -70,7 +70,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 <form action={logoutAction}>
                   <button
                     type="submit"
-                    className="w-full rounded-lg px-3 py-2.5 text-start text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
+                    className="w-full rounded-lg px-3 py-2.5 text-start text-sm font-medium text-red-700 transition-colors hover:bg-red-50"
                   >
                     {t('logout')}
                   </button>
@@ -81,7 +81,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 <Link
                   href="/login"
                   onClick={handleClose}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-[#153a67] transition-colors hover:bg-gray-100"
                 >
                   {t('login')}
                 </Link>

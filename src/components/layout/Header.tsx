@@ -43,24 +43,24 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
   const logoName = chapterName ? `WIAL ${chapterName}` : 'WIAL'
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-gradient-to-r from-[#022a54]/95 via-[#003366]/95 to-[#012a4f]/95 shadow-[0_14px_34px_-20px_rgba(0,0,0,0.72)] backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 shadow-[0_10px_26px_-20px_rgba(15,39,71,0.45)] backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
           href={logoHref}
-          className="focus:ring-offset-wial-navy flex items-center gap-2.5 rounded-xl px-1.5 py-1 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none"
+          className="flex items-center gap-2.5 rounded-xl px-1 py-1 focus:ring-2 focus:ring-[#003366] focus:outline-none"
           aria-label={`${logoName} home`}
         >
-          <span className="text-[1.35rem] leading-none font-black tracking-tight text-white">
+          <span className="bg-wial-navy rounded-full px-3 py-1 text-sm leading-none font-black tracking-wide text-white">
             WIAL
           </span>
           {chapterName && (
-            <span className="hidden rounded-full border border-white/20 bg-white/12 px-2.5 py-1 text-xs font-semibold text-white/90 sm:block">
+            <span className="hidden rounded-full border border-gray-300 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700 sm:block">
               {chapterName}
             </span>
           )}
           {!chapterName && (
-            <span className="hidden text-[11px] leading-none font-semibold tracking-[0.18em] text-white/70 uppercase sm:block">
+            <span className="hidden text-[11px] leading-none font-semibold tracking-[0.16em] text-gray-500 uppercase sm:block">
               Action Learning
             </span>
           )}
@@ -72,7 +72,7 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
             <Link
               key={link.href}
               href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}
-              className="rounded-full border border-transparent px-3.5 py-2 text-sm font-medium text-white/85 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white focus:ring-2 focus:ring-white focus:outline-none"
+              className="rounded-full border border-gray-300 px-3.5 py-2 text-sm font-semibold text-[#0f3f76] transition-all hover:border-[#003366]/35 hover:bg-[#003366]/6 focus:ring-2 focus:ring-[#003366] focus:outline-none"
             >
               {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
             </Link>
@@ -102,7 +102,7 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
 
       {/* Chapter accent stripe */}
       {accentColor && (
-        <div className="h-1 w-full" style={{ backgroundColor: accentColor }} aria-hidden="true" />
+        <div className="h-0.5 w-full" style={{ backgroundColor: accentColor }} aria-hidden="true" />
       )}
     </header>
   )

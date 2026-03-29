@@ -30,7 +30,7 @@ export function UserMenu({ user }: UserMenuProps) {
       <div className="flex items-center gap-2">
         <Link
           href="/login"
-          className="rounded-full px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-full border border-gray-300 px-3 py-2 text-sm font-semibold text-[#153a67] transition-colors hover:bg-gray-100"
         >
           Log In
         </Link>
@@ -52,7 +52,7 @@ export function UserMenu({ user }: UserMenuProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light flex items-center gap-2 rounded-full border border-white/15 p-1 text-white focus:ring-2 focus:ring-white focus:outline-none"
+        className="flex items-center gap-2 rounded-full border border-gray-300 bg-white p-1 text-[#153a67] transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-[#003366] focus:outline-none"
         aria-label="Open user menu"
         aria-expanded={isOpen}
         aria-haspopup="true"
