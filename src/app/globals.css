@@ -87,6 +87,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Clean input styling - remove autofill box effect */
+input,
+textarea,
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  box-shadow: 0 0 0 30px white inset !important;
+}
+
+input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-wial-navy) !important;
+}
+
 /* Focus ring — accessible, visible */
 :focus-visible {
   outline: 2px solid var(--color-wial-red);

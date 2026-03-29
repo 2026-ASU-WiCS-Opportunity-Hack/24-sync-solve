@@ -155,7 +155,8 @@
       "loadMore": "Load more coaches",
       "coachCountZero": "No coaches found",
       "coachCount": "{count}+ coaches found",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "otherCoaches": "Browse all coaches"
     },
     "card": {
       "certifiedSince": "Certified {date}",
