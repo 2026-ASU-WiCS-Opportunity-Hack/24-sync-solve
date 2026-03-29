@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, CoachProfile, PaginatedResult } from '@/types'
 import type { CertificationLevel } from '@/types/database'
 import { COACH_PAGE_SIZE } from '@/lib/utils/constants'
+import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
 import { getEmbedding } from '@/features/search/utils/embeddings'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -33,6 +34,11 @@ export async function getCoaches(
   filters: CoachFilters = {}
 ): Promise<PaginatedResult<CoachWithBasicProfile>> {
   const limit = filters.limit ?? COACH_PAGE_SIZE
+  const queryText = filters.q?.trim() ?? ''
+  const hasQuery = queryText.length > 0
+  const searchMode = filters.searchMode ?? 'text'
+  const isSemanticSearch = hasQuery && searchMode === 'semantic'
+  const isTextSearch = hasQuery && searchMode === 'text'
 
   let query = supabase
     .from('coach_profiles')
@@ -52,14 +58,12 @@ export async function getCoaches(
   let matchedCoachIds: string[] | null = null
   let matchScores: Record<string, number> = {}
 
-  const searchMode = filters.searchMode ?? 'text'
-
   // Semantic/Full-text search override
-  if (filters.q && filters.q.trim()) {
-    if (searchMode === 'semantic') {
+  if (hasQuery) {
+    if (isSemanticSearch) {
       try {
         // Get embedding for the user's natural language query
-        const embedding = await getEmbedding(filters.q)
+        const embedding = await getEmbedding(queryText)
 
         // Look up coach documents natively via RPC using admin client to bypass RLS on coach_search_documents table
         const adminClient = createAdminClient()
@@ -97,30 +101,6 @@ export async function getCoaches(
       } else {
         query = query.in('id', matchedCoachIds)
       }
-    } else {
-      // Basic text search (regex/tsvector + exact text matches) for basic Browse Directory
-      const term = `%${filters.q}%`
-
-      // 1. Get user_ids of any profiles matching name exact text
-      const adminClient = createAdminClient()
-      const { data: profileMatches } = await adminClient
-        .from('profiles')
-        .select('id')
-        .ilike('full_name', term)
-
-      const matchedUserIds = profileMatches?.map((p) => p.id) || []
-
-      // 2. Build the exact text OR query for coach_profiles metadata
-      let orQuery = `certification_level.ilike.${term},location_city.ilike.${term},location_country.ilike.${term},bio.ilike.${term}`
-      if (matchedUserIds.length > 0) {
-        orQuery += `,user_id.in.(${matchedUserIds.join(',')})`
-      }
-
-      // We combine the vector search (which captures fuzzy specializations) AND the exact text matches
-      // using PostgREST's syntax. Actually, PostgREST doesn't support combining full text search AND or() cleanly
-      // without chaining them as ANDs. So we will rely on purely the .or() for basic fast search.
-      // (Since 'bio' is covered by ilike and full_name, cert, location are covered!)
-      query = query.or(orQuery)
     }
   }
 
@@ -140,7 +120,7 @@ export async function getCoaches(
   }
 
   // Cursor-based pagination
-  if (filters.cursor) {
+  if (filters.cursor && !isTextSearch) {
     query = query.gt('id', filters.cursor)
   }
 
@@ -148,6 +128,9 @@ export async function getCoaches(
   if (matchedCoachIds && matchedCoachIds.length > 0) {
     // If it's a semantic search, don't standard order yet - we will sort in memory
     query = query.limit(limit + 1)
+  } else if (isTextSearch) {
+    // Pull a broad candidate set, then do deterministic normalized text filtering in memory.
+    query = query.order('id', { ascending: true }).limit(1000)
   } else {
     query = query.order('id', { ascending: true }).limit(limit + 1)
   }
@@ -159,6 +142,39 @@ export async function getCoaches(
   }
 
   let finalData = data
+
+  if (isTextSearch) {
+    const normalize = (value: string) =>
+      value
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+
+    const queryTokens = normalize(queryText).split(/\s+/).filter(Boolean)
+
+    finalData = finalData.filter((coach) => {
+      const certLabel = CERTIFICATION_LABELS[coach.certification_level] ?? ''
+      const searchable = normalize(
+        [
+          coach.profile?.full_name ?? '',
+          coach.certification_level ?? '',
+          certLabel,
+          coach.location_city ?? '',
+          coach.location_country ?? '',
+          coach.bio ?? '',
+          (coach.specializations ?? []).join(' '),
+        ].join(' ')
+      )
+
+      return queryTokens.every((token) => searchable.includes(token))
+    })
+
+    if (filters.cursor) {
+      finalData = finalData.filter((coach) => coach.id > filters.cursor!)
+    }
+  }
+
   if (matchedCoachIds && matchedCoachIds.length > 0) {
     // Sort finalData by the original similarity order returned from the RPC
     finalData.sort((a, b) => {
