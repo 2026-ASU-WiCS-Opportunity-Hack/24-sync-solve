@@ -11,6 +11,7 @@ import {
   CreditCard,
   ExternalLink,
   BookUser,
+  LibraryBig,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
@@ -47,6 +48,7 @@ export function AdminSidebar({ pendingApprovals = 0, pendingApplications = 0 }: 
       badge: pendingApplications > 0 ? pendingApplications : undefined,
     },
     { href: '/admin/payments', label: 'Payments', icon: CreditCard },
+    { href: '/admin/knowledge', label: 'Knowledge Engine', icon: LibraryBig },
   ]
 
   function isActive(href: string) {
