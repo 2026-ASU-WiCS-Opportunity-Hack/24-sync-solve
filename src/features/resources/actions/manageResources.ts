@@ -197,8 +197,8 @@ export async function createResourceAction(
       )
     }
     // Prefill AI summary + promoter cache at upload time so end users can open ready-made content.
-    if (data?.id) {
-      await generateResourceMarketingAction(data.id)
+    if (createdResource?.id) {
+      await generateResourceMarketingAction(createdResource.id)
     }
 
     revalidatePath('/resources')

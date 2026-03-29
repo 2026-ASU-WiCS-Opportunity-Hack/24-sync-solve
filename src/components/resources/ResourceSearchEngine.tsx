@@ -77,6 +77,7 @@ export function ResourceSearchEngine({
     article: 'Articles',
     link: 'Links',
     pdf: 'PDF',
+    webinar: 'Webinars',
     journals: 'Journals',
     courses: 'Courses',
     webinars: 'Webinars',

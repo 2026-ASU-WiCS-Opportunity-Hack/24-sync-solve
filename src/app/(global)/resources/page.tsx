@@ -58,11 +58,12 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
     ctx ? getUserCompletions(supabase, ctx.userId) : Promise.resolve(null),
   ])
 
+  let resources = resourcesResult.items
+
   const resourceCoachMap = await getCoachMapByResourceIds(
     supabase,
     resources.map((resource) => resource.id)
   )
-  let resources = resourcesResult.items
 
   if (canManage) {
     const missingSummaryIds = resources

@@ -24,7 +24,7 @@ type ResourceDisplayType = 'video' | 'article' | 'pdf' | 'link' | 'webinar'
 const TYPE_ICONS: Record<ResourceDisplayType, typeof Play> = {
   video: Play,
   article: FileText,
-  pdf: FileDown,
+  pdf: Download,
   link: ExternalLink,
   webinar: Play,
 }
@@ -53,8 +53,12 @@ const CTA_LABELS: Record<ResourceDisplayType, string> = {
   webinar: 'Watch',
 }
 
-
-export function ResourceCard({ resource, teachingCoaches = [], isCompleted, canGenerateAI = false }: ResourceCardProps) {
+export function ResourceCard({
+  resource,
+  teachingCoaches = [],
+  isCompleted,
+  canGenerateAI = false,
+}: ResourceCardProps) {
   const looksLikeWebinar = /webinar/i.test(resource.url) || /webinar/i.test(resource.category ?? '')
   const safeType: ResourceDisplayType = looksLikeWebinar
     ? 'webinar'

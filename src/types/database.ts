@@ -664,7 +664,7 @@ export interface Database {
           chapter_id: string | null
           title: string
           description: string | null
-          type: 'video' | 'article' | 'pdf' | 'link'
+          type: 'video' | 'article' | 'pdf' | 'link' | 'webinar'
           url: string
           thumbnail_url: string | null
           category: string | null
@@ -688,7 +688,7 @@ export interface Database {
           chapter_id?: string | null
           title: string
           description?: string | null
-          type: 'video' | 'article' | 'pdf' | 'link'
+          type: 'video' | 'article' | 'pdf' | 'link' | 'webinar'
           url: string
           thumbnail_url?: string | null
           category?: string | null
