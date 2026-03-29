@@ -17,11 +17,70 @@ interface StatsBlockProps {
   accentColor?: string
 }
 
+const STATS_BG = '#003366'
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const normalized = hex.trim().replace('#', '')
+  if (!/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(normalized)) {
+    return null
+  }
+
+  const full =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map((c) => `${c}${c}`)
+          .join('')
+      : normalized
+
+  const value = Number.parseInt(full, 16)
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255,
+  }
+}
+
+function relativeLuminance(r: number, g: number, b: number): number {
+  const toLinear = (channel: number) => {
+    const c = channel / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+}
+
+function contrastRatio(hexA: string, hexB: string): number | null {
+  const rgbA = hexToRgb(hexA)
+  const rgbB = hexToRgb(hexB)
+  if (!rgbA || !rgbB) {
+    return null
+  }
+
+  const lumA = relativeLuminance(rgbA.r, rgbA.g, rgbA.b)
+  const lumB = relativeLuminance(rgbB.r, rgbB.g, rgbB.b)
+  const lighter = Math.max(lumA, lumB)
+  const darker = Math.min(lumA, lumB)
+
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+function getReadableValueColor(accentColor?: string): string {
+  if (!accentColor) return '#ffffff'
+
+  const ratio = contrastRatio(accentColor, STATS_BG)
+  if (ratio == null || ratio < 4.5) {
+    return '#ffffff'
+  }
+
+  return accentColor
+}
+
 export default function StatsBlock({ content, accentColor }: StatsBlockProps) {
   const parsed = statsSchema.safeParse(content)
   const data = parsed.success ? parsed.data : statsSchema.parse({})
 
-  const accentStyle = accentColor ? { color: accentColor } : {}
+  const accentStyle = { color: getReadableValueColor(accentColor) }
 
   if (data.items.length === 0) return null
 
