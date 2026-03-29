@@ -35,7 +35,11 @@ export function EventFilterBar({ activeType, upcoming }: EventFilterBarProps) {
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm ring-1 ring-black/5">
+      <div className="mb-3 flex items-center justify-between gap-2 border-b border-gray-100 pb-3">
+        <p className="text-wial-navy text-sm font-semibold">Filter Events</p>
+        <p className="text-xs text-gray-500">Use type and timeframe</p>
+      </div>
       <div className="flex flex-wrap items-center gap-3">
         {/* Event type pills */}
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by event type">

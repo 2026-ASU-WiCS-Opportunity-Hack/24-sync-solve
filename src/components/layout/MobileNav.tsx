@@ -37,7 +37,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
       {isOpen && (
         <div
           id="mobile-menu"
-          className="border-wial-navy-dark bg-wial-navy absolute inset-x-3 top-[calc(100%+0.5rem)] z-50 rounded-2xl border p-2 shadow-2xl"
+          className="border-wial-navy-dark absolute inset-x-3 top-[calc(100%+0.5rem)] z-50 rounded-2xl border bg-gradient-to-br from-[#003366] to-[#02294d] p-2 shadow-2xl"
           role="navigation"
           aria-label="Mobile navigation"
         >
@@ -47,7 +47,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 key={link.href}
                 href={chapterSlug ? `/${chapterSlug}${link.href}` : link.href}
                 onClick={handleClose}
-                className="hover:bg-wial-navy-light block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
+                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
               >
                 {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
               </Link>
@@ -62,7 +62,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                   <Link
                     href={user.role === 'super_admin' ? '/admin' : `/${user.chapterId}/edit`}
                     onClick={handleClose}
-                    className="hover:bg-wial-navy-light block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
                   >
                     {t('dashboard')}
                   </Link>
@@ -70,7 +70,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 <form action={logoutAction}>
                   <button
                     type="submit"
-                    className="hover:bg-wial-navy-light w-full rounded-lg px-3 py-2.5 text-start text-sm font-medium text-white/80 hover:text-white"
+                    className="w-full rounded-lg px-3 py-2.5 text-start text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
                   >
                     {t('logout')}
                   </button>
@@ -81,7 +81,7 @@ export function MobileNav({ chapterSlug, user }: MobileNavProps) {
                 <Link
                   href="/login"
                   onClick={handleClose}
-                  className="hover:bg-wial-navy-light block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white"
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors hover:bg-white/12 hover:text-white"
                 >
                   {t('login')}
                 </Link>

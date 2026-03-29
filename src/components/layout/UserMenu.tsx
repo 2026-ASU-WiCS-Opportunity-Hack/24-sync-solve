@@ -75,20 +75,20 @@ export function UserMenu({ user }: UserMenuProps) {
       {isOpen && (
         <div
           role="menu"
-          className="absolute end-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
+          className="absolute end-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
           aria-label="User menu"
         >
-          <div className="from-wial-surface border-b border-gray-100 bg-gradient-to-b to-white px-4 py-3">
-            <p className="truncate text-sm font-medium text-gray-900">{user.fullName ?? 'User'}</p>
-            <p className="truncate text-xs text-gray-500">{user.email}</p>
+          <div className="from-wial-navy to-wial-navy-light border-b border-gray-100 bg-gradient-to-r px-4 py-3 text-white">
+            <p className="truncate text-sm font-semibold text-white">{user.fullName ?? 'User'}</p>
+            <p className="truncate text-xs text-white/70">{user.email}</p>
           </div>
 
-          <div className="py-1">
+          <div className="py-1.5">
             <Link
               href={dashboardHref}
               role="menuitem"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
             >
               <LayoutDashboard size={16} aria-hidden="true" />
               Dashboard
@@ -99,7 +99,7 @@ export function UserMenu({ user }: UserMenuProps) {
                 href="/coaches/profile"
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
               >
                 <User size={16} aria-hidden="true" />
                 My Profile
@@ -110,19 +110,19 @@ export function UserMenu({ user }: UserMenuProps) {
               href="/account/settings"
               role="menuitem"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
             >
               <Settings size={16} aria-hidden="true" />
               Account Settings
             </Link>
           </div>
 
-          <div className="border-t border-gray-100 py-1">
+          <div className="border-t border-gray-100 py-1.5">
             <form action={logoutAction}>
               <button
                 type="submit"
                 role="menuitem"
-                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-700 transition-colors hover:bg-red-50"
               >
                 <LogOut size={16} aria-hidden="true" />
                 Log Out

@@ -82,7 +82,11 @@ export default async function DashboardPage() {
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <section className="bg-wial-navy py-12 text-white">
+      <section className="bg-wial-navy relative overflow-hidden py-14 text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.15),transparent_38%),radial-gradient(circle_at_80%_0%,rgba(204,0,0,0.22),transparent_44%)]"
+        />
         <div className="mx-auto max-w-5xl px-6 lg:px-8">
           <div className="flex items-center gap-5">
             {profile?.avatar_url ? (
@@ -110,7 +114,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* ── Content ──────────────────────────────────────────────────────── */}
-      <section className="bg-gray-50 py-12">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-5xl space-y-10 px-6 lg:px-8">
           {/* ── Coach profile card ──────────────────────────────────────── */}
           {isCoach && (
@@ -120,7 +124,7 @@ export default async function DashboardPage() {
               </h2>
 
               {coachProfile ? (
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     {/* Cert + status badges */}
                     <div>
@@ -198,7 +202,7 @@ export default async function DashboardPage() {
               <h2 className="text-wial-navy mb-4 text-lg font-semibold">
                 {t('chapterManagement.heading')}
               </h2>
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
                 <p className="text-sm text-gray-600">{t('chapterManagement.description')}</p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <Link
@@ -230,7 +234,7 @@ export default async function DashboardPage() {
                 <p className="text-sm text-gray-500">{tPayments('history.noPayments')}</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+              <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm ring-1 ring-black/5">
                 <table className="w-full text-sm" aria-label={tPayments('history.title')}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50 text-left">

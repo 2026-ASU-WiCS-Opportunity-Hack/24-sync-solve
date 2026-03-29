@@ -103,7 +103,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
       )}
 
       {/* Bio */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
         <h2 className="text-wial-navy mb-4 text-base font-semibold">About You</h2>
         <div>
           <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
@@ -128,7 +128,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
       </div>
 
       {/* Specializations */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
         <h2 className="text-wial-navy mb-4 text-base font-semibold">Specializations</h2>
         <p className="mb-3 text-xs text-gray-500">Add up to 20 areas of expertise.</p>
 
@@ -197,7 +197,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
       </div>
 
       {/* Languages */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
         <h2 className="text-wial-navy mb-4 text-base font-semibold">Languages</h2>
         <p className="mb-3 text-xs text-gray-500">Add languages you coach in (at least 1).</p>
 
@@ -266,7 +266,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
       </div>
 
       {/* Location & Contact */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ring-1 ring-black/5">
         <h2 className="text-wial-navy mb-4 text-base font-semibold">Location & Contact</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -331,7 +331,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
       </div>
 
       {/* Locked fields notice */}
-      <p className="text-xs text-gray-400">
+      <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
         <strong>Note:</strong> Certification level and published status are managed by WIAL
         administrators and cannot be changed here.
       </p>

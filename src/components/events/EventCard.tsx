@@ -58,7 +58,7 @@ export function EventCard({ event, accentColor }: EventCardProps) {
     .join(' ')
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-1 hover:shadow-xl">
       {/* Event image — links to detail page, hidden from AT since title link suffices */}
       {event.image_url && (
         <Link
@@ -78,6 +78,10 @@ export function EventCard({ event, accentColor }: EventCardProps) {
       )}
 
       <div className="flex flex-1 flex-col p-6">
+        <div
+          className="from-wial-navy/8 mb-4 h-1 w-12 rounded-full bg-gradient-to-r to-transparent"
+          aria-hidden="true"
+        />
         {/* Type badge + virtual indicator */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className={badgeClass} style={badgeStyle}>

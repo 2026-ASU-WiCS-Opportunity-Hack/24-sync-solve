@@ -35,13 +35,17 @@ export default async function CoachesProfilePage() {
     // User is not a coach — show appropriate message
     return (
       <>
-        <section className="bg-wial-navy py-12 text-white">
+        <section className="bg-wial-navy relative overflow-hidden py-14 text-white">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.16),transparent_38%)]"
+          />
           <div className="mx-auto max-w-3xl px-6 lg:px-8">
             <h1 className="text-3xl font-extrabold">My Coach Profile</h1>
           </div>
         </section>
 
-        <section className="bg-gray-50 py-12">
+        <section className="bg-white py-12">
           <div className="mx-auto max-w-3xl px-6 lg:px-8">
             <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
               <Award size={40} className="text-wial-navy mx-auto mb-4" aria-hidden="true" />
@@ -71,7 +75,11 @@ export default async function CoachesProfilePage() {
   return (
     <>
       {/* Header */}
-      <section className="bg-wial-navy py-12 text-white">
+      <section className="bg-wial-navy relative overflow-hidden py-14 text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_0%,rgba(204,0,0,0.2),transparent_42%)]"
+        />
         <div className="mx-auto max-w-3xl px-6 lg:px-8">
           <h1 className="text-3xl font-extrabold">My Coach Profile</h1>
           <p className="mt-2 text-white/70">
@@ -80,10 +88,10 @@ export default async function CoachesProfilePage() {
         </div>
       </section>
 
-      <section className="bg-gray-50 py-12">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl space-y-6 px-6 lg:px-8">
           {/* Profile summary card */}
-          <div className="flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm ring-1 ring-black/5">
             {coach.photo_url ? (
               <Image
                 src={coach.photo_url}

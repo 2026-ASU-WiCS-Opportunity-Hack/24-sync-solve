@@ -22,7 +22,7 @@ export function CoachCard({ coach }: CoachCardProps) {
   const certColor = CERT_COLORS[coach.certification_level] ?? 'bg-gray-100 text-gray-700'
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+    <article className="group overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-1 hover:shadow-lg">
       <Link
         href={`/coaches/${coach.id}`}
         className="focus-visible:ring-wial-navy block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -100,7 +100,7 @@ export function CoachCard({ coach }: CoachCardProps) {
           )}
 
           {/* View profile CTA */}
-          <span className="bg-wial-navy group-hover:bg-wial-navy-light mt-4 inline-flex rounded-full px-3 py-1.5 text-xs font-semibold text-white transition-colors">
+          <span className="bg-wial-navy group-hover:bg-wial-navy-light mt-4 inline-flex rounded-full px-3.5 py-1.5 text-xs font-semibold text-white transition-colors">
             View profile
           </span>
         </div>
