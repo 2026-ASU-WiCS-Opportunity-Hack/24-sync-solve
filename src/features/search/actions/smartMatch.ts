@@ -29,12 +29,14 @@ export async function smartMatchCoaches(query: string): Promise<SmartMatchResult
     schema: z.object({
       country: z
         .string()
+        .nullable()
         .optional()
         .describe(
           'A specific country name in English if explicitly mentioned (e.g. "Brazil", "Spain"). If only a city corresponds (like "Sao Paulo"), leave this empty and add to semanticSearchQuery.'
         ),
       certification: z
-        .enum(['CALC', 'PALC', 'SALC', 'MALC'])
+        .enum(['CALC', 'PALC', 'SALC', 'MALC', ''])
+        .nullable()
         .optional()
         .describe('Action learning certification level explicitly mentioned.'),
       semanticSearchQuery: z
@@ -53,8 +55,8 @@ export async function smartMatchCoaches(query: string): Promise<SmartMatchResult
   const adminClient = createAdminClient()
   const { items: coaches } = await getCoaches(adminClient, {
     q: parsedQuery.semanticSearchQuery,
-    country: parsedQuery.country,
-    certification: parsedQuery.certification as any, // Cast because getCoaches expects strict type but our enum matches it
+    country: parsedQuery.country || undefined,
+    certification: parsedQuery.certification ? (parsedQuery.certification as any) : undefined,
     limit: 5,
   })
 
