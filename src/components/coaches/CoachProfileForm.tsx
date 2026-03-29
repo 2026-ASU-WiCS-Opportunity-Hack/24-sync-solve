@@ -6,6 +6,7 @@ import { Plus, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button, Input, Label, TextArea } from '@heroui/react'
 import { updateCoachProfileAction } from '@/features/coaches/actions/updateCoachProfile'
+import { ImageUpload } from '@/components/editor/ImageUpload'
 import type { ActionResult } from '@/types'
 import type { CoachFullProfile } from '@/features/coaches/queries/getCoachById'
 
@@ -46,6 +47,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
   const [languageInput, setLanguageInput] = useState('')
   const [specializations, setSpecializations] = useState<string[]>(coach.specializations ?? [])
   const [languages, setLanguages] = useState<string[]>(coach.languages ?? [])
+  const [photoUrl, setPhotoUrl] = useState<string>(coach.photo_url ?? '')
   const formRef = useRef<HTMLFormElement>(null)
 
   const [state, formAction, isPending] = useActionState<ActionResult | null, FormData>(
@@ -86,9 +88,10 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
     <form
       ref={formRef}
       action={(formData) => {
-        // Inject managed array fields
+        // Inject managed fields
         specializations.forEach((s) => formData.append('specializations', s))
         languages.forEach((l) => formData.append('languages', l))
+        formData.set('photo_url', photoUrl)
         startTransition(() => formAction(formData))
       }}
       className="space-y-8"
@@ -104,6 +107,24 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
           {state.error}
         </div>
       )}
+
+      {/* Profile photo */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-wial-navy mb-1 text-base font-semibold">Profile Photo</h2>
+        <p className="mb-4 text-xs text-gray-500">
+          This photo appears on your public coach profile. Square images work best.
+        </p>
+        <div className="max-w-xs">
+          <ImageUpload
+            value={photoUrl}
+            onChange={setPhotoUrl}
+            bucket="coach-photos"
+            pathPrefix="profiles"
+            previewAlt="Coach profile photo"
+            label="Upload profile photo"
+          />
+        </div>
+      </div>
 
       {/* Bio */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">

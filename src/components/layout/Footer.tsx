@@ -2,19 +2,27 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { GLOBAL_NAV_LINKS } from '@/lib/utils/constants'
+import { getGlobalSettings } from '@/features/settings/queries/getSettings'
+import { updateGlobalSetting } from '@/features/settings/actions/updateSetting'
+import { InlineEditableText } from '@/components/editor/InlineEditableText'
 
-export async function Footer() {
+interface FooterProps {
+  /** Whether the current viewer is super_admin (controls edit affordances) */
+  isSuperAdmin?: boolean
+}
+
+export async function Footer({ isSuperAdmin = false }: FooterProps) {
   const t = await getTranslations()
 
-  // Fetch active chapters for footer links
   const supabase = await createClient()
-  const { data: chapters } = await supabase
-    .from('chapters')
-    .select('slug, name')
-    .eq('is_active', true)
-    .order('name')
-    .limit(8)
 
+  // Fetch active chapters and editable settings in parallel
+  const [{ data: chapters }, settings] = await Promise.all([
+    supabase.from('chapters').select('slug, name').eq('is_active', true).order('name').limit(8),
+    getGlobalSettings(supabase, ['footer.tagline']),
+  ])
+
+  const footerTagline = settings['footer.tagline'] ?? t('footer.tagline')
   const currentYear = new Date().getFullYear()
 
   return (
@@ -29,9 +37,15 @@ export async function Footer() {
                 World Institute for Action Learning
               </span>
             </Link>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
-              {t('footer.tagline')}
-            </p>
+
+            <InlineEditableText
+              value={footerTagline}
+              onSave={updateGlobalSetting.bind(null, 'footer.tagline')}
+              isSuperAdmin={isSuperAdmin}
+              as="p"
+              className="mt-4 max-w-sm text-sm leading-relaxed text-white/70"
+              label="Footer tagline"
+            />
           </div>
 
           {/* Quick links */}

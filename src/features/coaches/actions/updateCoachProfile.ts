@@ -53,6 +53,7 @@ export async function updateCoachProfileAction(
 
   const raw = {
     bio: (formData.get('bio') as string) || undefined,
+    photo_url: (formData.get('photo_url') as string) || '',
     specializations: specializationsRaw.filter(Boolean),
     languages: languagesRaw.filter(Boolean),
     location_city: (formData.get('location_city') as string) || '',
@@ -82,7 +83,8 @@ export async function updateCoachProfileAction(
 
   // ── Revalidate public coach directory ──────────────────────────────────────
   revalidatePath('/coaches')
-  revalidatePath(`/coaches/profile`)
+  revalidatePath('/coaches/profile')
+  revalidatePath(`/coaches/${existing.id}`)
 
   return {
     success: true,

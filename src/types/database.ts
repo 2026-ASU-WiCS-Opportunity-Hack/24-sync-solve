@@ -634,6 +634,30 @@ export interface Database {
           },
         ]
       }
+      global_settings: {
+        Row: {
+          key: string
+          value: string
+          updated_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value?: string
+          updated_by?: string | null
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['global_settings']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'global_settings_updated_by_fkey'
+            columns: ['updated_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       resources: {
         Row: {
           id: string

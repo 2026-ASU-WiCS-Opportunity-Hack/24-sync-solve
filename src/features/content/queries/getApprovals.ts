@@ -154,7 +154,7 @@ export async function rejectContentBlock(
   const { error } = await supabase
     .from('content_blocks')
     .update({
-      status: 'published', // Keep showing the existing published_version
+      status: 'rejected',
       draft_version: null,
       rejection_reason: reason,
       approved_by: null,

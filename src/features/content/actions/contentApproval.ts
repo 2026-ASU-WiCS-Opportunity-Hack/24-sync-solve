@@ -136,7 +136,7 @@ export async function rejectBlock(blockId: string, reason: string): Promise<Acti
   const { error } = await adminClient
     .from('content_blocks')
     .update({
-      status: 'published',
+      status: 'rejected',
       draft_version: null,
       rejection_reason: reason.trim(),
       approved_by: null,

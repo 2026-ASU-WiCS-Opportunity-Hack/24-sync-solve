@@ -169,6 +169,12 @@ export type ChapterUpdateInput = z.infer<typeof chapterUpdateSchema>
 /** Coach profile self-service update (fields the coach can edit themselves) */
 export const coachProfileUpdateSchema = z.object({
   bio: z.string().max(2000, 'coachProfile.bioTooLong').optional(),
+  photo_url: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
   specializations: z
     .array(z.string().min(1).max(100))
     .max(20, 'coachProfile.tooManySpecializations')

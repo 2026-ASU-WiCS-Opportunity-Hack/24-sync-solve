@@ -23,7 +23,7 @@ const RESERVED_PATHS = new Set([
   'sitemap.xml',
 ])
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // ── 1. Skip static files and Next.js internals ──────────────────────────────

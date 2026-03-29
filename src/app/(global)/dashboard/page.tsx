@@ -179,13 +179,15 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-5">
               {profile?.avatar_url ? (
-                <Image
-                  src={profile.avatar_url}
-                  alt={`${name}'s avatar`}
-                  width={56}
-                  height={56}
-                  className="size-14 rounded-full object-cover ring-2 ring-white/30"
-                />
+                <div className="relative size-14 overflow-hidden rounded-full ring-2 ring-white/30">
+                  <Image
+                    src={profile.avatar_url}
+                    alt={`${name}'s avatar`}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div
                   className="bg-wial-red flex size-14 shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white ring-2 ring-white/30"

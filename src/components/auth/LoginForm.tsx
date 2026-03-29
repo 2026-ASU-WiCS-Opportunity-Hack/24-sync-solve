@@ -53,7 +53,7 @@ export function LoginForm() {
       </div>
 
       {/* Password */}
-      <div>
+      <div className="flex flex-col gap-1">
         <div className="mb-1.5 flex items-center justify-between">
           <Label id="password-label" htmlFor="password">
             {t('passwordLabel')}
@@ -68,6 +68,7 @@ export function LoginForm() {
           name="password"
           type="password"
           autoComplete="current-password"
+          className="w-full"
           required
           placeholder={t('passwordPlaceholder')}
           aria-invalid={!!(state && !state.success && state.fieldErrors?.['password']) || undefined}

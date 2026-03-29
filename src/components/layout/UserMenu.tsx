@@ -60,13 +60,15 @@ export function UserMenu({ user }: UserMenuProps) {
         variant="ghost"
       >
         {user.avatarUrl ? (
-          <Image
-            src={user.avatarUrl}
-            alt={`${user.fullName ?? user.email}'s avatar`}
-            width={32}
-            height={32}
-            className="size-8 rounded-full object-cover"
-          />
+          <div className="relative size-8 overflow-hidden rounded-full">
+            <Image
+              src={user.avatarUrl}
+              alt={`${user.fullName ?? user.email}'s avatar`}
+              fill
+              sizes="32px"
+              className="object-cover"
+            />
+          </div>
         ) : (
           <span className="bg-wial-red flex size-8 items-center justify-center rounded-full text-sm font-bold text-white">
             {(user.fullName ?? user.email)[0]?.toUpperCase()}
@@ -95,6 +97,18 @@ export function UserMenu({ user }: UserMenuProps) {
               <LayoutDashboard size={16} aria-hidden="true" />
               Dashboard
             </Link>
+
+            {user.role === 'super_admin' && (
+              <Link
+                href="/admin/profile"
+                role="menuitem"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <User size={16} aria-hidden="true" />
+                My Profile
+              </Link>
+            )}
 
             {user.role === 'coach' && (
               <Link
