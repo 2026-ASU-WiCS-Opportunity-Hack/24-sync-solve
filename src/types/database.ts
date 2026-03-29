@@ -10,7 +10,8 @@
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-export type UserRole = 'super_admin' | 'chapter_lead' | 'content_editor' | 'coach' | 'public'
+export type UserRole = 'super_admin' | 'chapter_lead' | 'content_editor' | 'coach' | 'user' | 'public'
+export type MembershipStatus = 'none' | 'active' | 'expired'
 export type CertificationLevel = 'CALC' | 'PALC' | 'SALC' | 'MALC'
 export type ContentStatus = 'draft' | 'published' | 'pending_approval' | 'rejected'
 export type BlockType =
@@ -92,6 +93,12 @@ export interface Database {
           phone: string | null
           role: UserRole
           chapter_id: string | null
+          is_suspended: boolean
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
+          membership_status: MembershipStatus
+          membership_expires_at: string | null
           created_at: string
           updated_at: string
         }
@@ -103,6 +110,12 @@ export interface Database {
           phone?: string | null
           role?: UserRole
           chapter_id?: string | null
+          is_suspended?: boolean
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
+          membership_status?: MembershipStatus
+          membership_expires_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -124,6 +137,10 @@ export interface Database {
           chapter_id: string
           role: UserRole
           granted_by: string | null
+          is_active: boolean
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
           created_at: string
         }
         Insert: {
@@ -132,6 +149,10 @@ export interface Database {
           chapter_id: string
           role: UserRole
           granted_by?: string | null
+          is_active?: boolean
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['user_chapter_roles']['Insert']>
@@ -166,12 +187,17 @@ export interface Database {
           photo_url: string | null
           contact_email: string | null
           linkedin_url: string | null
+          credly_url: string | null
           is_published: boolean
           is_verified: boolean
           certification_date: string | null
           recertification_due: string | null
           coaching_hours: number
+          coaching_hours_verified: number | null
           pending_changes: Json | null
+          profile_visibility_suspended: boolean
+          visibility_suspended_at: string | null
+          visibility_suspended_by: string | null
           search_vector: string | null
           created_at: string
           updated_at: string
@@ -189,12 +215,17 @@ export interface Database {
           photo_url?: string | null
           contact_email?: string | null
           linkedin_url?: string | null
+          credly_url?: string | null
           is_published?: boolean
           is_verified?: boolean
           certification_date?: string | null
           recertification_due?: string | null
           coaching_hours?: number
+          coaching_hours_verified?: number | null
           pending_changes?: Json | null
+          profile_visibility_suspended?: boolean
+          visibility_suspended_at?: string | null
+          visibility_suspended_by?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -461,6 +492,103 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['audit_log']['Insert']>
         Relationships: []
       }
+      coach_applications: {
+        Row: {
+          id: string
+          user_id: string
+          chapter_id: string
+          credly_url: string
+          credly_verified: boolean
+          certification_level: CertificationLevel | null
+          message: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          reviewed_by: string | null
+          reviewed_at: string | null
+          review_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          chapter_id: string
+          credly_url: string
+          credly_verified?: boolean
+          certification_level?: CertificationLevel | null
+          message?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          review_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['coach_applications']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'coach_applications_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'coach_applications_chapter_id_fkey'
+            columns: ['chapter_id']
+            isOneToOne: false
+            referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      chapter_requests: {
+        Row: {
+          id: string
+          requested_by: string
+          slug: string
+          name: string
+          country_code: string
+          timezone: string
+          currency: string
+          accent_color: string
+          contact_email: string | null
+          message: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          reviewed_by: string | null
+          reviewed_at: string | null
+          review_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          requested_by: string
+          slug: string
+          name: string
+          country_code: string
+          timezone?: string
+          currency?: string
+          accent_color?: string
+          contact_email?: string | null
+          message?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          review_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['chapter_requests']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'chapter_requests_requested_by_fkey'
+            columns: ['requested_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -488,9 +616,18 @@ export interface Database {
         Args: { p_chapter_id: string }
         Returns: undefined
       }
+      get_user_chapter_roles: {
+        Args: { p_user_id: string }
+        Returns: Array<{ chapter_id: string; role: UserRole }>
+      }
+      count_active_super_admins: {
+        Args: Record<string, never>
+        Returns: number
+      }
     }
     Enums: {
       user_role: UserRole
+      membership_status: MembershipStatus
       certification_level: CertificationLevel
       content_status: ContentStatus
       block_type: BlockType

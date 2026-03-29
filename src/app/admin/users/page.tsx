@@ -2,27 +2,13 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getUsersAdmin } from '@/features/auth/queries/getUsers'
 import { formatDate } from '@/lib/utils/format'
-import { ROLE_HIERARCHY } from '@/lib/utils/constants'
+import { ROLE_HIERARCHY, ROLE_LABELS, ROLE_COLORS } from '@/lib/utils/constants'
+import { RoleAssignmentForm } from '@/components/admin/RoleAssignmentForm'
+import { AccountSuspensionControls } from '@/components/admin/SuspensionControls'
 
 export const metadata: Metadata = { title: 'Users' }
 
-export const revalidate = 60
-
-const ROLE_LABELS: Record<string, string> = {
-  super_admin: 'Super Admin',
-  chapter_lead: 'Chapter Lead',
-  content_editor: 'Content Editor',
-  coach: 'Coach',
-  public: 'Public',
-}
-
-const ROLE_COLORS: Record<string, string> = {
-  super_admin: 'bg-red-100 text-red-700',
-  chapter_lead: 'bg-purple-100 text-purple-700',
-  content_editor: 'bg-blue-100 text-blue-700',
-  coach: 'bg-green-100 text-green-700',
-  public: 'bg-gray-100 text-gray-600',
-}
+export const revalidate = 0
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -34,6 +20,8 @@ export default async function AdminUsersPage() {
     return acc
   }, {})
 
+  const suspendedCount = users.filter((u) => u.is_suspended).length
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -41,6 +29,9 @@ export default async function AdminUsersPage() {
         <h1 className="text-2xl font-bold text-gray-900">Users</h1>
         <p className="mt-1 text-sm text-gray-500">
           {total} registered user{total !== 1 ? 's' : ''}.
+          {suspendedCount > 0 && (
+            <span className="ms-2 text-red-600">{suspendedCount} suspended.</span>
+          )}
         </p>
       </div>
 
@@ -59,6 +50,12 @@ export default async function AdminUsersPage() {
               </span>
             </span>
           ))}
+        {suspendedCount > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+            Suspended
+            <span className="rounded-full bg-white/60 px-1.5 font-bold">{suspendedCount}</span>
+          </span>
+        )}
       </div>
 
       {/* Table */}
@@ -77,7 +74,10 @@ export default async function AdminUsersPage() {
                   User
                 </th>
                 <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
-                  Role
+                  Global Role
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
+                  Status
                 </th>
                 <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
                   Chapter
@@ -85,11 +85,14 @@ export default async function AdminUsersPage() {
                 <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
                   Joined
                 </th>
+                <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+                <tr key={user.id} className={user.is_suspended ? 'bg-red-50' : 'hover:bg-gray-50'}>
                   <td className="px-4 py-3">
                     <div>
                       <p className="font-medium text-gray-900">{user.full_name ?? 'No name'}</p>
@@ -97,16 +100,30 @@ export default async function AdminUsersPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${ROLE_COLORS[user.role] ?? 'bg-gray-100 text-gray-600'}`}
-                    >
-                      {ROLE_LABELS[user.role] ?? user.role}
-                    </span>
+                    <RoleAssignmentForm userId={user.id} currentRole={user.role} />
+                  </td>
+                  <td className="px-4 py-3">
+                    {user.is_suspended ? (
+                      <span className="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                        Suspended
+                      </span>
+                    ) : (
+                      <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                        Active
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">
                     {user.chapter_name ?? <span className="text-gray-400">—</span>}
                   </td>
                   <td className="px-4 py-3 text-gray-500">{formatDate(user.created_at)}</td>
+                  <td className="px-4 py-3">
+                    <AccountSuspensionControls
+                      userId={user.id}
+                      isSuspended={user.is_suspended ?? false}
+                      suspensionReason={user.suspension_reason}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>

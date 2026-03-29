@@ -12,6 +12,8 @@ export interface AdminDashboardStats {
   userCount: number
   pendingApprovals: number
   totalPayments: number
+  pendingApplications: number
+  suspendedUsers: number
 }
 
 /**
@@ -72,24 +74,46 @@ export async function getChapterById(
 }
 
 /**
+ * Fetch a single chapter by slug (for chapter manage pages).
+ */
+export async function getChapterBySlug(
+  supabase: SupabaseClient<Database>,
+  slug: string
+): Promise<Chapter | null> {
+  const { data, error } = await supabase.from('chapters').select('*').eq('slug', slug).single()
+
+  if (error || !data) return null
+  return data
+}
+
+/**
  * Aggregate stats for the admin dashboard overview.
  */
 export async function getAdminDashboardStats(
   supabase: SupabaseClient<Database>
 ): Promise<AdminDashboardStats> {
-  const [chapters, coaches, users, approvals, payments] = await Promise.all([
-    supabase.from('chapters').select('id', { count: 'exact', head: true }).eq('is_active', true),
-    supabase.from('coach_profiles').select('id', { count: 'exact', head: true }),
-    supabase.from('profiles').select('id', { count: 'exact', head: true }),
-    supabase
-      .from('content_blocks')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending_approval'),
-    supabase
-      .from('payments')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'succeeded'),
-  ])
+  const [chapters, coaches, users, approvals, payments, applications, suspended] =
+    await Promise.all([
+      supabase.from('chapters').select('id', { count: 'exact', head: true }).eq('is_active', true),
+      supabase.from('coach_profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase
+        .from('content_blocks')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending_approval'),
+      supabase
+        .from('payments')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'succeeded'),
+      supabase
+        .from('coach_applications')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_suspended', true),
+    ])
 
   return {
     chapterCount: chapters.count ?? 0,
@@ -97,5 +121,7 @@ export async function getAdminDashboardStats(
     userCount: users.count ?? 0,
     pendingApprovals: approvals.count ?? 0,
     totalPayments: payments.count ?? 0,
+    pendingApplications: applications.count ?? 0,
+    suspendedUsers: suspended.count ?? 0,
   }
 }

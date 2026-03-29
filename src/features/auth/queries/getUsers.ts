@@ -54,12 +54,29 @@ export async function getUsersAdmin(
 
 /**
  * Update a user's role. Super admin only — enforced via RLS.
+ * Includes last-admin protection: cannot demote the last active super_admin.
  */
 export async function updateUserRole(
   supabase: SupabaseClient<Database>,
   userId: string,
   role: Profile['role']
 ): Promise<{ error: string | null }> {
+  // Last-admin protection
+  if (role !== 'super_admin') {
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (currentProfile?.role === 'super_admin') {
+      const { data: count } = await supabase.rpc('count_active_super_admins')
+      if ((count ?? 0) <= 1) {
+        return { error: 'Cannot demote the last active super admin. Promote another admin first.' }
+      }
+    }
+  }
+
   const { error } = await supabase.from('profiles').update({ role }).eq('id', userId)
   return { error: error?.message ?? null }
 }

@@ -6,7 +6,14 @@
       "Bash(git -C /c/Users/presyze/Projects/ASU/ohack diff .gitignore)",
       "Bash(grep -rn \"useTranslations\\\\|getTranslations\" /c/Users/presyze/Projects/ASU/ohack/src --include=*.tsx)",
       "Bash(wc -l /c/Users/presyze/Projects/ASU/ohack/src/app/\\\\\\(global\\\\\\)/dashboard/page.tsx)",
-      "Bash(node -e \"console.log\\(require\\(''./node_modules/zod/package.json''\\).version\\)\")"
+      "Bash(node -e \"console.log\\(require\\(''./node_modules/zod/package.json''\\).version\\)\")",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
+      "Bash(cat \"/c/Users/presyze/Projects/ASU/ohack/src/app/\\(global\\)/dashboard/page.tsx\")",
+      "Bash(mkdir -p \"c:/Users/presyze/Projects/ASU/ohack/src/app/[chapter]/manage/users\")",
+      "Bash(mkdir -p \"c:/Users/presyze/Projects/ASU/ohack/src/app/[chapter]/manage/coaches/applications\")",
+      "Bash(mkdir -p \"c:/Users/presyze/Projects/ASU/ohack/src/app/[chapter]/manage/approvals\")",
+      "Bash(mkdir -p \"c:/Users/presyze/Projects/ASU/ohack/src/app/[chapter]/manage/settings\")"
     ]
   }
 }

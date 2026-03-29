@@ -13,13 +13,16 @@ import {
   Settings,
   ExternalLink,
   Receipt,
+  Building2,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getCoachProfileByUserId } from '@/features/coaches/queries/getCoachById'
 import { getUserPayments } from '@/features/payments/queries/getPayments'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
-import type { CertificationLevel } from '@/types/database'
+import type { CertificationLevel, UserRole } from '@/types/database'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -31,7 +34,14 @@ const PAYMENT_STATUS_STYLES: Record<string, string> = {
   refunded: 'bg-amber-100 text-amber-700',
 }
 
-export const revalidate = 0 // Always fresh — reflects latest profile status
+export const revalidate = 0
+
+interface ManagedChapter {
+  id: string
+  name: string
+  slug: string
+  roles: UserRole[]
+}
 
 export default async function DashboardPage() {
   const [t, tPayments] = await Promise.all([
@@ -50,28 +60,91 @@ export default async function DashboardPage() {
   // ── Fetch user profile ─────────────────────────────────────────────────────
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, full_name, avatar_url, chapter_id')
+    .select(
+      'role, full_name, avatar_url, chapter_id, is_suspended, membership_status, membership_expires_at'
+    )
     .eq('id', user.id)
     .single()
 
-  // Super admins belong in /admin, not the dashboard
-  if (profile?.role === 'super_admin') {
-    redirect('/admin')
-  }
+  // Redirect suspended accounts
+  if (profile?.is_suspended) redirect('/suspended')
+
+  // Super admins belong in /admin
+  if (profile?.role === 'super_admin') redirect('/admin')
 
   const isCoach = profile?.role === 'coach'
-  const isChapterManager = profile?.role === 'chapter_lead' || profile?.role === 'content_editor'
 
-  // ── Fetch coach profile, payment history, chapter slug in parallel ─────────
-  const [coachProfile, payments, chapterData] = await Promise.all([
+  // ── Parallel data fetch ────────────────────────────────────────────────────
+  const [coachProfile, payments, chapterRolesResult, pendingAppResult] = await Promise.all([
     isCoach ? getCoachProfileByUserId(supabase, user.id) : Promise.resolve(null),
     getUserPayments(supabase, user.id),
-    isChapterManager && profile?.chapter_id
-      ? supabase.from('chapters').select('slug').eq('id', profile.chapter_id).single()
+    // Fetch all active chapter roles for multi-chapter management (Gap C)
+    supabase
+      .from('user_chapter_roles')
+      .select('role, chapter:chapters!user_chapter_roles_chapter_id_fkey(id, name, slug)')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .in('role', ['chapter_lead', 'content_editor']),
+    // Check for pending coach application (Gap G — show CTA only if none pending)
+    !isCoach
+      ? supabase
+          .from('coach_applications')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'pending')
+          .limit(1)
+          .maybeSingle()
       : Promise.resolve({ data: null }),
   ])
 
-  const chapterSlug = chapterData?.data?.slug ?? null
+  // ── Build managed chapters list (Gap C) ────────────────────────────────────
+  const chaptersMap = new Map<string, ManagedChapter>()
+
+  for (const row of chapterRolesResult.data ?? []) {
+    const chap = row.chapter as { id: string; name: string; slug: string } | null
+    if (!chap) continue
+    const existing = chaptersMap.get(chap.id)
+    if (existing) {
+      existing.roles.push(row.role as UserRole)
+    } else {
+      chaptersMap.set(chap.id, {
+        id: chap.id,
+        name: chap.name,
+        slug: chap.slug,
+        roles: [row.role as UserRole],
+      })
+    }
+  }
+
+  // Also include profile.chapter_id if chapter_lead globally
+  if (
+    (profile?.role === 'chapter_lead' || profile?.role === 'content_editor') &&
+    profile.chapter_id &&
+    !chaptersMap.has(profile.chapter_id)
+  ) {
+    const { data: primaryChap } = await supabase
+      .from('chapters')
+      .select('id, name, slug')
+      .eq('id', profile.chapter_id)
+      .single()
+    if (primaryChap) {
+      chaptersMap.set(primaryChap.id, {
+        id: primaryChap.id,
+        name: primaryChap.name,
+        slug: primaryChap.slug,
+        roles: [profile.role as UserRole],
+      })
+    }
+  }
+
+  const managedChapters = Array.from(chaptersMap.values())
+
+  // ── Derived state ──────────────────────────────────────────────────────────
+  const hasPendingApp = !!pendingAppResult?.data
+  const showApplyCTA = !isCoach && !hasPendingApp && profile?.role === 'user'
+
+  const membershipStatus = profile?.membership_status ?? 'inactive'
+  const membershipActive = membershipStatus === 'active'
 
   const name = profile?.full_name ?? user.email ?? 'User'
   const certLabel =
@@ -84,26 +157,48 @@ export default async function DashboardPage() {
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <section className="bg-wial-navy py-12 text-white">
         <div className="mx-auto max-w-5xl px-6 lg:px-8">
-          <div className="flex items-center gap-5">
-            {profile?.avatar_url ? (
-              <Image
-                src={profile.avatar_url}
-                alt={`${name}'s avatar`}
-                width={56}
-                height={56}
-                className="size-14 rounded-full object-cover ring-2 ring-white/30"
-              />
-            ) : (
-              <div
-                className="bg-wial-red flex size-14 shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white ring-2 ring-white/30"
-                aria-hidden="true"
-              >
-                {name[0]?.toUpperCase()}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-5">
+              {profile?.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={`${name}'s avatar`}
+                  width={56}
+                  height={56}
+                  className="size-14 rounded-full object-cover ring-2 ring-white/30"
+                />
+              ) : (
+                <div
+                  className="bg-wial-red flex size-14 shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white ring-2 ring-white/30"
+                  aria-hidden="true"
+                >
+                  {name[0]?.toUpperCase()}
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-white/60">{t('welcomeBack')}</p>
+                <h1 className="text-2xl font-extrabold">{name}</h1>
               </div>
-            )}
-            <div>
-              <p className="text-sm text-white/60">{t('welcomeBack')}</p>
-              <h1 className="text-2xl font-extrabold">{name}</h1>
+            </div>
+
+            {/* Membership status badge */}
+            <div className="flex items-center gap-2">
+              {membershipActive ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-green-900/40 px-3 py-1.5 text-sm font-medium text-green-300 ring-1 ring-green-500/30">
+                  <CheckCircle2 size={14} aria-hidden="true" />
+                  Member
+                  {profile?.membership_expires_at && (
+                    <span className="text-xs text-green-400/70">
+                      · expires {formatDate(profile.membership_expires_at)}
+                    </span>
+                  )}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium text-white/60 ring-1 ring-white/20">
+                  <AlertCircle size={14} aria-hidden="true" />
+                  No membership
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -148,17 +243,24 @@ export default async function DashboardPage() {
                             {t('coachProfile.statusVerified')}
                           </span>
                         )}
-                        {!coachProfile.is_published && (
-                          <span className="text-xs text-gray-400">
-                            {t('coachProfile.pendingReview')}
+                        {coachProfile.profile_visibility_suspended && (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700">
+                            <EyeOff size={11} aria-hidden="true" />
+                            Visibility suspended
                           </span>
                         )}
+                        {!coachProfile.is_published &&
+                          !coachProfile.profile_visibility_suspended && (
+                            <span className="text-xs text-gray-400">
+                              {t('coachProfile.pendingReview')}
+                            </span>
+                          )}
                       </div>
                     </div>
 
                     {/* Action links */}
                     <div className="flex flex-wrap gap-3">
-                      {coachProfile.is_published && (
+                      {coachProfile.is_published && !coachProfile.profile_visibility_suspended && (
                         <Link
                           href={`/coaches/${coachProfile.id}`}
                           className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -192,28 +294,93 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          {/* ── Chapter manager card ────────────────────────────────────── */}
-          {isChapterManager && chapterSlug && (
+          {/* ── Apply to be a Coach CTA (Gap G) ─────────────────────────── */}
+          {showApplyCTA && (
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="bg-wial-navy flex size-12 shrink-0 items-center justify-center rounded-full text-white">
+                    <Award size={20} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Become a WIAL Certified Coach</p>
+                    <p className="mt-0.5 text-sm text-gray-600">
+                      Have your Credly badge? Apply to join our certified coach directory.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/coaches/apply"
+                  className="bg-wial-navy hover:bg-wial-navy-dark shrink-0 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+                >
+                  Apply Now
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* ── Pending coach application notice ────────────────────────── */}
+          {hasPendingApp && !isCoach && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <div className="flex items-center gap-3">
+                <Award size={20} className="shrink-0 text-amber-600" aria-hidden="true" />
+                <div>
+                  <p className="font-medium text-amber-900">Coach application pending</p>
+                  <p className="mt-0.5 text-sm text-amber-700">
+                    Your application is under review. You will be notified when a decision is made.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Chapter management cards (Gap C: multi-chapter) ─────────── */}
+          {managedChapters.length > 0 && (
             <div>
               <h2 className="text-wial-navy mb-4 text-lg font-semibold">
                 {t('chapterManagement.heading')}
               </h2>
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p className="text-sm text-gray-600">{t('chapterManagement.description')}</p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Link
-                    href={`/${chapterSlug}`}
-                    className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              <div className="grid gap-4 sm:grid-cols-2">
+                {managedChapters.map((chap) => (
+                  <div
+                    key={chap.id}
+                    className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
                   >
-                    {t('chapterManagement.viewSite')}
-                  </Link>
-                  <Link
-                    href={`/${chapterSlug}/events/manage`}
-                    className="bg-wial-navy hover:bg-wial-navy-dark rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors"
-                  >
-                    {t('chapterManagement.manageEvents')}
-                  </Link>
-                </div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-purple-50 text-purple-600">
+                        <Building2 size={18} aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-gray-900">{chap.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {chap.roles
+                            .map((r) =>
+                              r === 'chapter_lead'
+                                ? 'Chapter Admin'
+                                : r === 'content_editor'
+                                  ? 'Content Editor'
+                                  : r
+                            )
+                            .join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link
+                        href={`/${chap.slug}`}
+                        className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                      >
+                        {t('chapterManagement.viewSite')}
+                      </Link>
+                      <Link
+                        href={`/${chap.slug}/manage`}
+                        className="bg-wial-navy hover:bg-wial-navy-dark rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors"
+                      >
+                        Manage Chapter
+                      </Link>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

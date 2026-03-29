@@ -21,6 +21,9 @@ export interface CoachFullProfile {
   certification_date: string | null
   recertification_due: string | null
   coaching_hours: number | null
+  credly_url: string | null
+  profile_visibility_suspended: boolean
+  visibility_suspended_at: string | null
   created_at: string
   updated_at: string
   profile: {

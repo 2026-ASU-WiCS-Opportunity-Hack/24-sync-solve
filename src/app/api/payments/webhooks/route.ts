@@ -119,6 +119,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (error) {
     throw new Error(`Failed to insert payment record: ${error.message}`)
   }
+
+  // ── Gap B: update membership status on dues payment ─────────────────────────
+  if (paymentType === 'membership_dues') {
+    const membershipExpiresAt = new Date()
+    membershipExpiresAt.setFullYear(membershipExpiresAt.getFullYear() + 1)
+
+    await adminClient
+      .from('profiles')
+      .update({
+        membership_status: 'active',
+        membership_expires_at: membershipExpiresAt.toISOString(),
+      })
+      .eq('id', userId)
+  }
 }
 
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {

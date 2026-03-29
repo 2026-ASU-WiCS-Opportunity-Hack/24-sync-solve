@@ -166,9 +166,101 @@ export const coachProfileUpdateSchema = z.object({
     .or(z.literal(''))
     .transform((v) => v || undefined),
   linkedin_url: optionalUrlSchema,
+  coaching_hours: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => (v ? parseInt(v, 10) : undefined))
+    .pipe(z.number().int().min(0).max(99999).optional()),
 })
 
 export type CoachProfileUpdateInput = z.infer<typeof coachProfileUpdateSchema>
+
+// ── RBAC schemas ──────────────────────────────────────────────────────────────
+
+/** Credly badge URL */
+export const credlyUrlSchema = z
+  .string()
+  .url('Must be a valid URL')
+  .refine(
+    (url) => url.startsWith('https://www.credly.com/badges/'),
+    'Must be a valid Credly badge URL (https://www.credly.com/badges/...)'
+  )
+
+/** Coach self-application form */
+export const coachApplicationSchema = z.object({
+  chapter_id: uuidSchema,
+  credly_url: credlyUrlSchema,
+  message: z
+    .string()
+    .max(1000, 'Message must be under 1000 characters')
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+})
+
+export type CoachApplicationInput = z.infer<typeof coachApplicationSchema>
+
+/** Role assignment — assign a role to a user in a chapter */
+export const roleAssignmentSchema = z.object({
+  user_id: uuidSchema,
+  chapter_id: uuidSchema,
+  role: z.enum(['chapter_lead', 'content_editor', 'coach', 'user']),
+})
+
+export type RoleAssignmentInput = z.infer<typeof roleAssignmentSchema>
+
+/** Account suspension */
+export const suspensionSchema = z.object({
+  user_id: uuidSchema,
+  reason: z.string().min(1, 'Reason is required').max(500, 'Reason must be under 500 characters'),
+})
+
+export type SuspensionInput = z.infer<typeof suspensionSchema>
+
+/** Role-level suspension (chapter-scoped) */
+export const roleSuspensionSchema = suspensionSchema.extend({
+  chapter_id: uuidSchema,
+  role: z.enum(['chapter_lead', 'content_editor', 'coach', 'user']),
+})
+
+export type RoleSuspensionInput = z.infer<typeof roleSuspensionSchema>
+
+/** Chapter request form */
+export const chapterRequestSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  slug: chapterSlugSchema,
+  country_code: countryCodeSchema,
+  timezone: z.string().min(1, 'Timezone is required').max(100),
+  currency: currencyCodeSchema,
+  accent_color: hexColorSchema,
+  contact_email: emailSchema
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+  message: z
+    .string()
+    .max(1000)
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+})
+
+export type ChapterRequestInput = z.infer<typeof chapterRequestSchema>
+
+/** Chapter request review (approve/reject) */
+export const chapterRequestReviewSchema = z.object({
+  request_id: uuidSchema,
+  decision: z.enum(['approved', 'rejected']),
+  review_notes: z
+    .string()
+    .max(1000)
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+})
+
+export type ChapterRequestReviewInput = z.infer<typeof chapterRequestReviewSchema>
 
 // ── Events ────────────────────────────────────────────────────────────────────
 

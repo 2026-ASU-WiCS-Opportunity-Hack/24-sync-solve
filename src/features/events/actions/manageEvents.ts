@@ -9,9 +9,8 @@ import type { ActionResult, Event } from '@/types'
 import type { Json } from '@/types/database'
 
 /**
- * Verify the current user is a chapter_lead or content_editor for the given chapter,
- * or a super_admin.
- * Returns { userId, role, chapterId } on success, or throws redirect.
+ * Verify the current user can create/edit events for the given chapter.
+ * Delegates to the centralized permission system.
  */
 async function requireChapterAccess(chapterId: string) {
   const supabase = await createClient()
@@ -23,36 +22,14 @@ async function requireChapterAccess(chapterId: string) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, chapter_id')
-    .eq('id', user.id)
-    .single()
+  const { requirePermission } = await import('@/lib/permissions/context')
 
-  if (!profile) {
-    return { success: false as const, error: 'Profile not found.' }
+  try {
+    const ctx = await requirePermission('event:create', chapterId)
+    return { success: true as const, userId: ctx.userId }
+  } catch (e) {
+    return { success: false as const, error: (e as Error).message }
   }
-
-  const isSuperAdmin = profile.role === 'super_admin'
-  const isChapterLead = profile.role === 'chapter_lead' && profile.chapter_id === chapterId
-  const isContentEditor = profile.role === 'content_editor' && profile.chapter_id === chapterId
-
-  // Also check user_chapter_roles for multi-chapter assignments
-  if (!isSuperAdmin && !isChapterLead && !isContentEditor) {
-    const { data: chapterRole } = await supabase
-      .from('user_chapter_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('chapter_id', chapterId)
-      .in('role', ['chapter_lead', 'content_editor'])
-      .single()
-
-    if (!chapterRole) {
-      return { success: false as const, error: 'Insufficient permissions for this chapter.' }
-    }
-  }
-
-  return { success: true as const, userId: user.id }
 }
 
 /**

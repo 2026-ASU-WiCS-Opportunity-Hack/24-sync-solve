@@ -10,14 +10,15 @@ export interface ApprovalItem extends ContentBlock {
 /**
  * Fetch content blocks pending approval for the admin queue.
  * Joins page and chapter context for display.
+ * Optionally scoped to a specific chapter.
  */
 export async function getPendingApprovals(
   supabase: SupabaseClient<Database>,
-  options: { limit?: number; offset?: number } = {}
+  options: { chapterId?: string; limit?: number; offset?: number } = {}
 ): Promise<{ items: ApprovalItem[]; total: number }> {
-  const { limit = 50, offset = 0 } = options
+  const { chapterId, limit = 50, offset = 0 } = options
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from('content_blocks')
     .select(
       `
@@ -34,6 +35,12 @@ export async function getPendingApprovals(
     .eq('status', 'pending_approval')
     .order('updated_at', { ascending: true })
     .range(offset, offset + limit - 1)
+
+  if (chapterId) {
+    query = query.eq('page.chapter_id', chapterId)
+  }
+
+  const { data, error, count } = await query
 
   if (error || !data) return { items: [], total: 0 }
 

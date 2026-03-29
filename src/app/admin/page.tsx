@@ -2,7 +2,16 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminDashboardStats } from '@/features/chapters/queries/getChapterAdmin'
-import { Building2, GraduationCap, Users, ClipboardCheck, CreditCard, Plus } from 'lucide-react'
+import {
+  Building2,
+  GraduationCap,
+  Users,
+  ClipboardCheck,
+  CreditCard,
+  Plus,
+  BookUser,
+  ShieldAlert,
+} from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -73,6 +82,20 @@ export default async function AdminDashboardPage() {
       icon: CreditCard,
       href: '/admin/payments',
     },
+    {
+      label: 'Pending Applications',
+      value: stats.pendingApplications,
+      icon: BookUser,
+      href: '/admin/chapter-requests',
+      highlight: stats.pendingApplications > 0,
+    },
+    {
+      label: 'Suspended Users',
+      value: stats.suspendedUsers,
+      icon: ShieldAlert,
+      href: '/admin/users',
+      highlight: stats.suspendedUsers > 0,
+    },
   ]
 
   return (
@@ -85,7 +108,7 @@ export default async function AdminDashboardPage() {
 
       {/* Stats grid */}
       <section aria-label="Platform statistics">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
           {statCards.map((card) => (
             <StatCard key={card.label} {...card} />
           ))}

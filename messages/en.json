@@ -225,8 +225,29 @@
       "chapters": "Chapters",
       "coaches": "Coaches",
       "approvals": "Approvals",
+      "applications": "Applications",
       "payments": "Payments",
       "users": "Users"
+    },
+    "applications": {
+      "title": "Applications",
+      "noItems": "No pending applications.",
+      "chapterRequests": {
+        "heading": "Chapter Requests",
+        "country": "Country",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "requestedBy": "Requested by",
+        "contact": "Contact"
+      },
+      "coachApplications": {
+        "heading": "Coach Applications",
+        "email": "Email",
+        "credly": "Credly",
+        "chapter": "Chapter",
+        "verified": "Verified ✓",
+        "unverified": "Unverified"
+      }
     },
     "chapters": {
       "title": "Manage Chapters",
@@ -389,6 +410,161 @@
       "next": "Next",
       "page": "Page {current} of {total}"
     }
+  },
+  "rbac": {
+    "roles": {
+      "super_admin": "Super Admin",
+      "chapter_lead": "Chapter Admin",
+      "content_editor": "Content Editor",
+      "coach": "Coach",
+      "user": "User"
+    },
+    "roleAssignment": {
+      "heading": "Global Role",
+      "updateButton": "Update",
+      "updating": "Updating…",
+      "successMessage": "Role updated successfully.",
+      "lastAdminError": "Cannot demote the last active super admin.",
+      "selectRole": "Select role"
+    },
+    "suspension": {
+      "heading": "Account Suspension",
+      "suspendButton": "Suspend Account",
+      "unsuspendButton": "Unsuspend Account",
+      "suspending": "Suspending…",
+      "unsuspending": "Unsuspending…",
+      "confirmSuspend": "Confirm Suspend",
+      "cancelButton": "Cancel",
+      "reasonLabel": "Reason for suspension",
+      "reasonPlaceholder": "Explain why this account is being suspended…",
+      "statusSuspended": "Account suspended",
+      "statusActive": "Active",
+      "successSuspended": "Account suspended.",
+      "successUnsuspended": "Account unsuspended."
+    },
+    "roleSwitcher": {
+      "label": "Switch chapter context",
+      "heading": "Your Chapters",
+      "manageButton": "Manage"
+    }
+  },
+  "coachApplication": {
+    "title": "Apply to Become a Coach",
+    "subtitle": "Submit your application to join the WIAL certified coach directory.",
+    "form": {
+      "chapterLabel": "Chapter",
+      "chapterPlaceholder": "Select a chapter…",
+      "credlyUrlLabel": "Credly Badge URL",
+      "credlyUrlHint": "Your badge URL from credly.com/badges/…",
+      "credlyUrlPlaceholder": "https://www.credly.com/badges/…",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Tell us about your Action Learning coaching experience…",
+      "submitButton": "Submit Application",
+      "submitting": "Submitting…"
+    },
+    "success": {
+      "heading": "Application submitted!",
+      "verifiedNote": "Your Credly badge has been verified.",
+      "unverifiedNote": "Your Credly badge could not be automatically verified — an admin will review it manually."
+    },
+    "pending": {
+      "heading": "Application Pending",
+      "message": "You already have a pending coach application. A chapter admin will review it shortly."
+    },
+    "review": {
+      "approveButton": "Approve",
+      "approving": "Approving…",
+      "rejectButton": "Reject",
+      "confirmReject": "Confirm Reject",
+      "rejecting": "Rejecting…",
+      "cancelButton": "Cancel",
+      "notesLabel": "Reason for rejection",
+      "notesPlaceholder": "Explain why this application is being rejected…",
+      "notesRequired": "A reason is required when rejecting an application."
+    }
+  },
+  "chapterRequest": {
+    "title": "Request a New Chapter",
+    "subtitle": "Propose a new WIAL regional chapter. A super admin will review your request.",
+    "permissionRequired": {
+      "heading": "Permission Required",
+      "message": "Only Chapter Admins and Super Admins can request new chapters."
+    },
+    "form": {
+      "nameLabel": "Chapter Name",
+      "namePlaceholder": "e.g. WIAL Nigeria",
+      "slugLabel": "URL Slug",
+      "slugHint": "Used in the URL, e.g. nigeria → wial.org/nigeria",
+      "slugPlaceholder": "e.g. nigeria",
+      "countryCodeLabel": "Country Code",
+      "timezoneLabel": "Timezone",
+      "timezonePlaceholder": "Africa/Lagos",
+      "currencyLabel": "Currency",
+      "contactEmailLabel": "Contact Email",
+      "contactEmailPlaceholder": "chapter@wial.org",
+      "accentColorLabel": "Accent Color",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Describe your proposed chapter, its region, and your plans…",
+      "submitButton": "Submit Chapter Request",
+      "submitting": "Submitting…"
+    },
+    "success": {
+      "heading": "Request submitted!",
+      "message": "A super admin will review it shortly."
+    },
+    "review": {
+      "approveButton": "Approve",
+      "approving": "Approving…",
+      "rejectButton": "Reject",
+      "confirmReject": "Confirm Reject",
+      "rejecting": "Rejecting…",
+      "cancelButton": "Cancel",
+      "notesLabel": "Reason for rejection",
+      "notesRequired": "A reason is required when rejecting a request."
+    }
+  },
+  "chapterManage": {
+    "nav": {
+      "overview": "Overview",
+      "users": "Members",
+      "coaches": "Coaches",
+      "applications": "Applications",
+      "approvals": "Approvals",
+      "settings": "Settings"
+    },
+    "overview": {
+      "heading": "Chapter Overview",
+      "members": "Members",
+      "coaches": "Coaches",
+      "pendingApplications": "Pending Applications",
+      "pendingApprovals": "Pending Approvals"
+    },
+    "users": {
+      "heading": "Members",
+      "subtitle": "Manage chapter member roles and account status."
+    },
+    "coaches": {
+      "heading": "Coaches",
+      "subtitle": "Manage coach profiles and visibility."
+    },
+    "applications": {
+      "heading": "Coach Applications",
+      "subtitle": "Review applications from coaches wanting to join this chapter."
+    },
+    "approvals": {
+      "heading": "Content Approvals",
+      "subtitle": "Review content changes submitted by editors in this chapter."
+    },
+    "settings": {
+      "heading": "Chapter Settings",
+      "subtitle": "Update chapter information and configuration."
+    }
+  },
+  "suspended": {
+    "heading": "Account Suspended",
+    "message": "Your account has been suspended and you cannot access the platform at this time.",
+    "contactSupport": "If you believe this is a mistake, please contact {email} for assistance.",
+    "returnHome": "← Return to homepage"
   },
   "a11y": {
     "openMenu": "Open navigation menu",

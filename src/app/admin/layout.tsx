@@ -45,7 +45,10 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-screen">
-      <AdminSidebar pendingApprovals={stats.pendingApprovals} />
+      <AdminSidebar
+        pendingApprovals={stats.pendingApprovals}
+        pendingApplications={stats.pendingApplications}
+      />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Admin top bar */}

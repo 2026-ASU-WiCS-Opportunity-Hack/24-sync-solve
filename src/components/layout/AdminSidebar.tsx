@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   CreditCard,
   ExternalLink,
+  BookUser,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
@@ -22,9 +23,10 @@ interface NavItem {
 
 interface AdminSidebarProps {
   pendingApprovals?: number
+  pendingApplications?: number
 }
 
-export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
+export function AdminSidebar({ pendingApprovals = 0, pendingApplications = 0 }: AdminSidebarProps) {
   const pathname = usePathname()
 
   const navItems: NavItem[] = [
@@ -37,6 +39,12 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
       label: 'Approvals',
       icon: ClipboardCheck,
       badge: pendingApprovals > 0 ? pendingApprovals : undefined,
+    },
+    {
+      href: '/admin/chapter-requests',
+      label: 'Applications',
+      icon: BookUser,
+      badge: pendingApplications > 0 ? pendingApplications : undefined,
     },
     { href: '/admin/payments', label: 'Payments', icon: CreditCard },
   ]

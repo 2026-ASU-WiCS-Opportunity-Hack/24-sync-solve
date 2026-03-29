@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, LogOut, Settings, LayoutDashboard } from 'lucide-react'
+import { User, LogOut, Settings, LayoutDashboard, Award } from 'lucide-react'
 import { logoutAction } from '@/features/auth/actions/login'
 import type { AuthUser } from '@/types'
 
@@ -44,8 +44,7 @@ export function UserMenu({ user }: UserMenuProps) {
     )
   }
 
-  const dashboardHref =
-    user.role === 'super_admin' ? '/admin' : user.role === 'public' ? '/' : '/dashboard'
+  const dashboardHref = user.role === 'super_admin' ? '/admin' : '/dashboard'
 
   return (
     <div className="relative" ref={menuRef}>
@@ -103,6 +102,18 @@ export function UserMenu({ user }: UserMenuProps) {
               >
                 <User size={16} aria-hidden="true" />
                 My Profile
+              </Link>
+            )}
+
+            {user.role === 'user' && (
+              <Link
+                href="/coaches/apply"
+                role="menuitem"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <Award size={16} aria-hidden="true" />
+                Apply to be a Coach
               </Link>
             )}
 

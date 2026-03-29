@@ -14,14 +14,33 @@ export const WIAL_BRAND = {
   WHITE: '#FFFFFF',
 } as const
 
-/** User role hierarchy (lower index = less privileged) */
+/** User role hierarchy (lower index = less privileged).
+ *  'public' kept for DB enum compatibility but never assigned to real users. */
 export const ROLE_HIERARCHY = [
-  'public',
+  'user',
   'coach',
   'content_editor',
   'chapter_lead',
   'super_admin',
 ] as const
+
+/** Human-readable role labels (UI label: chapter_lead → "Chapter Admin") */
+export const ROLE_LABELS: Record<string, string> = {
+  super_admin: 'Super Admin',
+  chapter_lead: 'Chapter Admin',
+  content_editor: 'Content Editor',
+  coach: 'Coach',
+  user: 'User',
+} as const
+
+/** Tailwind badge color classes per role */
+export const ROLE_COLORS: Record<string, string> = {
+  super_admin: 'bg-red-100 text-red-700',
+  chapter_lead: 'bg-purple-100 text-purple-700',
+  content_editor: 'bg-blue-100 text-blue-700',
+  coach: 'bg-green-100 text-green-700',
+  user: 'bg-gray-100 text-gray-600',
+} as const
 
 /** Certification level display names */
 export const CERTIFICATION_LABELS = {

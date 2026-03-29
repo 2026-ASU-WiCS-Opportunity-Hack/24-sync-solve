@@ -4,7 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { GLOBAL_NAV_LINKS, CHAPTER_NAV_LINKS } from '@/lib/utils/constants'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
-import type { AuthUser } from '@/types'
+import { RoleSwitcher } from '@/components/layout/RoleSwitcher'
+import type { AuthUser, UserRole } from '@/types'
 
 interface HeaderProps {
   accentColor?: string
@@ -22,20 +23,84 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
   } = await supabase.auth.getUser()
 
   let currentUser: AuthUser | null = null
+  let managedChapters: {
+    chapterId: string
+    chapterName: string
+    chapterSlug: string
+    roles: UserRole[]
+  }[] = []
+
   if (authUser) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, chapter_id, full_name, avatar_url')
-      .eq('id', authUser.id)
-      .single()
+    // Parallel: profile + chapter roles
+    const [profileResult, chapterRolesResult] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('role, chapter_id, full_name, avatar_url, is_suspended, membership_status')
+        .eq('id', authUser.id)
+        .single(),
+      supabase
+        .from('user_chapter_roles')
+        .select(
+          'role, chapter_id, chapter:chapters!user_chapter_roles_chapter_id_fkey(id, name, slug)'
+        )
+        .eq('user_id', authUser.id)
+        .eq('is_active', true),
+    ])
+
+    const profile = profileResult.data
+
+    // Build chapterRoles map
+    const chapterRolesMap: Record<string, UserRole[]> = {}
+    for (const row of chapterRolesResult.data ?? []) {
+      const cid = row.chapter_id
+      if (!chapterRolesMap[cid]) chapterRolesMap[cid] = []
+      chapterRolesMap[cid].push(row.role as UserRole)
+    }
 
     currentUser = {
       id: authUser.id,
       email: authUser.email ?? '',
-      role: profile?.role ?? 'public',
+      role: (profile?.role ?? 'user') as UserRole,
       chapterId: profile?.chapter_id ?? null,
       fullName: profile?.full_name ?? null,
       avatarUrl: profile?.avatar_url ?? null,
+      isSuspended: profile?.is_suspended ?? false,
+      membershipStatus: (profile?.membership_status ?? 'inactive') as AuthUser['membershipStatus'],
+      chapterRoles: chapterRolesMap,
+    }
+
+    // Build chapter nav data for RoleSwitcher (only management roles)
+    const managementRoles: UserRole[] = ['chapter_lead', 'content_editor']
+    const seen = new Set<string>()
+    for (const row of chapterRolesResult.data ?? []) {
+      if (!managementRoles.includes(row.role as UserRole)) continue
+      const chap = row.chapter as { id: string; name: string; slug: string } | null
+      if (!chap || seen.has(chap.id)) continue
+      seen.add(chap.id)
+      const roles = chapterRolesMap[chap.id]?.filter((r) => managementRoles.includes(r)) ?? []
+      managedChapters.push({
+        chapterId: chap.id,
+        chapterName: chap.name,
+        chapterSlug: chap.slug,
+        roles,
+      })
+    }
+
+    // Also include global chapter_lead managing their primary chapter
+    if (profile?.role === 'chapter_lead' && profile.chapter_id && !seen.has(profile.chapter_id)) {
+      const { data: primaryChap } = await supabase
+        .from('chapters')
+        .select('id, name, slug')
+        .eq('id', profile.chapter_id)
+        .single()
+      if (primaryChap) {
+        managedChapters.push({
+          chapterId: primaryChap.id,
+          chapterName: primaryChap.name,
+          chapterSlug: primaryChap.slug,
+          roles: ['chapter_lead'],
+        })
+      }
     }
   }
 
@@ -75,6 +140,9 @@ export async function Header({ accentColor, chapterSlug, chapterName }: HeaderPr
               {t(link.labelKey.replace('nav.', '') as Parameters<typeof t>[0])}
             </Link>
           ))}
+
+          {/* Role switcher — for users managing chapters */}
+          {managedChapters.length > 0 && <RoleSwitcher chapters={managedChapters} />}
         </nav>
 
         {/* Right side: auth + mobile menu */}

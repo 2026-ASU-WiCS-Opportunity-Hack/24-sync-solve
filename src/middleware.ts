@@ -34,6 +34,35 @@ export async function middleware(request: NextRequest) {
   const { response: updatedResponse, user } = await updateSession(request, response)
   response = updatedResponse
 
+  // ── 2.5. Check account suspension ────────────────────────────────────────────
+  // Allow /suspended and /api routes to pass through
+  if (user && !pathname.startsWith('/suspended') && !pathname.startsWith('/api')) {
+    const suspensionCheck = createServerClient<Database>(
+      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
+      process.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY']!,
+      {
+        cookies: {
+          getAll: () => request.cookies.getAll(),
+          setAll: (cookiesToSet) => {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+
+    const { data: suspendedProfile } = await suspensionCheck
+      .from('profiles')
+      .select('is_suspended')
+      .eq('id', user.id)
+      .single()
+
+    if (suspendedProfile?.is_suspended) {
+      return NextResponse.redirect(new URL('/suspended', request.url))
+    }
+  }
+
   // ── 3. Protect /dashboard/* routes ──────────────────────────────────────────
   if (pathname.startsWith('/dashboard')) {
     if (!user) {
@@ -88,6 +117,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
     // Role check for chapter editing is handled in server actions (RLS covers DB)
+  }
+
+  // ── 5.5. Protect /[chapter]/manage/* routes ──────────────────────────────────
+  const manageMatch = pathname.match(/^\/([^/]+)\/manage/)
+  if (manageMatch) {
+    if (!user) {
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    // Chapter-lead role check is enforced in [chapter]/manage/layout.tsx
   }
 
   // ── 6. Validate chapter slugs for /[chapter]/* routes ───────────────────────

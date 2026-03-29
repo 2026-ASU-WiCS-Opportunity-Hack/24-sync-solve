@@ -5,6 +5,7 @@ import { getCoachesAdmin } from '@/features/coaches/queries/getCoachesAdmin'
 import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/format'
 import { CoachStatusToggle } from '@/components/admin/CoachStatusToggle'
+import { ExternalLink } from 'lucide-react'
 import type { CertificationLevel } from '@/types/database'
 
 export const metadata: Metadata = { title: 'Coaches' }
@@ -54,6 +55,12 @@ export default async function AdminCoachesPage() {
                 </th>
                 <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
                   Verified
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
+                  Credly
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
+                  Visibility
                 </th>
                 <th scope="col" className="px-4 py-3 font-semibold text-gray-700">
                   Certified
@@ -110,6 +117,33 @@ export default async function AdminCoachesPage() {
                         field="verified"
                         currentValue={coach.is_verified}
                       />
+                    </td>
+                    <td className="px-4 py-3">
+                      {coach.credly_url ? (
+                        <a
+                          href={coach.credly_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                          aria-label={`View ${name}'s Credly badge`}
+                        >
+                          <ExternalLink size={11} aria-hidden="true" />
+                          Badge ↗
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {coach.profile_visibility_suspended ? (
+                        <span className="inline-flex rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
+                          Hidden
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                          Visible
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-gray-500">
                       {coach.certification_date ? formatDate(coach.certification_date) : '—'}
