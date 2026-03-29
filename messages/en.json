@@ -246,8 +246,12 @@
       }
     },
     "approvals": {
-      "title": "Content Approval Queue",
+      "title": "Content Approvals",
       "noItems": "No items pending approval.",
+      "allCaughtUp": "All caught up! No pending approvals.",
+      "global": "Global",
+      "viewLive": "View live",
+      "proposedChanges": "Proposed changes",
       "approve": "Approve",
       "reject": "Reject",
       "approving": "Approving...",
@@ -256,7 +260,7 @@
       "rejectionPlaceholder": "Explain why this content was rejected...",
       "approved": "Approved",
       "rejected": "Rejected",
-      "pendingCount": "{count} items pending"
+      "pendingCount": "{count, plural, one {# item awaiting review} other {# items awaiting review}}"
     }
   },
   "dashboard": {

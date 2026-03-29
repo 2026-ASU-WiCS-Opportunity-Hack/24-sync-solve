@@ -91,7 +91,6 @@ export async function createCheckoutSessionAction(
     .single()
 
   // ── Create Stripe Checkout Session ───────────────────────────────────────────
-  const stripe = createStripeClient()
   const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
 
   const successUrl = chapter_slug
@@ -108,8 +107,12 @@ export async function createCheckoutSessionAction(
     event_registration: 'WIAL Event Registration',
   }
 
+  // createStripeClient() throws if STRIPE_SECRET_KEY is not set.
+  // Keep it inside the try-catch so missing config surfaces as a
+  // user-visible error message rather than an unhandled 500.
   let session
   try {
+    const stripe = createStripeClient()
     session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],

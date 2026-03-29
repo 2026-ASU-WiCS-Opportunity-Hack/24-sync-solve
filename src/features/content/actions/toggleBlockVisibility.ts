@@ -77,5 +77,5 @@ export async function toggleBlockVisibility(
     revalidatePath('/', 'layout')
   }
 
-  return { success: true, data: undefined }
+  return { success: true, data: null }
 }

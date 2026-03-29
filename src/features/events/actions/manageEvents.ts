@@ -264,7 +264,7 @@ export async function deleteEventAction(chapterId: string, eventId: string): Pro
 
   return {
     success: true,
-    data: undefined,
+    data: null,
     message: `Event "${existing.title}" deleted successfully.`,
   }
 }

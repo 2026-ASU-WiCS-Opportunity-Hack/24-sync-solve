@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/presyze/Projects/ASU/ohack/src -name *.test.ts -o -name *.test.tsx)",
+      "Read(//c/Users/presyze/**)",
+      "Bash(git -C /c/Users/presyze/Projects/ASU/ohack diff .gitignore)",
+      "Bash(grep -rn \"useTranslations\\\\|getTranslations\" /c/Users/presyze/Projects/ASU/ohack/src --include=*.tsx)",
+      "Bash(wc -l /c/Users/presyze/Projects/ASU/ohack/src/app/\\\\\\(global\\\\\\)/dashboard/page.tsx)",
+      "Bash(node -e \"console.log\\(require\\(''./node_modules/zod/package.json''\\).version\\)\")"
+    ]
+  }
+}

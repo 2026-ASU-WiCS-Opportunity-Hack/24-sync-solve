@@ -64,8 +64,12 @@ export interface PaginatedResult<T> {
   totalCount?: number
 }
 
-/** Form action result — standardized server action return type */
-export type ActionResult<T = void> =
+/** Form action result — standardized server action return type.
+ * Use ActionResult<null> for actions that return no meaningful data.
+ * Use ActionResult<YourType> for actions that return data.
+ * `data: null` (not undefined) is required for JSON serialization compatibility with Next.js server actions.
+ */
+export type ActionResult<T = null> =
   | { success: true; data: T; message?: string }
   | { success: false; error: string; fieldErrors?: Record<string, string[]> }
 

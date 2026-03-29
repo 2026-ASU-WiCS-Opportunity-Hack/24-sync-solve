@@ -214,15 +214,20 @@ export type BlockType = keyof typeof BLOCK_SCHEMAS
 
 /**
  * Validate block content against its schema.
- * Returns parsed data on success, or a safe default on failure.
+ * Returns a SafeParseReturn: { success: true, data } or { success: false, error }.
  */
 export function validateBlockContent<T extends BlockType>(
   blockType: T,
   content: unknown
-): z.infer<(typeof BLOCK_SCHEMAS)[T]> {
-  const schema = BLOCK_SCHEMAS[blockType]
-  const result = schema.safeParse(content)
-  if (result.success) return result.data as z.infer<(typeof BLOCK_SCHEMAS)[T]>
-  // Return safe defaults
-  return schema.parse({}) as z.infer<(typeof BLOCK_SCHEMAS)[T]>
+): z.ZodSafeParseResult<z.infer<(typeof BLOCK_SCHEMAS)[T]>> {
+  const schema = BLOCK_SCHEMAS[blockType as BlockType]
+  if (!schema) {
+    return {
+      success: false,
+      error: new z.ZodError([
+        { code: 'custom', path: [], message: `Unknown block type: ${String(blockType)}` },
+      ]) as z.ZodError<z.infer<(typeof BLOCK_SCHEMAS)[T]>>,
+    }
+  }
+  return schema.safeParse(content) as z.ZodSafeParseResult<z.infer<(typeof BLOCK_SCHEMAS)[T]>>
 }

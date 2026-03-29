@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCoaches } from '@/features/coaches/queries/getCoaches'
 import { CoachDirectory } from '@/components/coaches/CoachDirectory'
@@ -17,6 +18,7 @@ interface CoachesPageProps {
 }
 
 export default async function CoachesPage({ searchParams }: CoachesPageProps) {
+  const t = await getTranslations('coaches.directory')
   const params = await searchParams
   const parsed = coachSearchSchema.safeParse({
     q: params['q'],
@@ -58,8 +60,8 @@ export default async function CoachesPage({ searchParams }: CoachesPageProps) {
     <>
       <section className="bg-wial-navy py-12 text-white">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold">Find an Action Learning Coach</h1>
-          <p className="mt-3 text-white/80">Browse our global directory of certified coaches.</p>
+          <h1 className="text-4xl font-extrabold">{t('title')}</h1>
+          <p className="mt-3 text-white/80">{t('subtitle')}</p>
         </div>
       </section>
 

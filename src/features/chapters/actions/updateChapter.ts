@@ -115,7 +115,7 @@ export async function updateChapterAction(
 export async function toggleChapterStatusAction(
   chapterId: string,
   isActive: boolean
-): Promise<ActionResult<void>> {
+): Promise<ActionResult> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -147,5 +147,5 @@ export async function toggleChapterStatusAction(
   revalidatePath('/admin/chapters')
   revalidatePath('/')
 
-  return { success: true, data: undefined }
+  return { success: true, data: null }
 }

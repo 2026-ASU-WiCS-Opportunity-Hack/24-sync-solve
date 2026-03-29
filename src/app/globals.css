@@ -97,7 +97,7 @@ body {
 .skip-to-content {
   position: absolute;
   top: -100%;
-  left: 0;
+  inset-inline-start: 0;
   background: var(--color-wial-navy);
   color: var(--color-wial-white);
   padding: 0.5rem 1rem;

@@ -18,7 +18,7 @@ export async function reorderBlocks(
   blocks: BlockReorderItem[]
 ): Promise<ActionResult> {
   if (!blocks.length) {
-    return { success: true, data: undefined }
+    return { success: true, data: null }
   }
 
   const supabase = await createClient()
@@ -84,5 +84,5 @@ export async function reorderBlocks(
     revalidatePath('/', 'layout')
   }
 
-  return { success: true, data: undefined }
+  return { success: true, data: null }
 }

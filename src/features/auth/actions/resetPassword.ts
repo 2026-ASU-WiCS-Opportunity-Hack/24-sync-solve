@@ -30,7 +30,7 @@ export async function requestPasswordResetAction(
     return { success: false, error: 'Failed to send reset email. Please try again.' }
   }
 
-  return { success: true, data: undefined }
+  return { success: true, data: null }
 }
 
 export async function updatePasswordAction(
@@ -58,5 +58,5 @@ export async function updatePasswordAction(
     return { success: false, error: 'Failed to update password. Please try again.' }
   }
 
-  return { success: true, data: undefined }
+  return { success: true, data: null }
 }

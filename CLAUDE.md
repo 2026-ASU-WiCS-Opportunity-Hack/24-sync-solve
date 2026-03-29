@@ -93,7 +93,7 @@ src/app/
 
 ### Naming
 
-- **Files**: `kebab-case.tsx` for components, `camelCase.ts` for utilities
+- **Files**: `PascalCase.tsx` for components (matches the exported component name), `camelCase.ts` for utilities
 - **Components**: `PascalCase` — matches filename without extension
 - **Hooks**: `useCamelCase` — prefixed with `use`
 - **Server Actions**: `camelCase` — in `features/{feature}/actions/`

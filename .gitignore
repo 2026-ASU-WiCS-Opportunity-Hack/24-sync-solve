@@ -37,6 +37,8 @@ yarn-error.log*
 # testing
 /playwright-report
 /test-results
+# Playwright auth state — contains session tokens, never commit
+/.auth
 
 # supabase
 supabase/.branches

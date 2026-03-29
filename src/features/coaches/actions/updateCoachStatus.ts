@@ -79,7 +79,7 @@ export async function updateCoachStatusAction(
   const actionLabel = action === 'publish' || action === 'verify' ? action + 'ed' : action + 'ied'
   return {
     success: true,
-    data: undefined,
+    data: null,
     message: `Coach ${actionLabel} successfully.`,
   }
 }

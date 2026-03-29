@@ -144,7 +144,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
                 <button
                   type="button"
                   onClick={() => removeSpecialization(spec)}
-                  className="hover:text-wial-red ml-1 text-gray-400"
+                  className="hover:text-wial-red ms-1 text-gray-400"
                   aria-label={`Remove ${spec}`}
                 >
                   <X size={12} />
@@ -213,7 +213,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
                 <button
                   type="button"
                   onClick={() => removeLanguage(lang)}
-                  className="ml-1 text-blue-400 hover:text-blue-700"
+                  className="ms-1 text-blue-400 hover:text-blue-700"
                   aria-label={`Remove ${lang}`}
                 >
                   <X size={12} />

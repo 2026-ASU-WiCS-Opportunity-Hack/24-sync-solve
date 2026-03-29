@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getPendingApprovals } from '@/features/content/queries/getApprovals'
 import { formatDate } from '@/lib/utils/format'
@@ -14,6 +15,11 @@ export const metadata: Metadata = { title: 'Content Approvals' }
 export const revalidate = 0 // Always fresh — approvals need real-time status
 
 export default async function AdminApprovalsPage() {
+  const [tAdmin, tContent] = await Promise.all([
+    getTranslations('admin.approvals'),
+    getTranslations('content.approvals'),
+  ])
+
   const supabase = await createClient()
   const { items, total } = await getPendingApprovals(supabase, { limit: 50 })
 
@@ -22,11 +28,9 @@ export default async function AdminApprovalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Content Approvals</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{tAdmin('title')}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            {total === 0
-              ? 'No items pending approval.'
-              : `${total} item${total !== 1 ? 's' : ''} awaiting your review.`}
+            {total === 0 ? tAdmin('noItems') : tAdmin('pendingCount', { count: total })}
           </p>
         </div>
       </div>
@@ -35,7 +39,7 @@ export default async function AdminApprovalsPage() {
       {items.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-300 bg-white py-16 text-center">
           <CheckCircle2 size={36} className="mx-auto mb-3 text-green-300" aria-hidden="true" />
-          <p className="text-sm font-medium text-gray-500">All caught up! No pending approvals.</p>
+          <p className="text-sm font-medium text-gray-500">{tAdmin('allCaughtUp')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -77,7 +81,7 @@ export default async function AdminApprovalsPage() {
                         <span className="text-gray-600">{item.chapter_name}</span>
                       ) : (
                         <span className="flex items-center gap-1 text-gray-600">
-                          <Globe size={12} aria-hidden="true" /> Global
+                          <Globe size={12} aria-hidden="true" /> {tAdmin('global')}
                         </span>
                       )}
                       <span className="text-gray-400" aria-hidden="true">
@@ -93,10 +97,10 @@ export default async function AdminApprovalsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-blue-600 hover:underline focus:outline-none"
-                      aria-label={`View live page in new tab`}
+                      aria-label={tAdmin('viewLive')}
                     >
                       <ExternalLink size={11} aria-hidden="true" />
-                      View live
+                      {tAdmin('viewLive')}
                     </Link>
                   </div>
                 </div>
@@ -104,7 +108,7 @@ export default async function AdminApprovalsPage() {
                 {/* Diff view */}
                 <div className="border-b border-gray-100 px-5 py-4">
                   <p className="mb-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
-                    Proposed changes
+                    {tAdmin('proposedChanges')}
                   </p>
                   <ContentDiff
                     published={publishedContent}
@@ -116,9 +120,7 @@ export default async function AdminApprovalsPage() {
                 {/* Requires approval notice */}
                 {registryEntry?.requiresApproval && (
                   <div className="border-b border-gray-100 bg-blue-50 px-5 py-2">
-                    <p className="text-xs text-blue-700">
-                      This block type always requires approval before publishing.
-                    </p>
+                    <p className="text-xs text-blue-700">{tContent('requiresApprovalNote')}</p>
                   </div>
                 )}
 

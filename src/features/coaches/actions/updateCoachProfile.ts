@@ -72,7 +72,7 @@ export async function updateCoachProfileAction(
 
   return {
     success: true,
-    data: undefined,
+    data: null,
     message: 'Profile updated successfully.',
   }
 }

@@ -5,7 +5,7 @@ import type { Database } from '@/types/database'
 /**
  * Update Supabase session in Next.js middleware.
  * Must be called in middleware.ts to refresh auth tokens.
- * Uses getClaims() — never getSession() — for security.
+ * Uses getUser() — never getSession() — for security (validates JWT server-side).
  */
 export async function updateSession(
   request: NextRequest,
@@ -29,8 +29,8 @@ export async function updateSession(
     }
   )
 
-  // Use getClaims() to validate JWT locally (faster than getUser() network call)
-  // For highly sensitive routes, swap to supabase.auth.getUser() for server-side validation
+  // getUser() validates the JWT with the Supabase auth server on every request.
+  // This is the secure approach — never trust getSession() which only reads the local cookie.
   const {
     data: { user },
   } = await supabase.auth.getUser()

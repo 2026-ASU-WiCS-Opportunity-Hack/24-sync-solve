@@ -3,8 +3,19 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Link } from '@tiptap/extension-link'
-import { Bold, Italic, Link2, List, ListOrdered, Heading2, Heading3, Unlink } from 'lucide-react'
-import { useCallback } from 'react'
+import {
+  Bold,
+  Italic,
+  Link2,
+  List,
+  ListOrdered,
+  Heading2,
+  Heading3,
+  Unlink,
+  Check,
+  X,
+} from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
 
 interface RichTextEditorProps {
   /** tiptap JSON content */
@@ -25,7 +36,22 @@ interface RichTextEditorProps {
  *   bullet list, ordered list, links.
  * NO tables, embeds, or arbitrary HTML.
  */
+/** Reject non-http(s) protocols to prevent javascript: and data: URI injection */
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.startsWith('//') ? `https:${url}` : url)
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:'
+  } catch {
+    // Relative paths are fine
+    return !url.includes(':') || url.startsWith('https://') || url.startsWith('http://')
+  }
+}
+
 export function RichTextEditor({ value, onChange, disabled = false, label }: RichTextEditorProps) {
+  const [linkPopoverOpen, setLinkPopoverOpen] = useState(false)
+  const [linkUrlInput, setLinkUrlInput] = useState('')
+  const linkInputRef = useRef<HTMLInputElement>(null)
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -41,6 +67,8 @@ export function RichTextEditor({ value, onChange, disabled = false, label }: Ric
         openOnClick: false,
         autolink: true,
         defaultProtocol: 'https',
+        // Reject non-http(s) protocols at the tiptap level
+        validate: (href) => isSafeUrl(href),
       }),
     ],
     content: value ?? null,
@@ -50,18 +78,34 @@ export function RichTextEditor({ value, onChange, disabled = false, label }: Ric
     },
   })
 
-  const setLink = useCallback(() => {
+  const openLinkPopover = useCallback(() => {
     if (!editor) return
-    const previousUrl = editor.getAttributes('link').href as string | undefined
-    const url = window.prompt('URL', previousUrl)
+    const previousUrl = (editor.getAttributes('link').href as string | undefined) ?? ''
+    setLinkUrlInput(previousUrl)
+    setLinkPopoverOpen(true)
+    // Focus the input on next tick (after render)
+    setTimeout(() => linkInputRef.current?.focus(), 0)
+  }, [editor])
 
-    if (url === null) return // Cancelled
+  const confirmLink = useCallback(() => {
+    if (!editor) return
+    const url = linkUrlInput.trim()
+    setLinkPopoverOpen(false)
+    setLinkUrlInput('')
+
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run()
       return
     }
+    if (!isSafeUrl(url)) return // Silently reject unsafe URLs
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+  }, [editor, linkUrlInput])
+
+  const cancelLink = useCallback(() => {
+    setLinkPopoverOpen(false)
+    setLinkUrlInput('')
+    editor?.chain().focus().run()
   }, [editor])
 
   if (!editor) return null
@@ -136,14 +180,61 @@ export function RichTextEditor({ value, onChange, disabled = false, label }: Ric
 
           <div className="mx-1 h-5 w-px self-center bg-gray-300" aria-hidden="true" />
 
-          <RteButton
-            onClick={setLink}
-            isActive={editor.isActive('link')}
-            aria-label="Add link"
-            title="Link"
-          >
-            <Link2 size={13} aria-hidden="true" />
-          </RteButton>
+          <div className="relative">
+            <RteButton
+              onClick={openLinkPopover}
+              isActive={editor.isActive('link') || linkPopoverOpen}
+              aria-label="Add link"
+              aria-expanded={linkPopoverOpen}
+              aria-haspopup="dialog"
+              title="Link"
+            >
+              <Link2 size={13} aria-hidden="true" />
+            </RteButton>
+
+            {/* Inline accessible link URL popover */}
+            {linkPopoverOpen && (
+              <div
+                role="dialog"
+                aria-label="Enter link URL"
+                className="absolute inset-s-0 top-full z-10 mt-1 flex w-64 items-center gap-1 rounded-lg border border-gray-200 bg-white p-1.5 shadow-lg"
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') cancelLink()
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    confirmLink()
+                  }
+                }}
+              >
+                <input
+                  ref={linkInputRef}
+                  type="url"
+                  value={linkUrlInput}
+                  onChange={(e) => setLinkUrlInput(e.target.value)}
+                  placeholder="https://example.com"
+                  aria-label="Link URL"
+                  className="min-w-0 flex-1 rounded px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <button
+                  type="button"
+                  onClick={confirmLink}
+                  aria-label="Confirm link"
+                  className="rounded p-1 text-green-600 hover:bg-green-50 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                >
+                  <Check size={13} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelLink}
+                  aria-label="Cancel"
+                  className="rounded p-1 text-gray-400 hover:bg-gray-100 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+                >
+                  <X size={13} aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </div>
+
           {editor.isActive('link') && (
             <RteButton
               onClick={() => editor.chain().focus().unsetLink().run()}
@@ -162,7 +253,7 @@ export function RichTextEditor({ value, onChange, disabled = false, label }: Ric
         editor={editor}
         className={[
           'prose-sm prose max-w-none px-3 py-2',
-          '[&_.ProseMirror]:min-h-[80px]',
+          '[&_.ProseMirror]:min-h-20',
           '[&_.ProseMirror]:outline-none',
           disabled ? 'bg-gray-50 opacity-70' : 'bg-white',
         ].join(' ')}
@@ -175,6 +266,8 @@ interface RteButtonProps {
   onClick: () => void
   isActive: boolean
   'aria-label': string
+  'aria-expanded'?: boolean
+  'aria-haspopup'?: 'dialog' | 'menu' | 'listbox' | 'tree' | 'grid' | boolean
   title: string
   children: React.ReactNode
 }
@@ -183,6 +276,8 @@ function RteButton({
   onClick,
   isActive,
   'aria-label': ariaLabel,
+  'aria-expanded': ariaExpanded,
+  'aria-haspopup': ariaHaspopup,
   title,
   children,
 }: RteButtonProps) {
@@ -191,7 +286,9 @@ function RteButton({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      aria-pressed={isActive}
+      aria-pressed={ariaHaspopup ? undefined : isActive}
+      aria-expanded={ariaExpanded}
+      aria-haspopup={ariaHaspopup}
       title={title}
       className={[
         'rounded p-1.5 text-gray-600 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none',

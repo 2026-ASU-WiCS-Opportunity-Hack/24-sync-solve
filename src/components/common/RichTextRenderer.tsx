@@ -4,6 +4,14 @@ import { z } from 'zod'
  * Server-rendered tiptap JSON content.
  * Converts tiptap's ProseMirror JSON to semantic HTML.
  * Zero client JS — pure server render.
+ *
+ * Security: DOMPurify is intentionally NOT used here. Instead, the renderer
+ * constructs HTML structurally from a typed ProseMirror JSON document:
+ *  - Text nodes are run through escapeHtml() before any markup is applied.
+ *  - Only a known-safe allowlist of HTML tags is ever emitted (p, strong, em, a, h2, h3, ul, ol, li).
+ *  - Link hrefs are validated to only allow http/https protocols.
+ * No arbitrary HTML ever reaches dangerouslySetInnerHTML.
+ * If a future use case requires rendering raw HTML strings, add DOMPurify (browser) at that point.
  */
 
 type TiptapNode = {
@@ -21,7 +29,9 @@ interface RichTextRendererProps {
 
 function renderNode(node: TiptapNode): string {
   if (node.type === 'text') {
-    let text = node.text ?? ''
+    // Escape raw text FIRST — prevents XSS when text contains HTML special chars.
+    // Marks then wrap the already-safe string in known-safe tags only.
+    let text = escapeHtml(node.text ?? '')
 
     // Apply marks (bold, italic, link)
     if (node.marks) {
@@ -30,9 +40,15 @@ function renderNode(node: TiptapNode): string {
         if (mark.type === 'italic') text = `<em>${text}</em>`
         if (mark.type === 'link' && mark.attrs?.['href']) {
           const href = String(mark.attrs['href'])
-          const rel = href.startsWith('http') ? ' rel="noopener noreferrer"' : ''
-          const target = href.startsWith('http') ? ' target="_blank"' : ''
-          text = `<a href="${escapeHtml(href)}"${rel}${target}>${text}</a>`
+          // Reject non-http(s) protocols (e.g. javascript:, data:) as a defence-in-depth layer
+          const isExternal = href.startsWith('http://') || href.startsWith('https://')
+          const isSafeRelative = !href.includes(':')
+          if (isExternal || isSafeRelative) {
+            const rel = isExternal ? ' rel="noopener noreferrer"' : ''
+            const target = isExternal ? ' target="_blank"' : ''
+            text = `<a href="${escapeHtml(href)}"${rel}${target}>${text}</a>`
+          }
+          // Silently drop links with unsafe protocols — text content is preserved
         }
       }
     }

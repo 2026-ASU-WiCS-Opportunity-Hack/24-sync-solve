@@ -3,12 +3,20 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
+const isDev = process.env.NODE_ENV === 'development'
+
 const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['@heroui/react', 'lucide-react'],
   },
 
   async headers() {
+    // 'unsafe-eval' is required by Next.js dev tooling (HMR, Turbopack) but must
+    // not be present in production — it opens the door to code injection attacks.
+    const scriptSrc = isDev
+      ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com"
+      : "script-src 'self' 'unsafe-inline' https://js.stripe.com"
+
     return [
       {
         source: '/(.*)',
@@ -21,7 +29,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com",
+              scriptSrc,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in",
               "font-src 'self'",

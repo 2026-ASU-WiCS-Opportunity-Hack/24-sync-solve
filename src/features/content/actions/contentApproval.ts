@@ -70,7 +70,7 @@ export async function approveBlock(blockId: string): Promise<ActionResult> {
   revalidatePath('/', 'layout')
   revalidatePath('/admin/approvals')
 
-  return { success: true, data: undefined, message: 'Content approved and published.' }
+  return { success: true, data: null, message: 'Content approved and published.' }
 }
 
 /**
@@ -124,7 +124,7 @@ export async function rejectBlock(blockId: string, reason: string): Promise<Acti
 
   revalidatePath('/admin/approvals')
 
-  return { success: true, data: undefined, message: 'Content rejected.' }
+  return { success: true, data: null, message: 'Content rejected.' }
 }
 
 /**
@@ -196,5 +196,5 @@ export async function revertBlock(blockId: string): Promise<ActionResult> {
     revalidatePath('/', 'layout')
   }
 
-  return { success: true, data: undefined, message: 'Block reverted to published version.' }
+  return { success: true, data: null, message: 'Block reverted to published version.' }
 }
