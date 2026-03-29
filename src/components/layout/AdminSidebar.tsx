@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   CreditCard,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
@@ -32,6 +33,7 @@ export function AdminSidebar({ pendingApprovals = 0 }: AdminSidebarProps) {
     { href: '/admin/chapters', label: 'Chapters', icon: Building2 },
     { href: '/admin/coaches', label: 'Coaches', icon: GraduationCap },
     { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/knowledge/upload', label: 'Knowledge Hub', icon: BookOpen },
     {
       href: '/admin/approvals',
       label: 'Approvals',
