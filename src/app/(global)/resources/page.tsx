@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
-import { PageRenderer } from '@/components/common/PageRenderer'
+import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
+import { canEditChapter } from '@/lib/utils/serverAuth'
 
 export const revalidate = 3600
 
@@ -12,10 +13,11 @@ export const metadata: Metadata = {
 
 export default async function ResourcesPage() {
   const supabase = await createClient()
-  const result = await getPageWithBlocks(supabase, null, 'resources')
+  const isEditor = await canEditChapter(null)
+  const result = await getPageWithBlocks(supabase, null, 'resources', isEditor)
 
   return result ? (
-    <PageRenderer blocks={result.blocks} />
+    <EditablePageRenderer initialBlocks={result.blocks} pageId={result.page.id} />
   ) : (
     <div className="bg-white py-20">
       <div className="mx-auto max-w-3xl px-6 lg:px-8">

@@ -299,8 +299,11 @@
       "toggle": "Edit Mode",
       "on": "Editing",
       "off": "Preview",
-      "unsavedChanges": "You have unsaved changes.",
-      "exitConfirm": "Exit edit mode? Unsaved changes will be lost."
+      "unsavedChanges": "Unsaved changes",
+      "exitConfirm": "Exit edit mode? Any unsaved changes will be lost.",
+      "enterButton": "Edit Mode",
+      "exitButton": "Preview",
+      "ariaLabel": "Toggle edit mode"
     },
     "blocks": {
       "edit": "Edit",
@@ -308,13 +311,52 @@
       "moveDown": "Move down",
       "show": "Show section",
       "hide": "Hide section",
-      "save": "Save",
-      "saving": "Saving...",
+      "hidden": "Hidden",
+      "save": "Save changes",
+      "saving": "Saving…",
       "cancel": "Cancel",
       "deleteBlock": "Delete block",
       "deleteConfirm": "Delete this section? This cannot be undone.",
-      "pendingApproval": "Changes pending approval",
-      "instantPublish": "Changes published immediately"
+      "pendingApproval": "Pending approval",
+      "requiresApproval": "Requires approval",
+      "instantPublish": "Instant publish",
+      "revert": "Revert to published",
+      "revertConfirm": "Discard all draft changes and revert to the published version?",
+      "noContent": "No content yet."
+    },
+    "editor": {
+      "saveSuccess": "Changes saved.",
+      "saveSuccessApproval": "Changes submitted for approval.",
+      "saveError": "Save failed. Please try again.",
+      "reorderSuccess": "Order updated.",
+      "reorderError": "Failed to reorder blocks.",
+      "visibilitySuccess": "Visibility updated.",
+      "visibilityError": "Failed to update visibility.",
+      "uploadSuccess": "Image uploaded.",
+      "uploadError": "Upload failed.",
+      "uploadSizeError": "Image must be under 2MB.",
+      "uploadTypeError": "Only JPEG, PNG, WebP, AVIF, and GIF are allowed.",
+      "imageAlt": "Describe the image for screen readers",
+      "richText": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "bulletList": "Bullet list",
+        "orderedList": "Numbered list",
+        "link": "Add link",
+        "unlink": "Remove link"
+      }
+    },
+    "approvals": {
+      "diffTitle": "Proposed changes",
+      "fieldsChanged": "{count} field{count, plural, one {} other {s}} changed",
+      "newBlock": "New block",
+      "showDiff": "Show diff",
+      "hideDiff": "Hide diff",
+      "unchangedFields": "{count} unchanged field{count, plural, one {} other {s}} hidden",
+      "viewLive": "View live page",
+      "requiresApprovalNote": "This block type always requires approval before publishing."
     }
   },
   "common": {
@@ -351,6 +393,16 @@
     "toggleEditMode": "Toggle edit mode",
     "coachPhoto": "{name}'s profile photo",
     "chapterLogo": "{chapter} chapter logo",
-    "externalLink": "Opens in new tab"
+    "externalLink": "Opens in new tab",
+    "editBlock": "Edit {type} block",
+    "closeEditor": "Close editor",
+    "moveBlockUp": "Move block up",
+    "moveBlockDown": "Move block down",
+    "toggleBlockVisibility": "Toggle block visibility",
+    "blockHidden": "This block is hidden from the public site",
+    "blockPendingApproval": "This block has changes pending admin approval",
+    "uploadImage": "Upload image",
+    "removeImage": "Remove image",
+    "editorToolbar": "Text formatting toolbar"
   }
 }

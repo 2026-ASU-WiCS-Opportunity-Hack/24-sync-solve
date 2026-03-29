@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
-import { PageRenderer } from '@/components/common/PageRenderer'
+import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
+import { canEditChapter } from '@/lib/utils/serverAuth'
 import { CERTIFICATION_LABELS, CERTIFICATION_ORDER } from '@/lib/utils/constants'
 
 export const revalidate = 3600
@@ -15,9 +16,14 @@ export const metadata: Metadata = {
 
 export default async function CertificationPage() {
   const supabase = await createClient()
-  const result = await getPageWithBlocks(supabase, null, 'certification')
+  const isEditor = await canEditChapter(null)
+  const result = await getPageWithBlocks(supabase, null, 'certification', isEditor)
 
-  return result ? <PageRenderer blocks={result.blocks} /> : <FallbackCertification />
+  return result ? (
+    <EditablePageRenderer initialBlocks={result.blocks} pageId={result.page.id} />
+  ) : (
+    <FallbackCertification />
+  )
 }
 
 function FallbackCertification() {

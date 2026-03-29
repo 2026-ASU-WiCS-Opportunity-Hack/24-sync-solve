@@ -122,14 +122,15 @@ export function requiresApproval(blockType: BlockType): boolean {
   return BLOCK_REGISTRY[blockType]?.requiresApproval ?? false
 }
 
-// Re-export display components directly for server imports
+// Re-export client-safe display components (for server imports via PageRenderer etc.)
+// NOTE: CoachListBlock and EventListBlock are intentionally NOT re-exported here —
+// they use `next/headers` via createClient() and can only be imported in Server Components.
+// Import them directly from '@/components/blocks/CoachListBlock' in server-only files.
 export { default as HeroBlock } from '@/components/blocks/HeroBlock'
 export { default as TextBlock } from '@/components/blocks/TextBlock'
 export { default as ImageBlock } from '@/components/blocks/ImageBlock'
 export { default as CtaBlock } from '@/components/blocks/CtaBlock'
 export { default as StatsBlock } from '@/components/blocks/StatsBlock'
-export { default as EventListBlock } from '@/components/blocks/EventListBlock'
-export { default as CoachListBlock } from '@/components/blocks/CoachListBlock'
 export { default as TestimonialBlock } from '@/components/blocks/TestimonialBlock'
 export { default as FaqBlock } from '@/components/blocks/FaqBlock'
 export { default as ContactFormBlock } from '@/components/blocks/ContactFormBlock'

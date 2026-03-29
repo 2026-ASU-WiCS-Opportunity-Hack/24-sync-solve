@@ -5,6 +5,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getChapterBySlug, getAllChapterSlugs } from '@/features/chapters/queries/getChapter'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { EditModeProvider } from '@/components/editor/EditModeProvider'
+import { EditModeToggle } from '@/components/editor/EditModeToggle'
+import { canEditChapter } from '@/lib/utils/serverAuth'
 
 /** Pre-render all active chapter routes at build time (SSG) */
 export async function generateStaticParams() {
@@ -44,8 +47,11 @@ export default async function ChapterLayout({ children, params }: ChapterLayoutP
     notFound()
   }
 
+  // Check edit permissions server-side (for UI — auth enforced again in server actions)
+  const canEdit = await canEditChapter(chapter.id)
+
   return (
-    <>
+    <EditModeProvider canEdit={canEdit} chapterId={chapter.id}>
       <Header
         accentColor={chapter.accent_color}
         chapterSlug={chapter.slug}
@@ -61,6 +67,7 @@ export default async function ChapterLayout({ children, params }: ChapterLayoutP
         {children}
       </main>
       <Footer />
-    </>
+      {canEdit && <EditModeToggle />}
+    </EditModeProvider>
   )
 }

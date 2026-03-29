@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
-import { PageRenderer } from '@/components/common/PageRenderer'
+import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
+import { canEditChapter } from '@/lib/utils/serverAuth'
 
-export const revalidate = 3600 // 1 hour ISR
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'WIAL — World Institute for Action Learning',
@@ -18,17 +19,13 @@ export const metadata: Metadata = {
 
 export default async function GlobalHomePage() {
   const supabase = await createClient()
-  const result = await getPageWithBlocks(supabase, null, 'home')
+  const isEditor = await canEditChapter(null)
+  const result = await getPageWithBlocks(supabase, null, 'home', isEditor)
 
-  return (
-    <>
-      {result ? (
-        <PageRenderer blocks={result.blocks} />
-      ) : (
-        /* Fallback content when no DB data available */
-        <FallbackHomepage />
-      )}
-    </>
+  return result ? (
+    <EditablePageRenderer initialBlocks={result.blocks} pageId={result.page.id} />
+  ) : (
+    <FallbackHomepage />
   )
 }
 
@@ -94,9 +91,7 @@ function FallbackHomepage() {
           </h2>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             Action Learning is a process that involves a small group working on real problems,
-            taking action, and learning as individuals and as a team. WIAL is the global leader in
-            Action Learning certification, having trained coaches in organizations across every
-            continent.
+            taking action, and learning as individuals and as a team.
           </p>
           <a
             href="/about"

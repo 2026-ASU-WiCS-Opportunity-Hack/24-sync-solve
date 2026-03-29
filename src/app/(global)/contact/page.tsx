@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
-import { PageRenderer } from '@/components/common/PageRenderer'
+import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
+import { canEditChapter } from '@/lib/utils/serverAuth'
 import ContactFormBlock from '@/components/blocks/ContactFormBlock'
 
 export const revalidate = 3600
@@ -14,10 +15,11 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const supabase = await createClient()
-  const result = await getPageWithBlocks(supabase, null, 'contact')
+  const isEditor = await canEditChapter(null)
+  const result = await getPageWithBlocks(supabase, null, 'contact', isEditor)
 
   return result ? (
-    <PageRenderer blocks={result.blocks} />
+    <EditablePageRenderer initialBlocks={result.blocks} pageId={result.page.id} />
   ) : (
     <>
       <section className="bg-wial-navy py-16 text-center text-white">

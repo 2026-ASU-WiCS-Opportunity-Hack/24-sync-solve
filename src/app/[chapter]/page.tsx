@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getChapterBySlug } from '@/features/chapters/queries/getChapter'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
-import { PageRenderer } from '@/components/common/PageRenderer'
+import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
+import { canEditChapter } from '@/lib/utils/serverAuth'
 
 export const revalidate = 3600
 
@@ -30,11 +31,13 @@ export default async function ChapterHomePage({ params }: ChapterHomePageProps) 
   const chapter = await getChapterBySlug(supabase, slug)
   if (!chapter) return null // layout.tsx handles notFound
 
-  const result = await getPageWithBlocks(supabase, chapter.id, 'home')
+  const isEditor = await canEditChapter(chapter.id)
+  const result = await getPageWithBlocks(supabase, chapter.id, 'home', isEditor)
 
   return result ? (
-    <PageRenderer
-      blocks={result.blocks}
+    <EditablePageRenderer
+      initialBlocks={result.blocks}
+      pageId={result.page.id}
       chapterId={chapter.id}
       accentColor={chapter.accent_color}
     />

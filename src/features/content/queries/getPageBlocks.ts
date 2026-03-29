@@ -8,7 +8,9 @@ import type { Database, ContentBlock, Page } from '@/types'
 export async function getPageWithBlocks(
   supabase: SupabaseClient<Database>,
   chapterId: string | null,
-  slug: string
+  slug: string,
+  /** When true, returns all blocks (including hidden/draft) for editor view */
+  includeAll = false
 ): Promise<{ page: Page; blocks: ContentBlock[] } | null> {
   const pageQuery = supabase.from('pages').select('*').eq('slug', slug).eq('is_published', true)
 
@@ -21,13 +23,17 @@ export async function getPageWithBlocks(
   const { data: page, error: pageError } = await pageQuery.single()
   if (pageError || !page) return null
 
-  const { data: blocks, error: blocksError } = await supabase
+  const blocksQuery = supabase
     .from('content_blocks')
     .select('*')
     .eq('page_id', page.id)
-    .eq('is_visible', true)
-    .eq('status', 'published')
     .order('sort_order', { ascending: true })
+
+  if (!includeAll) {
+    blocksQuery.eq('is_visible', true).eq('status', 'published')
+  }
+
+  const { data: blocks, error: blocksError } = await blocksQuery
 
   if (blocksError) return null
 
