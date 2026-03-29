@@ -68,7 +68,6 @@ export function LoginForm() {
           name="password"
           type="password"
           autoComplete="current-password"
-          className="w-full"
           required
           placeholder={t('passwordPlaceholder')}
           aria-invalid={!!(state && !state.success && state.fieldErrors?.['password']) || undefined}

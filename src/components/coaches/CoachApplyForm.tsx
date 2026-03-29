@@ -52,7 +52,7 @@ export function CoachApplyForm({ chapters }: CoachApplyFormProps) {
           <Select.Popover>
             <ListBox aria-label="Select a chapter">
               {chapters.map((ch) => (
-                <ListBoxItem key={ch.id} id={ch.id}>
+                <ListBoxItem key={ch.id} id={ch.id} textValue={ch.name}>
                   {ch.name}
                 </ListBoxItem>
               ))}

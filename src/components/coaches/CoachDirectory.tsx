@@ -112,7 +112,7 @@ export function CoachDirectory({
               <Select.Popover>
                 <ListBox aria-label={t('filterCertLabel')}>
                   {CERTIFICATION_ORDER.map((level) => (
-                    <ListBoxItem key={level} id={level}>
+                    <ListBoxItem key={level} id={level} textValue={level}>
                       {level}
                     </ListBoxItem>
                   ))}
@@ -138,7 +138,7 @@ export function CoachDirectory({
               <Select.Popover>
                 <ListBox aria-label={t('filterChapterLabel')}>
                   {chapters.map((ch) => (
-                    <ListBoxItem key={ch.slug} id={ch.slug}>
+                    <ListBoxItem key={ch.slug} id={ch.slug} textValue={ch.name}>
                       {ch.name}
                     </ListBoxItem>
                   ))}

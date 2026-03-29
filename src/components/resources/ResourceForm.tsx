@@ -111,7 +111,7 @@ export function ResourceForm({
           <Select.Popover>
             <ListBox aria-label="Resource type">
               {TYPE_OPTIONS.map((opt) => (
-                <ListBoxItem key={opt.value} id={opt.value}>
+                <ListBoxItem key={opt.value} id={opt.value} textValue={opt.label}>
                   {opt.label}
                 </ListBoxItem>
               ))}

@@ -11,22 +11,37 @@ export interface EventFilters {
   /** Only return upcoming events (start_date >= now). Defaults to true. */
   upcoming?: boolean
   limit?: number
+  /** Full-text search on event title */
+  search?: string
+  /** Sort order. Defaults to date_asc for upcoming, date_desc for past. */
+  sort?: 'date_asc' | 'date_desc' | 'title_asc'
 }
 
 /**
- * Fetch published events with optional chapter, type, and date filters.
+ * Fetch published events with optional chapter, type, date, search, and sort filters.
  */
 export async function getUpcomingEvents(
   supabase: SupabaseClient<Database>,
   options: EventFilters = {}
 ): Promise<Event[]> {
-  const { chapterId, includeGlobal = true, type, upcoming = true, limit = 10 } = options
+  const {
+    chapterId,
+    includeGlobal = true,
+    type,
+    upcoming = true,
+    limit = 10,
+    search,
+    sort,
+  } = options
+
+  const ascending = sort === 'date_desc' ? false : sort !== 'title_asc'
+  const orderColumn = sort === 'title_asc' ? 'title' : 'start_date'
 
   let query = supabase
     .from('events')
     .select('*')
     .eq('is_published', true)
-    .order('start_date', { ascending: true })
+    .order(orderColumn, { ascending })
     .limit(limit)
 
   if (upcoming) {
@@ -35,6 +50,10 @@ export async function getUpcomingEvents(
 
   if (type) {
     query = query.eq('event_type', type)
+  }
+
+  if (search) {
+    query = query.ilike('title', `%${search}%`)
   }
 
   if (chapterId && includeGlobal) {
@@ -66,6 +85,32 @@ export async function getEventById(
 
   if (error || !data) return null
   return data
+}
+
+/**
+ * Fetch events a user has registered for (confirmed or pending registrations).
+ */
+export async function getMyRegisteredEvents(
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<(Event & { registration_status: string; registered_at: string })[]> {
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .select('status, registered_at, events(*)')
+    .eq('user_id', userId)
+    .in('status', ['confirmed', 'pending'])
+    .order('registered_at', { ascending: false })
+    .limit(20)
+
+  if (error || !data) return []
+
+  return data
+    .filter((row) => row.events !== null)
+    .map((row) => ({
+      ...(row.events as unknown as Event),
+      registration_status: row.status,
+      registered_at: row.registered_at,
+    }))
 }
 
 /**

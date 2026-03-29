@@ -96,7 +96,7 @@ export function UserRoleManager({
               <Select.Popover>
                 <ListBox aria-label="Assign role">
                   {availableToAssign.map((role) => (
-                    <ListBoxItem key={role} id={role}>
+                    <ListBoxItem key={role} id={role} textValue={ROLE_LABELS[role] ?? role}>
                       {ROLE_LABELS[role] ?? role}
                     </ListBoxItem>
                   ))}

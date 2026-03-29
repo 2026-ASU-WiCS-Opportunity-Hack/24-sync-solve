@@ -14,7 +14,7 @@ interface ResourceCardProps {
   isCompleted?: boolean
 }
 
-const TYPE_ICONS = {
+const TYPE_ICONS: Record<string, typeof ExternalLink> = {
   video: Play,
   article: FileText,
   pdf: Download,
@@ -31,7 +31,7 @@ const CTA_LABELS: Record<string, string> = {
 }
 
 export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
-  const Icon = TYPE_ICONS[resource.type]
+  const Icon = TYPE_ICONS[resource.type] ?? ExternalLink
   const thumbnail =
     resource.thumbnail_url ?? (resource.type === 'video' ? getYouTubeThumbnail(resource.url) : null)
   const isExternal = resource.type !== 'pdf'
@@ -123,7 +123,7 @@ export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
             initialCompleted={isCompleted}
             resourceUrl={resource.url}
             isExternal={isExternal}
-            ctaLabel={CTA_LABELS[resource.type] || 'View'}
+            ctaLabel={CTA_LABELS[resource.type] ?? 'Open'}
           />
         ) : (
           <div className="mt-auto pt-3">
@@ -133,7 +133,7 @@ export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
               rel={isExternal ? 'noopener noreferrer' : undefined}
               className="text-wial-red hover:text-wial-red-dark inline-flex items-center gap-1 text-xs font-semibold"
             >
-              {CTA_LABELS[resource.type]}
+              {CTA_LABELS[resource.type] ?? 'Open'}
               <ExternalLink size={10} aria-hidden="true" />
               {isExternal && <span className="sr-only"> (opens in new tab)</span>}
             </a>

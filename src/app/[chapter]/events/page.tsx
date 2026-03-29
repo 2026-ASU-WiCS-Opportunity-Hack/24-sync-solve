@@ -25,10 +25,12 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
   const chapter = await getChapterBySlug(supabase, slug)
   if (!chapter) return null
 
-  // ── Parse type / upcoming filters ────────────────────────────────────────
+  // ── Parse type / upcoming / search / sort filters ────────────────────────
   const parsed = eventFilterSchema.safeParse({
     type: rawParams['type'],
     upcoming: rawParams['upcoming'],
+    q: rawParams['q'],
+    sort: rawParams['sort'],
   })
   const filters = parsed.success ? parsed.data : { upcoming: true }
 
@@ -37,6 +39,8 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
     includeGlobal: true,
     type: filters.type as EventType | undefined,
     upcoming: filters.upcoming,
+    search: filters.q,
+    sort: filters.sort,
     limit: 24,
   })
 
@@ -65,6 +69,7 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
         .eq('user_id', user.id)
         .eq('chapter_id', chapter.id)
         .in('role', ['chapter_lead', 'content_editor'])
+        .eq('is_active', true)
         .maybeSingle()
 
       canManageEvents = Boolean(chapterRole)
@@ -100,10 +105,12 @@ export default async function ChapterEventsPage({ params, searchParams }: Chapte
 
       <section className="bg-white py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Type + upcoming filter bar */}
+          {/* Type + upcoming + search + sort filter bar */}
           <EventFilterBar
             activeType={(filters.type as string | undefined) ?? ''}
             upcoming={filters.upcoming ?? true}
+            search={(filters.q as string | undefined) ?? ''}
+            sort={(filters.sort as string | undefined) ?? ''}
           />
 
           {events.length === 0 ? (

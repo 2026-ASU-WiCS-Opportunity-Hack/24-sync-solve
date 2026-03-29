@@ -99,7 +99,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           <Select.Popover>
             <ListBox aria-label={t('typeLabel')}>
               {EVENT_TYPES.map((eventType) => (
-                <ListBoxItem key={eventType.value} id={eventType.value}>
+                <ListBoxItem key={eventType.value} id={eventType.value} textValue={eventType.label}>
                   {eventType.label}
                 </ListBoxItem>
               ))}

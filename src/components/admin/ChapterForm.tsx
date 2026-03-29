@@ -159,7 +159,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
             <Select.Popover>
               <ListBox aria-label={t('fields.timezone')}>
                 {TIMEZONES.map((tz) => (
-                  <ListBoxItem key={tz} id={tz}>
+                  <ListBoxItem key={tz} id={tz} textValue={tz}>
                     {tz}
                   </ListBoxItem>
                 ))}
@@ -186,7 +186,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
             <Select.Popover>
               <ListBox aria-label={t('fields.currency')}>
                 {CURRENCIES.map(({ code, label }) => (
-                  <ListBoxItem key={code} id={code}>
+                  <ListBoxItem key={code} id={code} textValue={label}>
                     {label}
                   </ListBoxItem>
                 ))}

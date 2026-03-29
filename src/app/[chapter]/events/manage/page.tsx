@@ -52,7 +52,8 @@ export default async function ChapterEventsManagePage({ params }: ChapterEventsM
       .eq('user_id', user.id)
       .eq('chapter_id', chapter.id)
       .in('role', ['chapter_lead', 'content_editor'])
-      .single()
+      .eq('is_active', true)
+      .maybeSingle()
 
     if (!chapterRole) {
       redirect(`/${slug}/events`)

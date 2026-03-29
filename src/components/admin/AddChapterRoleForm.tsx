@@ -50,7 +50,7 @@ export function AddChapterRoleForm({
         <label htmlFor={`new-chapter-${userId}-trigger`} className="sr-only">
           Chapter
         </label>
-        <Select name="chapter_id" isRequired className="min-w-36">
+        <Select name="chapter_id" isRequired className="min-w-36" aria-label="Chapter">
           <Select.Trigger id={`new-chapter-${userId}-trigger`}>
             <Select.Value />
             <Select.Indicator />
@@ -58,7 +58,7 @@ export function AddChapterRoleForm({
           <Select.Popover>
             <ListBox aria-label="Chapter">
               {available.map((c) => (
-                <ListBoxItem key={c.id} id={c.id}>
+                <ListBoxItem key={c.id} id={c.id} textValue={c.name}>
                   {c.name}
                 </ListBoxItem>
               ))}
@@ -71,7 +71,7 @@ export function AddChapterRoleForm({
         <label htmlFor={`new-role-${userId}-trigger`} className="sr-only">
           Role
         </label>
-        <Select name="role" isRequired className="min-w-32">
+        <Select name="role" isRequired className="min-w-32" aria-label="Role">
           <Select.Trigger id={`new-role-${userId}-trigger`}>
             <Select.Value />
             <Select.Indicator />
@@ -79,7 +79,7 @@ export function AddChapterRoleForm({
           <Select.Popover>
             <ListBox aria-label="Role">
               {assignableRoles.map((r) => (
-                <ListBoxItem key={r} id={r}>
+                <ListBoxItem key={r} id={r} textValue={ROLE_LABELS[r] ?? r}>
                   {ROLE_LABELS[r] ?? r}
                 </ListBoxItem>
               ))}

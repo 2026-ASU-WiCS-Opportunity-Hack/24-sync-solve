@@ -409,4 +409,6 @@ export const eventFilterSchema = z.object({
     .string()
     .optional()
     .transform((v) => v !== 'false'),
+  q: z.string().max(200).optional(),
+  sort: z.enum(['date_asc', 'date_desc', 'title_asc']).optional(),
 })

@@ -35,7 +35,16 @@
       "Bash(npx eslint:*)",
       "Bash(find /c/Users/presyze/Projects/ASU/ohack/src/app -type d -name *profile* -o -type d -name *dashboard*)",
       "Bash(find /c/Users/presyze/Projects/ASU/ohack/src/app -type f \\\\\\(-name *profile* -o -name *dashboard* \\\\\\))",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(find /c/Users/presyze/Projects/ASU/ohack -name .env* -o -name *.env)",
+      "Bash(grep -r \"from ''stripe''\" /c/Users/presyze/Projects/ASU/ohack/src)",
+      "Bash(grep -r \"from ''@stripe\" /c/Users/presyze/Projects/ASU/ohack/src)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "Bash(grep -r \"membership_dues\\\\|membership_status\\\\|membership_expires\" c:/Users/presyze/Projects/ASU/ohack/src --include=*.ts --include=*.tsx)",
+      "Bash(find c:/Users/presyze/Projects/ASU/ohack/src/app -name *payment* -o -name *manage*)",
+      "Bash(grep -r \"resend\\\\|email\\\\|nodemailer\\\\|SendGrid\\\\|Mailgun\" c:/Users/presyze/Projects/ASU/ohack/src --include=*.ts --include=*.tsx)",
+      "Bash(grep -rn \"event_id.*metadata\\\\|metadata.*event\" c:/Users/presyze/Projects/ASU/ohack/src --include=*.ts --include=*.tsx)",
+      "Bash(ls -la /c/Users/presyze/Projects/ASU/ohack/src/app/\\\\\\(global\\\\\\)/events/)"
     ],
     "additionalDirectories": [
       "c:\\Users\\presyze\\Projects\\ASU\\ohack\\src\\app\\[chapter]\\manage",

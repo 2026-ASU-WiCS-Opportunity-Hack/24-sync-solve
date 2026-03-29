@@ -32,7 +32,13 @@ export function RoleAssignmentForm({ userId, currentRole }: RoleAssignmentFormPr
         <label htmlFor={`global-role-${userId}-trigger`} className="sr-only">
           {t('globalRoleLabel')}
         </label>
-        <Select key={currentRole} name="role" isRequired className="min-w-36">
+        <Select
+          key={currentRole}
+          name="role"
+          isRequired
+          className="min-w-36"
+          aria-label={t('globalRoleLabel')}
+        >
           <Select.Trigger id={`global-role-${userId}-trigger`}>
             <Select.Value />
             <Select.Indicator />
@@ -40,7 +46,7 @@ export function RoleAssignmentForm({ userId, currentRole }: RoleAssignmentFormPr
           <Select.Popover>
             <ListBox aria-label={t('globalRoleLabel')}>
               {GLOBAL_ROLES.map((role) => (
-                <ListBoxItem key={role} id={role}>
+                <ListBoxItem key={role} id={role} textValue={ROLE_LABELS[role] ?? role}>
                   {ROLE_LABELS[role] ?? role}
                 </ListBoxItem>
               ))}

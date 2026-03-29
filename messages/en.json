@@ -246,7 +246,13 @@
       "networking": "Networking",
       "upcomingOnly": "Upcoming only",
       "filterByTypeLabel": "Filter by event type",
-      "upcomingOnlyLabel": "Show only upcoming events"
+      "upcomingOnlyLabel": "Show only upcoming events",
+      "searchLabel": "Search events",
+      "searchPlaceholder": "Search events…",
+      "sortLabel": "Sort events",
+      "sortDateAsc": "Date: Soonest first",
+      "sortDateDesc": "Date: Latest first",
+      "sortTitleAsc": "Title: A–Z"
     },
     "types": {
       "workshop": "Workshop",
@@ -890,5 +896,16 @@
     "uploadImage": "Upload image",
     "removeImage": "Remove image",
     "editorToolbar": "Text formatting toolbar"
+  },
+  "profile": {
+    "registeredEvents": {
+      "title": "My Registered Events",
+      "subtitle": "Events you have signed up for.",
+      "empty": "You haven't registered for any events yet.",
+      "browse": "Browse upcoming events →",
+      "listLabel": "Registered events",
+      "confirmed": "Confirmed",
+      "pending": "Pending"
+    }
   }
 }

@@ -2,6 +2,8 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { constructStripeEvent } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendEmail } from '@/lib/email/send'
+import { PaymentConfirmation } from '@/lib/email/templates/PaymentConfirmation'
 import type Stripe from 'stripe'
 
 /**
@@ -119,6 +121,50 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   if (error) {
     throw new Error(`Failed to insert payment record: ${error.message}`)
+  }
+
+  // ── Send payment confirmation email ───────────────────────────────────────────
+  const recipientEmail = session.customer_email
+  if (recipientEmail) {
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('full_name')
+      .eq('id', userId)
+      .maybeSingle()
+
+    let chapterName: string | null = null
+    if (chapterId) {
+      const { data: chapter } = await adminClient
+        .from('chapters')
+        .select('name')
+        .eq('id', chapterId)
+        .maybeSingle()
+      chapterName = chapter?.name ?? null
+    }
+
+    const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://wial.org'
+    const currency = (session.currency ?? 'usd').toUpperCase()
+    const amountFormatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).format((session.amount_total ?? 0) / 100)
+
+    await sendEmail({
+      to: recipientEmail,
+      subject: `Payment confirmed — ${amountFormatted}`,
+      react: PaymentConfirmation({
+        recipientName: profile?.full_name ?? recipientEmail,
+        paymentType: paymentType as
+          | 'enrollment_fee'
+          | 'certification_fee'
+          | 'membership_dues'
+          | 'event_registration',
+        amountFormatted: `${amountFormatted} ${currency}`,
+        chapterName,
+        receiptUrl,
+        siteUrl,
+      }),
+    })
   }
 
   // ── Update membership status on dues payment ─────────────────────────────────
