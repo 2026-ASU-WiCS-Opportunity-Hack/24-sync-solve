@@ -2,34 +2,42 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { getResources, getResourceCategories } from '@/features/resources/queries/getResources'
+import { getResources } from '@/features/resources/queries/getResources'
 import { getUserCompletions } from '@/features/resources/queries/getCompletions'
 import { getPermissionContext } from '@/lib/permissions/context'
 import { hasPermission } from '@/lib/permissions/permissions'
 import { ResourceCard } from '@/components/resources/ResourceCard'
-import { ResourceFilters } from '@/components/resources/ResourceFilters'
+import { ResourceSearchEngine } from '@/components/resources/ResourceSearchEngine'
+import { prefillMissingResourceAIAction } from '@/features/resources/actions/generateResourceAI'
 import type { ResourceType } from '@/features/resources/types'
+import {
+  filterResourcesByCollection,
+  type ResourceCollection,
+} from '@/features/resources/utils/collectionFilter'
 
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Resources',
-  description:
-    'Videos, articles, PDFs, and tools to deepen your Action Learning practice — curated by WIAL.',
+  title: 'AI Resource Search',
+  description: 'Search WIAL resources with an AI-inspired search-first experience.',
 }
 
 interface ResourcesPageProps {
-  searchParams: Promise<{ type?: string; category?: string; q?: string }>
+  searchParams: Promise<{ q?: string; type?: string; collection?: string }>
 }
 
 export default async function ResourcesPage({ searchParams }: ResourcesPageProps) {
-  const { type: typeParam, category: categoryParam, q: searchParam } = await searchParams
-
-  const VALID_TYPES: ResourceType[] = ['video', 'article', 'pdf', 'link']
+  const { q: searchParam, type: typeParam, collection: collectionParam } = await searchParams
+  const VALID_TYPES: ResourceType[] = ['video', 'article', 'link']
+  const VALID_COLLECTIONS: ResourceCollection[] = ['all', 'journals', 'courses', 'webinars']
   const currentType: ResourceType | null = VALID_TYPES.includes(typeParam as ResourceType)
     ? (typeParam as ResourceType)
     : null
-  const currentCategory = categoryParam ?? null
+  const currentCollection: ResourceCollection = VALID_COLLECTIONS.includes(
+    collectionParam as ResourceCollection
+  )
+    ? (collectionParam as ResourceCollection)
+    : 'all'
   const currentSearch = searchParam ?? null
 
   const supabase = await createClient()
@@ -37,17 +45,39 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
   const canManage =
     ctx !== null && !ctx.isSuspended && hasPermission(ctx.globalRole, 'content:create')
 
-  const [{ items: resources, total }, categories, completedIds] = await Promise.all([
+  const [resourcesResult, completedIds] = await Promise.all([
     getResources(supabase, {
       // No chapterId, no globalOnly → all resources
       type: currentType,
-      category: currentCategory,
       search: currentSearch,
       publishedOnly: !canManage,
     }),
-    getResourceCategories(supabase),
     ctx ? getUserCompletions(supabase, ctx.userId) : Promise.resolve(null),
   ])
+
+  let resources = resourcesResult.items
+
+  if (canManage) {
+    const missingSummaryIds = resources
+      .filter(
+        (resource) => !resource.ai_summary && ['video', 'article', 'pdf'].includes(resource.type)
+      )
+      .map((resource) => resource.id)
+
+    if (missingSummaryIds.length > 0) {
+      await prefillMissingResourceAIAction(missingSummaryIds)
+
+      const refreshed = await getResources(supabase, {
+        type: currentType,
+        search: currentSearch,
+        publishedOnly: !canManage,
+      })
+      resources = refreshed.items
+    }
+  }
+
+  const filteredResources = filterResourcesByCollection(resources, currentCollection)
+  const total = filteredResources.length
 
   return (
     <main id="main-content">
@@ -56,9 +86,9 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Resources</h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">AI Search Engine</h1>
               <p className="mt-4 max-w-2xl text-lg text-white/80">
-                Videos, articles, PDFs, and tools to deepen your Action Learning practice.
+                Search across all WIAL resources from one intelligent search interface.
               </p>
             </div>
             {canManage && (
@@ -76,25 +106,26 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
       {/* Filters + grid */}
       <section className="bg-gray-50 py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Filter tabs */}
+          {/* Search engine */}
           <div className="mb-8">
             <Suspense>
-              <ResourceFilters
-                currentType={currentType}
-                currentCategory={currentCategory}
+              <ResourceSearchEngine
                 currentSearch={currentSearch}
-                categories={categories}
+                currentType={currentType}
+                currentCollection={currentCollection}
               />
             </Suspense>
           </div>
 
           {/* Resource count */}
           <p className="mb-6 text-sm text-gray-500" aria-live="polite">
-            {total === 0 ? 'No resources found.' : `${total} resource${total !== 1 ? 's' : ''}`}
+            {total === 0
+              ? 'No results found. Try a different keyword.'
+              : `${total} result${total !== 1 ? 's' : ''}`}
           </p>
 
           {/* Grid */}
-          {resources.length === 0 ? (
+          {filteredResources.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-white py-20 text-center">
               <p className="font-medium text-gray-500">No resources yet.</p>
               {canManage ? (
@@ -110,10 +141,11 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {resources.map((resource) => (
+              {filteredResources.map((resource) => (
                 <ResourceCard
                   key={resource.id}
                   resource={resource}
+                  canGenerateAI={canManage}
                   isCompleted={completedIds ? completedIds.has(resource.id) : undefined}
                 />
               ))}

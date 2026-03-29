@@ -1,37 +1,69 @@
 import Image from 'next/image'
-import { Play, FileText, Download, ExternalLink } from 'lucide-react'
+import { Play, FileText, FileDown, ExternalLink } from 'lucide-react'
 import {
   RESOURCE_TYPE_LABELS,
   RESOURCE_TYPE_COLORS,
   getYouTubeThumbnail,
 } from '@/features/resources/types'
 import { ResourceCardClient } from '@/components/resources/ResourceCardClient'
+import { ResourceAIControls } from '@/components/resources/ResourceAIControls'
 import type { Resource } from '@/features/resources/types'
 
 interface ResourceCardProps {
   resource: Resource
+  canGenerateAI?: boolean
   /** Pass true/false when the user is authenticated to show the completion badge. */
   isCompleted?: boolean
 }
 
-const TYPE_ICONS = {
+type ResourceDisplayType = 'video' | 'article' | 'pdf' | 'link' | 'webinar'
+
+const TYPE_ICONS: Record<ResourceDisplayType, typeof Play> = {
   video: Play,
   article: FileText,
-  pdf: Download,
+  pdf: FileDown,
   link: ExternalLink,
+  webinar: Play,
 }
 
-const CTA_LABELS = {
+const TYPE_LABELS: Record<ResourceDisplayType, string> = {
+  video: RESOURCE_TYPE_LABELS.video,
+  article: RESOURCE_TYPE_LABELS.article,
+  pdf: RESOURCE_TYPE_LABELS.pdf,
+  link: RESOURCE_TYPE_LABELS.link,
+  webinar: 'Webinar',
+}
+
+const TYPE_COLORS: Record<ResourceDisplayType, string> = {
+  video: RESOURCE_TYPE_COLORS.video,
+  article: RESOURCE_TYPE_COLORS.article,
+  pdf: RESOURCE_TYPE_COLORS.pdf,
+  link: RESOURCE_TYPE_COLORS.link,
+  webinar: 'bg-teal-100 text-teal-700',
+}
+
+const CTA_LABELS: Record<ResourceDisplayType, string> = {
   video: 'Watch',
   article: 'Read',
   pdf: 'Download',
   link: 'Visit',
+  webinar: 'Watch',
 }
 
-export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
-  const Icon = TYPE_ICONS[resource.type]
+export function ResourceCard({ resource, isCompleted, canGenerateAI = false }: ResourceCardProps) {
+  const looksLikeWebinar = /webinar/i.test(resource.url) || /webinar/i.test(resource.category ?? '')
+  const safeType: ResourceDisplayType = looksLikeWebinar
+    ? 'webinar'
+    : resource.type in TYPE_ICONS
+      ? (resource.type as ResourceDisplayType)
+      : 'link'
+  const Icon = TYPE_ICONS[safeType]
+  const typeLabel = TYPE_LABELS[safeType]
+  const typeColor = TYPE_COLORS[safeType]
+  const ctaLabel = CTA_LABELS[safeType]
   const thumbnail =
-    resource.thumbnail_url ?? (resource.type === 'video' ? getYouTubeThumbnail(resource.url) : null)
+    resource.thumbnail_url ??
+    (safeType === 'video' || safeType === 'webinar' ? getYouTubeThumbnail(resource.url) : null)
   const isExternal = resource.type !== 'pdf'
   const isAuthenticated = isCompleted !== undefined
 
@@ -54,10 +86,10 @@ export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
         )}
         {/* Type badge overlay */}
         <span
-          className={`absolute inset-s-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${RESOURCE_TYPE_COLORS[resource.type]}`}
+          className={`absolute inset-s-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${typeColor}`}
         >
           <Icon size={10} aria-hidden="true" />
-          {RESOURCE_TYPE_LABELS[resource.type]}
+          {typeLabel}
         </span>
       </div>
 
@@ -75,6 +107,14 @@ export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
           <p className="line-clamp-2 text-xs text-gray-500">{resource.description}</p>
         )}
 
+        <ResourceAIControls
+          resourceId={resource.id}
+          resourceType={resource.type}
+          canGenerateAI={canGenerateAI}
+          initialSummary={resource.ai_summary}
+          initialMarketing={resource.ai_marketing}
+        />
+
         {/* CTA — interactive (completion tracking) when authenticated, static otherwise */}
         {isAuthenticated ? (
           <ResourceCardClient
@@ -82,7 +122,7 @@ export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
             initialCompleted={isCompleted}
             resourceUrl={resource.url}
             isExternal={isExternal}
-            ctaLabel={CTA_LABELS[resource.type]}
+            ctaLabel={ctaLabel}
           />
         ) : (
           <div className="mt-auto pt-3">
@@ -92,7 +132,7 @@ export function ResourceCard({ resource, isCompleted }: ResourceCardProps) {
               rel={isExternal ? 'noopener noreferrer' : undefined}
               className="text-wial-red hover:text-wial-red-dark inline-flex items-center gap-1 text-xs font-semibold"
             >
-              {CTA_LABELS[resource.type]}
+              {ctaLabel}
               <ExternalLink size={10} aria-hidden="true" />
               {isExternal && <span className="sr-only"> (opens in new tab)</span>}
             </a>

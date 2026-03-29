@@ -1,5 +1,15 @@
 export type ResourceType = 'video' | 'article' | 'pdf' | 'link'
 
+export interface ResourceEmailOption {
+  subject: string
+  body: string
+}
+
+export interface ResourceMarketing {
+  linkedin_options: [string, string]
+  email_options: [ResourceEmailOption, ResourceEmailOption]
+}
+
 export interface Resource {
   id: string
   chapter_id: string | null
@@ -10,6 +20,10 @@ export interface Resource {
   thumbnail_url: string | null
   category: string | null
   tags: string[]
+  ai_summary: string | null
+  ai_summary_generated_at: string | null
+  ai_marketing: ResourceMarketing | null
+  ai_marketing_generated_at: string | null
   is_published: boolean
   sort_order: number
   created_by: string | null
