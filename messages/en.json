@@ -951,9 +951,21 @@
     "photoUploaded": "Photo uploaded",
     "uploadError": "Upload failed. Please try again.",
     "generateButton": "Generate Content",
+    "generateButtonWithMusic": "Generate Content + Music",
     "generating": "Generating… (up to 30 seconds)",
+    "generatingMusic": "Generating background music…",
     "successMessage": "{count} content blocks generated. Review them in the Approvals tab.",
+    "musicSuccess": "Background music generated and saved.",
+    "musicError": "Music generation failed",
     "skipLink": "Skip for now",
-    "backToChapter": "Back to Chapter"
+    "backToChapter": "Back to Chapter",
+    "optional": "Optional",
+    "musicHeading": "Background Music",
+    "musicSubtitle": "Generate a short ambient sound clip that plays on repeat in the background of your chapter site.",
+    "musicToggleLabel": "Also generate background music",
+    "musicPromptLabel": "Describe the music vibe",
+    "musicPromptPlaceholder": "e.g. Calm professional ambient piano, warm and minimal — suitable for a coaching organisation",
+    "musicPromptHint": "Describe mood, instruments, and tempo. ElevenLabs generates a seamlessly looping 20-second clip.",
+    "musicPromptRequired": "Please describe the music vibe before submitting."
   }
 }

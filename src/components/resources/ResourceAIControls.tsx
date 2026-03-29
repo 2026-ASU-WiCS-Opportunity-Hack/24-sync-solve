@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Megaphone, X, Copy, Check } from 'lucide-react'
+import { Sparkles, Megaphone, X, Copy, Check, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   generateResourceMarketingAction,
   generateResourceSummaryAction,
 } from '@/features/resources/actions/generateResourceAI'
-import type { ResourceMarketing, ResourceType } from '@/features/resources/types'
+import { transcribeVideoAction } from '@/features/resources/actions/transcribeVideoAction'
+import type { ResourceMarketing, ResourceType, TranscriptStatus } from '@/features/resources/types'
 
 function stripOptionPrefix(value: string): string {
   return value.replace(/^\s*(option\s*[12]|choice\s*[12])\s*[:.-]?\s*/i, '').trim()
@@ -80,6 +81,8 @@ interface ResourceAIControlsProps {
   canGenerateAI: boolean
   initialSummary: string | null
   initialMarketing: ResourceMarketing | null
+  initialTranscript?: string | null
+  initialTranscriptStatus?: TranscriptStatus
 }
 
 export function ResourceAIControls({
@@ -88,6 +91,8 @@ export function ResourceAIControls({
   canGenerateAI,
   initialSummary,
   initialMarketing,
+  initialTranscript = null,
+  initialTranscriptStatus = 'idle',
 }: ResourceAIControlsProps) {
   const [summary, setSummary] = useState<string | null>(initialSummary)
   const [marketing, setMarketing] = useState<ResourceMarketing | null>(
@@ -101,10 +106,24 @@ export function ResourceAIControls({
   const [selectedLinkedInOption, setSelectedLinkedInOption] = useState<0 | 1>(0)
   const [selectedEmailOption, setSelectedEmailOption] = useState<0 | 1>(0)
 
+  // ── Transcription state ────────────────────────────────────────────────────
+  const [transcript, setTranscript] = useState<string | null>(initialTranscript)
+  const [transcriptStatus, setTranscriptStatus] =
+    useState<TranscriptStatus>(initialTranscriptStatus)
+  const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false)
+
   const canSummarizeType =
     resourceType === 'video' || resourceType === 'article' || resourceType === 'pdf'
   const summaryUnavailable = !canSummarizeType
   const showSummaryPanel = canSummarizeType && Boolean(summary)
+
+  const isVideoType = resourceType === 'video'
+  const transcriptButtonLabel =
+    transcriptStatus === 'processing'
+      ? 'Transcribing…'
+      : transcript
+        ? 'View Transcript'
+        : 'Transcribe Video'
 
   const actionButtonBase =
     'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold shadow-sm transition-all hover:-translate-y-px hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-60'
@@ -196,6 +215,40 @@ export function ResourceAIControls({
     toast.success('Copied')
   }
 
+  async function handleTranscribe() {
+    if (!canGenerateAI) {
+      toast.error('You do not have permission to transcribe resources.')
+      return
+    }
+
+    // Toggle view if already transcribed
+    if (transcript) {
+      setIsTranscriptExpanded((prev) => !prev)
+      return
+    }
+
+    if (transcriptStatus === 'processing') return
+
+    setTranscriptStatus('processing')
+    const res = await transcribeVideoAction(resourceId)
+
+    if (!res.success) {
+      setTranscriptStatus('failed')
+      toast.error(res.error)
+      return
+    }
+
+    setTranscript(res.data.transcript)
+    setTranscriptStatus('completed')
+    setIsTranscriptExpanded(true)
+
+    if (res.data.summaryGenerated) {
+      toast.success('Video transcribed and AI summary generated from transcript.')
+    } else {
+      toast.success('Video transcribed successfully.')
+    }
+  }
+
   return (
     <div className="mt-2 space-y-3">
       {showSummaryPanel && (
@@ -205,6 +258,57 @@ export function ResourceAIControls({
           </p>
           <p className="text-xs leading-relaxed text-gray-700">{summary}</p>
         </div>
+      )}
+
+      {/* Transcript panel */}
+      {transcript && isTranscriptExpanded && (
+        <div className="rounded-lg border border-violet-100 bg-violet-50/50 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[11px] font-semibold tracking-wide text-violet-700 uppercase">
+              Transcript
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsTranscriptExpanded(false)}
+              className="text-violet-500 hover:text-violet-700 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              aria-label="Collapse transcript"
+            >
+              <ChevronUp size={13} aria-hidden="true" />
+            </button>
+          </div>
+          <div className="max-h-40 overflow-y-auto">
+            <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-700">
+              {transcript}
+            </p>
+          </div>
+          <div className="mt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={() => handleCopy(transcript, 'transcript')}
+              className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-600 hover:text-violet-800"
+              aria-label="Copy transcript"
+            >
+              {copied === 'transcript' ? (
+                <Check size={11} className="text-green-600" aria-hidden="true" />
+              ) : (
+                <Copy size={11} aria-hidden="true" />
+              )}
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+
+      {transcript && !isTranscriptExpanded && (
+        <button
+          type="button"
+          onClick={() => setIsTranscriptExpanded(true)}
+          className="flex items-center gap-1 text-[11px] font-semibold text-violet-600 hover:text-violet-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+          aria-label="Expand transcript"
+        >
+          <ChevronDown size={11} aria-hidden="true" />
+          Show transcript
+        </button>
       )}
 
       {canGenerateAI && (
@@ -223,6 +327,20 @@ export function ResourceAIControls({
                 ? 'Generating...'
                 : 'AI Summary'}
           </button>
+
+          {/* Transcribe button — video only */}
+          {isVideoType && (
+            <button
+              type="button"
+              onClick={() => void handleTranscribe()}
+              disabled={transcriptStatus === 'processing'}
+              className={`${actionButtonBase} border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100 focus:ring-violet-300`}
+              aria-label={transcriptButtonLabel}
+            >
+              <FileText size={12} aria-hidden="true" />
+              {transcriptStatus === 'failed' ? 'Retry Transcription' : transcriptButtonLabel}
+            </button>
+          )}
 
           <button
             type="button"

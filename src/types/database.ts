@@ -673,6 +673,10 @@ export interface Database {
           ai_summary_generated_at: string | null
           ai_marketing: Json | null
           ai_marketing_generated_at: string | null
+          transcript: string | null
+          transcript_status: 'idle' | 'processing' | 'completed' | 'failed'
+          transcript_generated_at: string | null
+          transcript_job_id: string | null
           is_published: boolean
           sort_order: number
           created_by: string | null
@@ -693,6 +697,10 @@ export interface Database {
           ai_summary_generated_at?: string | null
           ai_marketing?: Json | null
           ai_marketing_generated_at?: string | null
+          transcript?: string | null
+          transcript_status?: 'idle' | 'processing' | 'completed' | 'failed'
+          transcript_generated_at?: string | null
+          transcript_job_id?: string | null
           is_published?: boolean
           sort_order?: number
           created_by?: string | null

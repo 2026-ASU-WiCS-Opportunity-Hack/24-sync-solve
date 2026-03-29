@@ -113,6 +113,8 @@ export function ResourceCard({ resource, isCompleted, canGenerateAI = false }: R
           canGenerateAI={canGenerateAI}
           initialSummary={resource.ai_summary}
           initialMarketing={resource.ai_marketing}
+          initialTranscript={resource.transcript}
+          initialTranscriptStatus={resource.transcript_status}
         />
 
         {/* CTA — interactive (completion tracking) when authenticated, static otherwise */}

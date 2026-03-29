@@ -48,7 +48,11 @@
       "Bash(grep -r \"provision_chapter_pages\\\\|content_blocks\" /c/Users/presyze/Projects/ASU/ohack/supabase/ --include=*.sql -l)",
       "Bash(grep -n \"coaches\\\\|resources\\\\|events\\\\|contact\" \"/c/Users/presyze/Projects/ASU/ohack/supabase/migrations\"/*.sql)",
       "Bash(grep -A1 \"block_type::\" \"/c/Users/presyze/Projects/ASU/ohack/supabase/migrations\"/*.sql)",
-      "Bash(grep -B5 -A15 \"coaches_page\\\\|resources_page\\\\|events_page\\\\|contact_page\\\\|coaches.*slug.*=.*''coaches''\" \"/c/Users/presyze/Projects/ASU/ohack/supabase/migrations\"/*.sql)"
+      "Bash(grep -B5 -A15 \"coaches_page\\\\|resources_page\\\\|events_page\\\\|contact_page\\\\|coaches.*slug.*=.*''coaches''\" \"/c/Users/presyze/Projects/ASU/ohack/supabase/migrations\"/*.sql)",
+      "WebFetch(domain:elevenlabs.io)",
+      "Bash(find /c/Users/presyze/Projects/ASU/ohack -name *migration* -o -name *.sql)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(find c:/Users/presyze/Projects/ASU/ohack/node_modules/@elevenlabs/elevenlabs-js/dist/api -name SpeechToTextChunk*.d.ts)"
     ],
     "additionalDirectories": [
       "c:\\Users\\presyze\\Projects\\ASU\\ohack\\src\\app\\[chapter]\\manage",

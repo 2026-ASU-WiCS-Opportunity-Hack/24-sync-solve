@@ -1,12 +1,13 @@
 'use client'
 
-import { useActionState, useEffect, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Button, Input, Label, ListBox, ListBoxItem, Select, TextArea } from '@heroui/react'
-import { PlusCircle, Trash2, Upload } from 'lucide-react'
+import { Music, PlusCircle, Trash2, Upload } from 'lucide-react'
 import { generateChapterContentAction } from '@/features/content/actions/generateChapterContent'
+import { generateChapterMusicAction } from '@/features/content/actions/generateChapterMusic'
 import type { ActionResult } from '@/types'
 import type { GenerateResult } from '@/features/content/actions/generateChapterContent'
 
@@ -77,17 +78,40 @@ export function ChapterInABoxForm({ chapterId, backHref }: ChapterInABoxFormProp
   const [heroUploading, setHeroUploading] = useState(false)
   const [heroUploadError, setHeroUploadError] = useState('')
 
+  // Background music
+  const [generateMusic, setGenerateMusic] = useState(false)
+  const [musicPrompt, setMusicPrompt] = useState('')
+  const [isMusicPending, startMusicTransition] = useTransition()
+
   // Hidden field ref to serialize coaches before submit
   const coachesFieldRef = useRef<HTMLInputElement>(null)
   const heroImageRef = useRef<HTMLInputElement>(null)
   const testimonialPhotoRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (state?.success) {
+    if (!state?.success) return
+
+    // If music was requested, generate it now then navigate
+    if (generateMusic && musicPrompt.trim()) {
+      startMusicTransition(async () => {
+        const fd = new FormData()
+        fd.append('chapter_id', chapterId)
+        fd.append('music_prompt', musicPrompt.trim())
+        const musicResult = await generateChapterMusicAction(null, fd)
+        if (musicResult.success) {
+          toast.success(musicResult.message ?? t('musicSuccess'))
+        } else {
+          toast.error(`${t('musicError')}: ${musicResult.error}`)
+        }
+        toast.success(state.message ?? t('successMessage', { count: state.data.blocksUpdated }))
+        router.push(`/${state.data.chapterSlug}/manage/approvals`)
+      })
+    } else {
       toast.success(state.message ?? t('successMessage', { count: state.data.blocksUpdated }))
       router.push(`/${state.data.chapterSlug}/manage/approvals`)
     }
-  }, [state, router, t])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state])
 
   function fieldError(field: string): string | undefined {
     if (!state || state.success) return undefined
@@ -169,6 +193,7 @@ export function ChapterInABoxForm({ chapterId, backHref }: ChapterInABoxFormProp
   }
 
   const anyUploading = heroUploading || testimonialUploading || coachUploading.some(Boolean)
+  const isSubmitting = isPending || isMusicPending
 
   return (
     <form
@@ -463,6 +488,67 @@ export function ChapterInABoxForm({ chapterId, backHref }: ChapterInABoxFormProp
         </div>
       </section>
 
+      {/* ── Background Music (optional) ────────────────────────────────────── */}
+      <section aria-labelledby="music-heading">
+        <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-5">
+          <div className="flex items-start gap-3">
+            <Music size={18} className="mt-0.5 shrink-0 text-violet-600" aria-hidden="true" />
+            <div className="flex-1">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 id="music-heading" className="text-sm font-semibold text-violet-900">
+                    {t('musicHeading')}
+                    <span className="ms-2 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-600 uppercase">
+                      {t('optional')}
+                    </span>
+                  </h2>
+                  <p className="mt-0.5 text-xs text-violet-700">{t('musicSubtitle')}</p>
+                </div>
+
+                {/* Toggle */}
+                <label className="flex cursor-pointer items-center gap-2">
+                  <span className="sr-only">{t('musicToggleLabel')}</span>
+                  <input
+                    type="checkbox"
+                    checked={generateMusic}
+                    onChange={(e) => setGenerateMusic(e.target.checked)}
+                    className="h-4 w-4 cursor-pointer rounded border-violet-300 text-violet-600 focus:ring-violet-500"
+                    aria-describedby="music-heading"
+                  />
+                  <span className="text-xs font-medium text-violet-800">
+                    {t('musicToggleLabel')}
+                  </span>
+                </label>
+              </div>
+
+              {generateMusic && (
+                <div className="mt-4 flex flex-col gap-1">
+                  <Label htmlFor="music_prompt" className="text-xs font-medium text-violet-900">
+                    {t('musicPromptLabel')}
+                  </Label>
+                  <TextArea
+                    id="music_prompt"
+                    value={musicPrompt}
+                    onChange={(e) => setMusicPrompt(e.target.value)}
+                    placeholder={t('musicPromptPlaceholder')}
+                    rows={2}
+                    className="w-full text-sm"
+                    aria-label={t('musicPromptLabel')}
+                    aria-required="true"
+                  />
+                  <p className="text-[11px] text-violet-600">{t('musicPromptHint')}</p>
+                  {generateMusic && !musicPrompt.trim() && (
+                    <p className="text-[11px] text-amber-600" role="alert" aria-live="polite">
+                      {t('musicPromptRequired')}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Submit ─────────────────────────────────────────────────────────── */}
       <div
         className="flex flex-wrap items-center gap-3 border-t border-gray-200 pt-6"
@@ -470,11 +556,17 @@ export function ChapterInABoxForm({ chapterId, backHref }: ChapterInABoxFormProp
       >
         <Button
           type="submit"
-          isDisabled={isPending || anyUploading}
-          isPending={isPending}
+          isDisabled={isSubmitting || anyUploading || (generateMusic && !musicPrompt.trim())}
+          isPending={isSubmitting}
           className="bg-wial-navy hover:bg-wial-navy-dark rounded-lg px-6 text-sm font-semibold text-white"
         >
-          {isPending ? t('generating') : t('generateButton')}
+          {isMusicPending
+            ? t('generatingMusic')
+            : isPending
+              ? t('generating')
+              : generateMusic
+                ? t('generateButtonWithMusic')
+                : t('generateButton')}
         </Button>
 
         {backHref && (
@@ -482,7 +574,7 @@ export function ChapterInABoxForm({ chapterId, backHref }: ChapterInABoxFormProp
             type="button"
             variant="outline"
             onPress={() => router.push(backHref)}
-            isDisabled={isPending}
+            isDisabled={isSubmitting}
             className="rounded-lg px-5 text-sm font-semibold text-gray-700"
           >
             {t('skipLink')}

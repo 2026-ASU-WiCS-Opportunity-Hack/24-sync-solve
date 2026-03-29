@@ -7,7 +7,35 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { EditModeProvider } from '@/components/editor/EditModeProvider'
 import { EditModeToggle } from '@/components/editor/EditModeToggle'
+import { BackgroundMusicPlayer } from '@/components/chapters/BackgroundMusicPlayer'
 import { canEditChapter } from '@/lib/utils/serverAuth'
+import type { Json } from '@/types'
+
+/** Shape stored in chapters.settings.background_music */
+interface BackgroundMusicSettings {
+  url: string
+  prompt: string
+  enabled: boolean
+  duration_seconds?: number
+  generated_at?: string
+}
+
+function parseBackgroundMusic(settings: Json): BackgroundMusicSettings | null {
+  if (!settings || typeof settings !== 'object' || Array.isArray(settings)) return null
+  const s = settings as Record<string, Json>
+  const music = s['background_music']
+  if (!music || typeof music !== 'object' || Array.isArray(music)) return null
+  const m = music as Record<string, Json>
+  if (typeof m['url'] !== 'string' || typeof m['prompt'] !== 'string') return null
+  if (m['enabled'] === false) return null
+  return {
+    url: m['url'],
+    prompt: m['prompt'],
+    enabled: true,
+    duration_seconds: typeof m['duration_seconds'] === 'number' ? m['duration_seconds'] : undefined,
+    generated_at: typeof m['generated_at'] === 'string' ? m['generated_at'] : undefined,
+  }
+}
 
 /** Pre-render all active chapter routes at build time (SSG) */
 export async function generateStaticParams() {
@@ -67,6 +95,8 @@ export default async function ChapterLayout({ children, params }: ChapterLayoutP
     }
   }
 
+  const backgroundMusic = parseBackgroundMusic(chapter.settings)
+
   return (
     <EditModeProvider canEdit={canEdit} chapterId={chapter.id}>
       <Header
@@ -85,6 +115,13 @@ export default async function ChapterLayout({ children, params }: ChapterLayoutP
       </main>
       <Footer isSuperAdmin={isSuperAdmin} />
       {canEdit && <EditModeToggle />}
+      {backgroundMusic && (
+        <BackgroundMusicPlayer
+          src={backgroundMusic.url}
+          prompt={backgroundMusic.prompt}
+          chapterSlug={chapter.slug}
+        />
+      )}
     </EditModeProvider>
   )
 }
