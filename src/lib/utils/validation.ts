@@ -322,6 +322,13 @@ export const eventCreateSchema = z
       .or(z.literal(''))
       .transform((v) => (v ? parseInt(v, 10) : undefined))
       .pipe(z.number().int().positive().optional()),
+    /** Ticket price in USD (displayed value). Stored as cents. Blank = free. */
+    ticket_price_usd: z
+      .string()
+      .optional()
+      .or(z.literal(''))
+      .transform((v) => (v ? parseFloat(v) : undefined))
+      .pipe(z.number().min(0.5, 'Price must be at least $0.50').optional()),
     registration_url: optionalUrlSchema,
     image_url: optionalUrlSchema,
     is_published: z
@@ -337,6 +344,22 @@ export const eventCreateSchema = z
     },
     { message: 'End date must be on or after start date', path: ['end_date'] }
   )
+
+/** Event registration (RSVP or paid) */
+export const eventRegistrationSchema = z.object({
+  event_id: uuidSchema,
+  guest_name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(100)
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+  guest_email: emailSchema
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
+})
 
 export type EventCreateInput = z.infer<typeof eventCreateSchema>
 

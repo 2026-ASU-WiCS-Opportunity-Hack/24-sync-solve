@@ -120,7 +120,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     throw new Error(`Failed to insert payment record: ${error.message}`)
   }
 
-  // ── Gap B: update membership status on dues payment ─────────────────────────
+  // ── Update membership status on dues payment ─────────────────────────────────
   if (paymentType === 'membership_dues') {
     const membershipExpiresAt = new Date()
     membershipExpiresAt.setFullYear(membershipExpiresAt.getFullYear() + 1)
@@ -132,6 +132,47 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         membership_expires_at: membershipExpiresAt.toISOString(),
       })
       .eq('id', userId)
+  }
+
+  // ── Confirm event registration on successful payment ──────────────────────────
+  if (paymentType === 'event_registration') {
+    const eventId = session.metadata?.['event_id'] || null
+    const guestEmail = session.metadata?.['guest_email'] || null
+    const guestName = session.metadata?.['guest_name'] || null
+
+    if (eventId) {
+      // Fetch the newly created payment record
+      const { data: paymentRecord } = await adminClient
+        .from('payments')
+        .select('id')
+        .eq('stripe_checkout_session_id', session.id)
+        .maybeSingle()
+
+      const registrationData: {
+        event_id: string
+        status: 'confirmed'
+        payment_id: string | null
+        user_id?: string
+        guest_name?: string
+        guest_email?: string
+      } = {
+        event_id: eventId,
+        status: 'confirmed',
+        payment_id: paymentRecord?.id ?? null,
+      }
+
+      if (userId) {
+        registrationData.user_id = userId
+      } else if (guestEmail) {
+        registrationData.guest_email = guestEmail
+        if (guestName) registrationData.guest_name = guestName
+      }
+
+      await adminClient.from('event_registrations').upsert(registrationData, {
+        onConflict: 'event_id,user_id',
+        ignoreDuplicates: false,
+      })
+    }
   }
 }
 

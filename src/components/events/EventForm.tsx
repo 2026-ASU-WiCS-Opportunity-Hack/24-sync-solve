@@ -238,6 +238,41 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
         </div>
       </div>
 
+      {/* Ticket price */}
+      <div>
+        <label htmlFor="event-ticket-price" className="block text-sm font-medium text-gray-700">
+          Ticket Price (USD)
+        </label>
+        <div className="relative mt-1">
+          <span className="pointer-events-none absolute inset-y-0 inset-s-3 flex items-center text-sm text-gray-500">
+            $
+          </span>
+          <input
+            id="event-ticket-price"
+            name="ticket_price_usd"
+            type="number"
+            min="0"
+            step="0.01"
+            defaultValue={
+              // ticket_price stored as cents — display as dollars
+              (event as Event & { ticket_price?: number | null })?.ticket_price != null
+                ? ((event as Event & { ticket_price?: number | null }).ticket_price! / 100).toFixed(
+                    2
+                  )
+                : ''
+            }
+            className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 py-2 ps-8 pe-3 text-sm focus:ring-2 focus:outline-none"
+            placeholder="Leave blank for a free event"
+          />
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Attendees will be directed to a Stripe checkout. Leave blank for free RSVP.
+        </p>
+        {state && !state.success && state.fieldErrors?.['ticket_price_usd'] && (
+          <p className="mt-1 text-xs text-red-600">{state.fieldErrors['ticket_price_usd'][0]}</p>
+        )}
+      </div>
+
       {/* Registration & attendees */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -245,7 +280,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             htmlFor="event-registration-url"
             className="block text-sm font-medium text-gray-700"
           >
-            Registration URL
+            External Registration URL
           </label>
           <input
             id="event-registration-url"
@@ -253,8 +288,11 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             type="url"
             defaultValue={event?.registration_url ?? ''}
             className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="https://eventbrite.com/..."
+            placeholder="https://eventbrite.com/... (optional override)"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            Optional. If set, overrides the built-in registration and links here instead.
+          </p>
           {state && !state.success && state.fieldErrors?.['registration_url'] && (
             <p className="mt-1 text-xs text-red-600">{state.fieldErrors['registration_url'][0]}</p>
           )}

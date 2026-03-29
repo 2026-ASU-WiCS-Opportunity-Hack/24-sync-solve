@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, X, Filter } from 'lucide-react'
+import { Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { CoachCard } from '@/components/coaches/CoachCard'
 import type { CoachWithBasicProfile } from '@/features/coaches/queries/getCoaches'
 import { CERTIFICATION_ORDER } from '@/lib/utils/constants'
@@ -59,6 +60,7 @@ export function CoachDirectory({
     initialFilters.country ||
     initialFilters.chapter
 
+  const t = useTranslations('coaches.directory')
   const coachCount = initialCoaches.length
 
   return (
@@ -70,11 +72,11 @@ export function CoachDirectory({
           <div className="relative flex-1">
             <Search
               size={16}
-              className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute inset-s-3 top-1/2 -translate-y-1/2 text-gray-400"
               aria-hidden="true"
             />
             <label htmlFor="coach-search" className="sr-only">
-              Search coaches by name, specialty, or location
+              {t('searchLabel')}
             </label>
             <input
               id="coach-search"
@@ -87,7 +89,7 @@ export function CoachDirectory({
               onBlur={() => {
                 if (localQ !== initialFilters.q) updateFilter('q', localQ)
               }}
-              placeholder="Search by name, specialty, or location..."
+              placeholder={t('searchPlaceholder')}
               className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-200 py-2.5 ps-9 pe-4 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
@@ -95,7 +97,7 @@ export function CoachDirectory({
           {/* Certification filter */}
           <div>
             <label htmlFor="filter-cert" className="sr-only">
-              Filter by certification level
+              {t('filterCertLabel')}
             </label>
             <select
               id="filter-cert"
@@ -103,7 +105,7 @@ export function CoachDirectory({
               onChange={(e) => updateFilter('certification', e.target.value)}
               className="focus:ring-wial-navy/20 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
             >
-              <option value="">All levels</option>
+              <option value="">{t('allCertifications')}</option>
               {CERTIFICATION_ORDER.map((level) => (
                 <option key={level} value={level}>
                   {level}
@@ -115,7 +117,7 @@ export function CoachDirectory({
           {/* Chapter filter */}
           <div>
             <label htmlFor="filter-chapter" className="sr-only">
-              Filter by chapter
+              {t('filterChapterLabel')}
             </label>
             <select
               id="filter-chapter"
@@ -123,7 +125,7 @@ export function CoachDirectory({
               onChange={(e) => updateFilter('chapter', e.target.value)}
               className="focus:ring-wial-navy/20 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:outline-none"
             >
-              <option value="">All chapters</option>
+              <option value="">{t('allChapters')}</option>
               {chapters.map((ch) => (
                 <option key={ch.id} value={ch.slug}>
                   {ch.name}
@@ -138,10 +140,10 @@ export function CoachDirectory({
               type="button"
               onClick={clearFilters}
               className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              aria-label="Clear all filters"
+              aria-label={t('clearFiltersLabel')}
             >
               <X size={14} aria-hidden="true" />
-              Clear
+              {t('clearButton')}
             </button>
           )}
         </div>
@@ -151,9 +153,9 @@ export function CoachDirectory({
       <div className="mb-4 flex items-center justify-between" aria-live="polite" aria-atomic="true">
         <p className="text-sm text-gray-500">
           {isPending ? (
-            'Searching...'
+            t('searching')
           ) : (
-            <>{coachCount === 0 ? 'No coaches found' : `${coachCount}+ coaches found`}</>
+            <>{coachCount === 0 ? t('coachCountZero') : t('coachCount', { count: coachCount })}</>
           )}
         </p>
       </div>
@@ -167,14 +169,14 @@ export function CoachDirectory({
         </div>
       ) : initialCoaches.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="font-medium text-gray-500">No coaches found matching your search.</p>
-          <p className="mt-2 text-sm text-gray-400">Try adjusting your filters or search terms.</p>
+          <p className="font-medium text-gray-500">{t('noResults')}</p>
+          <p className="mt-2 text-sm text-gray-400">{t('noResultsHint')}</p>
           <button
             type="button"
             onClick={clearFilters}
             className="text-wial-red hover:text-wial-red-dark mt-4 text-sm font-medium"
           >
-            Clear all filters
+            {t('clearAllFilters')}
           </button>
         </div>
       ) : (
@@ -193,7 +195,7 @@ export function CoachDirectory({
             onClick={() => updateFilter('cursor', initialNextCursor)}
             className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Load more coaches
+            {t('loadMore')}
           </button>
         </div>
       )}

@@ -28,12 +28,14 @@ export type BlockType =
   | 'stats'
   | 'video'
   | 'divider'
+  | 'client_grid'
 export type PaymentType =
   | 'enrollment_fee'
   | 'certification_fee'
   | 'membership_dues'
   | 'event_registration'
 export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded'
+export type RegistrationStatus = 'pending' | 'confirmed' | 'cancelled'
 export type EventType =
   | 'workshop'
   | 'webinar'
@@ -377,6 +379,7 @@ export interface Database {
           max_attendees: number | null
           registration_url: string | null
           image_url: string | null
+          ticket_price: number | null
           is_published: boolean
           created_by: string | null
           created_at: string
@@ -395,6 +398,7 @@ export interface Database {
           is_virtual?: boolean
           virtual_link?: string | null
           max_attendees?: number | null
+          ticket_price?: number | null
           registration_url?: string | null
           image_url?: string | null
           is_published?: boolean
@@ -458,6 +462,47 @@ export interface Database {
             columns: ['chapter_id']
             isOneToOne: false
             referencedRelation: 'chapters'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      event_registrations: {
+        Row: {
+          id: string
+          event_id: string
+          user_id: string | null
+          guest_name: string | null
+          guest_email: string | null
+          payment_id: string | null
+          status: RegistrationStatus
+          registered_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          user_id?: string | null
+          guest_name?: string | null
+          guest_email?: string | null
+          payment_id?: string | null
+          status?: RegistrationStatus
+          registered_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['event_registrations']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'event_registrations_event_id_fkey'
+            columns: ['event_id']
+            isOneToOne: false
+            referencedRelation: 'events'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'event_registrations_payment_id_fkey'
+            columns: ['payment_id']
+            isOneToOne: false
+            referencedRelation: 'payments'
             referencedColumns: ['id']
           },
         ]
@@ -633,6 +678,7 @@ export interface Database {
       block_type: BlockType
       payment_type: PaymentType
       payment_status: PaymentStatus
+      registration_status: RegistrationStatus
       event_type: EventType
     }
   }

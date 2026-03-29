@@ -10,6 +10,8 @@ import {
   Settings,
   ExternalLink,
   FileText,
+  Calendar,
+  CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
@@ -52,6 +54,8 @@ export function ChapterManageSidebar({
       icon: ClipboardCheck,
       badge: pendingApprovals > 0 ? pendingApprovals : undefined,
     },
+    { href: `/${chapterSlug}/events/manage`, label: 'Events', icon: Calendar },
+    { href: `${base}/payments`, label: 'Payments', icon: CreditCard },
     { href: `${base}/settings`, label: 'Settings', icon: Settings },
   ]
 

@@ -1,9 +1,12 @@
 'use server'
 
+import React from 'react'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { chapterRequestSchema, chapterRequestReviewSchema } from '@/lib/utils/validation'
+import { sendEmail } from '@/lib/email/send'
+import { ChapterRequestReviewed } from '@/lib/email/templates/ChapterRequestReviewed'
 import type { ActionResult, ChapterRequest } from '@/types'
 import type { Json } from '@/types/database'
 
@@ -295,6 +298,32 @@ export async function reviewChapterRequestAction(
     entity_id: request_id,
     new_value: { decision, review_notes } as Json,
   })
+
+  // Email notification to the requester
+  const { data: requesterProfile } = await adminClient
+    .from('profiles')
+    .select('email, full_name')
+    .eq('id', request.requested_by)
+    .single()
+
+  if (requesterProfile?.email) {
+    const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
+    await sendEmail({
+      to: requesterProfile.email,
+      subject:
+        decision === 'approved'
+          ? `Your chapter request for ${request.name} has been approved`
+          : `Update on your chapter request for ${request.name}`,
+      react: React.createElement(ChapterRequestReviewed, {
+        requesterName: requesterProfile.full_name ?? requesterProfile.email,
+        decision: decision as 'approved' | 'rejected',
+        chapterName: request.name,
+        chapterSlug: request.slug,
+        reviewNotes: review_notes ?? null,
+        siteUrl,
+      }),
+    })
+  }
 
   revalidatePath('/admin/chapter-requests')
   revalidatePath('/admin/chapters')

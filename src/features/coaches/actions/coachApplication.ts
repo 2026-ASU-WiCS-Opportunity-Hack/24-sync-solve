@@ -1,10 +1,13 @@
 'use server'
 
+import React from 'react'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requirePermission } from '@/lib/permissions/context'
 import { coachApplicationSchema, uuidSchema } from '@/lib/utils/validation'
+import { sendEmail } from '@/lib/email/send'
+import { CoachApplicationReviewed } from '@/lib/email/templates/CoachApplicationReviewed'
 import type { ActionResult, CoachApplication } from '@/types'
 import type { Json, CertificationLevel } from '@/types/database'
 
@@ -277,6 +280,37 @@ export async function reviewCoachApplicationAction(
     chapter_id: application.chapter_id,
     new_value: { decision, review_notes } as Json,
   })
+
+  // Send email notification to applicant
+  const { data: applicantProfile } = await adminClient
+    .from('profiles')
+    .select('email, full_name')
+    .eq('id', application.user_id)
+    .single()
+
+  const { data: chapter } = await adminClient
+    .from('chapters')
+    .select('name')
+    .eq('id', application.chapter_id)
+    .single()
+
+  if (applicantProfile?.email) {
+    const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
+    await sendEmail({
+      to: applicantProfile.email,
+      subject:
+        decision === 'approved'
+          ? `Your coach application has been approved — WIAL ${chapter?.name ?? ''}`
+          : `Update on your coach application — WIAL ${chapter?.name ?? ''}`,
+      react: React.createElement(CoachApplicationReviewed, {
+        applicantName: applicantProfile.full_name ?? applicantProfile.email,
+        decision: decision as 'approved' | 'rejected',
+        chapterName: chapter?.name ?? '',
+        reviewNotes: review_notes ?? null,
+        siteUrl,
+      }),
+    })
+  }
 
   revalidatePath(`/[chapter]/manage/coaches/applications`)
   revalidatePath('/admin/coaches')

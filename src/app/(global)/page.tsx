@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getPageWithBlocks } from '@/features/content/queries/getPageBlocks'
 import { EditablePageRendererWrapper as EditablePageRenderer } from '@/components/editor/EditablePageRendererWrapper'
@@ -29,33 +30,39 @@ export default async function GlobalHomePage() {
   )
 }
 
-function FallbackHomepage() {
+async function FallbackHomepage() {
+  const t = await getTranslations('home')
+
+  const stats = [
+    { label: t('stats.countries'), value: '20+' },
+    { label: t('stats.coaches'), value: '500+' },
+    { label: t('stats.organizations'), value: '1,000+' },
+    { label: t('stats.years'), value: '30+' },
+  ]
+
   return (
     <>
       {/* Hero */}
       <section className="bg-wial-navy relative overflow-hidden text-white">
-        <div className="bg-wial-red absolute start-0 top-0 h-full w-1.5" aria-hidden="true" />
+        <div className="bg-wial-red absolute inset-s-0 top-0 h-full w-1.5" aria-hidden="true" />
         <div className="mx-auto max-w-7xl px-6 py-20 sm:py-28 lg:px-8">
           <div className="max-w-3xl">
             <h1 className="text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              Transforming Leaders Through Action Learning
+              {t('hero.headline')}
             </h1>
-            <p className="mt-6 text-lg leading-8 text-white/80">
-              WIAL certifies Action Learning coaches across 20+ countries, empowering organizations
-              to solve complex challenges through collaborative problem-solving.
-            </p>
+            <p className="mt-6 text-lg leading-8 text-white/80">{t('hero.subheadline')}</p>
             <div className="mt-10 flex flex-wrap gap-4">
               <a
                 href="/coaches"
                 className="bg-wial-red hover:bg-wial-red-dark rounded-lg px-6 py-3 text-sm font-semibold text-white transition-colors"
               >
-                Find a Coach
+                {t('hero.ctaPrimary')}
               </a>
               <a
                 href="/certification"
                 className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
               >
-                Get Certified
+                {t('hero.ctaSecondary')}
               </a>
             </div>
           </div>
@@ -66,12 +73,7 @@ function FallbackHomepage() {
       <section className="bg-wial-navy py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-            {[
-              { label: 'Countries', value: '20+' },
-              { label: 'Certified Coaches', value: '500+' },
-              { label: 'Organizations Served', value: '1,000+' },
-              { label: 'Years of Impact', value: '30+' },
-            ].map((stat) => (
+            {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <dt className="order-2 mt-2 text-sm font-medium text-white/70">{stat.label}</dt>
                 <dd className="text-wial-red order-1 text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -87,12 +89,9 @@ function FallbackHomepage() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-3xl px-6 text-center lg:px-8">
           <h2 className="text-wial-navy text-3xl font-bold tracking-tight sm:text-4xl">
-            What is Action Learning?
+            {t('about.heading')}
           </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Action Learning is a process that involves a small group working on real problems,
-            taking action, and learning as individuals and as a team.
-          </p>
+          <p className="mt-6 text-lg leading-8 text-gray-600">{t('about.body')}</p>
           <a
             href="/about"
             className="text-wial-red hover:text-wial-red-dark mt-8 inline-block text-sm font-semibold"

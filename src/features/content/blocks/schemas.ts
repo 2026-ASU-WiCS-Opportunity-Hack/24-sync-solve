@@ -191,6 +191,24 @@ export const dividerBlockSchema = z.object({
 export type DividerBlockContent = z.infer<typeof dividerBlockSchema>
 
 // ============================================================
+// Client grid block
+// ============================================================
+
+const clientItemSchema = z.object({
+  name: z.string().min(1, 'Client name is required').max(100),
+  logo_url: optionalUrl,
+  website_url: optionalUrl,
+  description: z.string().max(200).optional(),
+})
+
+export const clientGridSchema = z.object({
+  heading: z.string().max(120).optional(),
+  clients: z.array(clientItemSchema).min(1, 'At least one client is required').max(24),
+})
+
+export type ClientGridBlockContent = z.infer<typeof clientGridSchema>
+
+// ============================================================
 // Union type for all block content schemas
 // ============================================================
 
@@ -208,6 +226,7 @@ export const BLOCK_SCHEMAS = {
   video: videoBlockSchema,
   team_grid: teamGridBlockSchema,
   divider: dividerBlockSchema,
+  client_grid: clientGridSchema,
 } as const
 
 export type BlockType = keyof typeof BLOCK_SCHEMAS

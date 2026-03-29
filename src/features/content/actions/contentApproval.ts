@@ -1,9 +1,12 @@
 'use server'
 
+import React from 'react'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requirePermission } from '@/lib/permissions/context'
+import { sendEmail } from '@/lib/email/send'
+import { ContentBlockReviewed } from '@/lib/email/templates/ContentBlockReviewed'
 import type { ActionResult } from '@/types'
 
 /**
@@ -27,7 +30,9 @@ export async function approveBlock(blockId: string): Promise<ActionResult> {
   // Fetch block + page to get chapter_id for permission scoping
   const { data: block } = await adminClient
     .from('content_blocks')
-    .select('draft_version, page:pages!content_blocks_page_id_fkey(chapter_id)')
+    .select(
+      'draft_version, block_type, updated_by, page:pages!content_blocks_page_id_fkey(chapter_id, title, slug)'
+    )
     .eq('id', blockId)
     .single()
 
@@ -35,7 +40,9 @@ export async function approveBlock(blockId: string): Promise<ActionResult> {
     return { success: false, error: 'Block not found.' }
   }
 
-  const pageChapterId = (block.page as { chapter_id: string | null } | null)?.chapter_id ?? null
+  type PageInfo = { chapter_id: string | null; title: string | null; slug: string | null }
+  const page = block.page as PageInfo | null
+  const pageChapterId = page?.chapter_id ?? null
 
   try {
     await requirePermission('content:approve', pageChapterId)
@@ -64,6 +71,19 @@ export async function approveBlock(blockId: string): Promise<ActionResult> {
 
   if (error) {
     return { success: false, error: error.message }
+  }
+
+  // Notify the editor who submitted the draft
+  if (block.updated_by) {
+    await _notifyContentEditor({
+      adminClient,
+      editorId: block.updated_by,
+      decision: 'approved',
+      blockType: block.block_type,
+      pageTitle: page?.title ?? 'Unknown page',
+      pageSlug: page?.slug ?? null,
+      chapterId: pageChapterId,
+    })
   }
 
   revalidatePath('/', 'layout')
@@ -97,11 +117,15 @@ export async function rejectBlock(blockId: string, reason: string): Promise<Acti
 
   const { data: block } = await adminClient
     .from('content_blocks')
-    .select('page:pages!content_blocks_page_id_fkey(chapter_id)')
+    .select(
+      'block_type, updated_by, page:pages!content_blocks_page_id_fkey(chapter_id, title, slug)'
+    )
     .eq('id', blockId)
     .single()
 
-  const pageChapterId = (block?.page as { chapter_id: string | null } | null)?.chapter_id ?? null
+  type PageInfo = { chapter_id: string | null; title: string | null; slug: string | null }
+  const page = block?.page as PageInfo | null
+  const pageChapterId = page?.chapter_id ?? null
 
   try {
     await requirePermission('content:approve', pageChapterId)
@@ -124,6 +148,20 @@ export async function rejectBlock(blockId: string, reason: string): Promise<Acti
 
   if (error) {
     return { success: false, error: error.message }
+  }
+
+  // Notify the editor who submitted the draft
+  if (block?.updated_by) {
+    await _notifyContentEditor({
+      adminClient,
+      editorId: block.updated_by,
+      decision: 'rejected',
+      blockType: block.block_type,
+      pageTitle: page?.title ?? 'Unknown page',
+      pageSlug: page?.slug ?? null,
+      chapterId: pageChapterId,
+      rejectionReason: reason.trim(),
+    })
   }
 
   revalidatePath('/admin/approvals')
@@ -190,4 +228,72 @@ export async function revertBlock(blockId: string): Promise<ActionResult> {
   }
 
   return { success: true, data: null, message: 'Block reverted to published version.' }
+}
+
+// ── Private helper ────────────────────────────────────────────────────────────
+
+interface NotifyEditorOptions {
+  adminClient: ReturnType<typeof createAdminClient>
+  editorId: string
+  decision: 'approved' | 'rejected'
+  blockType: string
+  pageTitle: string
+  pageSlug: string | null
+  chapterId: string | null
+  rejectionReason?: string
+}
+
+async function _notifyContentEditor({
+  adminClient,
+  editorId,
+  decision,
+  blockType,
+  pageTitle,
+  pageSlug,
+  chapterId,
+  rejectionReason,
+}: NotifyEditorOptions): Promise<void> {
+  const { data: editorProfile } = await adminClient
+    .from('profiles')
+    .select('email, full_name')
+    .eq('id', editorId)
+    .single()
+
+  if (!editorProfile?.email) return
+
+  let chapterSlug: string | null = null
+  let chapterName = 'Global'
+  if (chapterId) {
+    const { data: chapter } = await adminClient
+      .from('chapters')
+      .select('slug, name')
+      .eq('id', chapterId)
+      .single()
+    if (chapter) {
+      chapterSlug = chapter.slug
+      chapterName = chapter.name
+    }
+  }
+
+  const siteUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000'
+  const pageUrl =
+    pageSlug && chapterSlug ? `/${chapterSlug}/${pageSlug}` : pageSlug ? `/${pageSlug}` : null
+
+  await sendEmail({
+    to: editorProfile.email,
+    subject:
+      decision === 'approved'
+        ? `Your content update was approved — WIAL ${chapterName}`
+        : `Your content update was not approved — WIAL ${chapterName}`,
+    react: React.createElement(ContentBlockReviewed, {
+      editorName: editorProfile.full_name ?? editorProfile.email,
+      decision,
+      blockType,
+      pageTitle,
+      chapterName,
+      rejectionReason: rejectionReason ?? null,
+      siteUrl,
+      pageUrl,
+    }),
+  })
 }

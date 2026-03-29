@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Calendar, MapPin, Video, ExternalLink } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import type { Event } from '@/types'
 import { formatDateRange, formatRelativeTime } from '@/lib/utils/format'
 
@@ -27,7 +28,8 @@ interface EventCardProps {
  * Reusable event card for both global and chapter event listings.
  * Links always point to the global /events/[id] detail page.
  */
-export function EventCard({ event, accentColor }: EventCardProps) {
+export async function EventCard({ event, accentColor }: EventCardProps) {
+  const t = await getTranslations('events.list')
   const hasAccent = Boolean(accentColor)
 
   const badgeClass = [
@@ -84,7 +86,7 @@ export function EventCard({ event, accentColor }: EventCardProps) {
           {event.is_virtual && (
             <span className="flex items-center gap-1 text-xs text-blue-600">
               <Video size={11} aria-hidden="true" />
-              Virtual
+              {t('virtual')}
             </span>
           )}
         </div>
@@ -126,7 +128,7 @@ export function EventCard({ event, accentColor }: EventCardProps) {
             style={hasAccent ? { color: accentColor! } : undefined}
             aria-label={`Learn more about ${event.title}`}
           >
-            Learn more →
+            {t('learnMoreArrow')}
           </Link>
 
           {event.registration_url && (
@@ -138,7 +140,7 @@ export function EventCard({ event, accentColor }: EventCardProps) {
               style={hasAccent ? { backgroundColor: accentColor! } : undefined}
               aria-label={`Register for ${event.title} (opens in new tab)`}
             >
-              Register
+              {t('register')}
               <ExternalLink size={11} aria-hidden="true" />
             </a>
           )}

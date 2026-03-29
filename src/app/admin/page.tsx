@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { getAdminDashboardStats } from '@/features/chapters/queries/getChapterAdmin'
+import { getAdminDashboardStats, getCoachGrowth } from '@/features/chapters/queries/getChapterAdmin'
+import { getPaymentStats } from '@/features/payments/queries/getPayments'
+import { formatCurrency } from '@/lib/utils/format'
 import {
   Building2,
   GraduationCap,
@@ -11,6 +13,7 @@ import {
   Plus,
   BookUser,
   ShieldAlert,
+  TrendingUp,
 } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -48,7 +51,11 @@ function StatCard({ label, value, icon: Icon, href, highlight }: StatCardProps) 
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient()
-  const stats = await getAdminDashboardStats(supabase)
+  const [stats, paymentStats, coachGrowth] = await Promise.all([
+    getAdminDashboardStats(supabase),
+    getPaymentStats(supabase),
+    getCoachGrowth(supabase, { months: 6 }),
+  ])
 
   const statCards = [
     {
@@ -157,6 +164,75 @@ export default async function AdminDashboardPage() {
             Review Approvals
           </Link>
         </div>
+      </section>
+
+      {/* Analytics — Payments & Growth */}
+      <section aria-label="Analytics">
+        <h2 className="mb-4 text-sm font-semibold tracking-wider text-gray-500 uppercase">
+          Analytics (last 30 days)
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {/* Payment conversion rate */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              <TrendingUp size={13} aria-hidden="true" />
+              Payment Conversion
+            </div>
+            <p className="text-3xl font-extrabold text-gray-900">{paymentStats.conversionRate}%</p>
+            <p className="mt-1 text-xs text-gray-400">
+              {paymentStats.succeededLast30} of {paymentStats.totalLast30} payments succeeded
+            </p>
+          </div>
+
+          {/* Revenue last 30 days */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              <CreditCard size={13} aria-hidden="true" />
+              Revenue
+            </div>
+            <p className="text-3xl font-extrabold text-gray-900">
+              {formatCurrency(paymentStats.revenueLast30, 'USD')}
+            </p>
+            <p className="mt-1 text-xs text-gray-400">Successful payments, last 30 days</p>
+          </div>
+
+          {/* New coaches this month */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              <GraduationCap size={13} aria-hidden="true" />
+              New Coaches
+            </div>
+            <p className="text-3xl font-extrabold text-gray-900">
+              {coachGrowth[coachGrowth.length - 1]?.count ?? 0}
+            </p>
+            <p className="mt-1 text-xs text-gray-400">Added this month</p>
+          </div>
+        </div>
+
+        {/* Coach growth bar chart (CSS-only) */}
+        {coachGrowth.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="mb-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              Coach Growth — Last 6 Months
+            </p>
+            <div className="flex items-end gap-2" aria-label="Coach growth chart" role="img">
+              {(() => {
+                const max = Math.max(...coachGrowth.map((m) => m.count), 1)
+                return coachGrowth.map((m) => (
+                  <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
+                    <span className="text-xs font-semibold text-gray-700">{m.count}</span>
+                    <div
+                      className="bg-wial-navy w-full rounded-t"
+                      style={{ height: `${Math.max((m.count / max) * 80, 4)}px` }}
+                      aria-hidden="true"
+                    />
+                    <span className="text-[10px] text-gray-400">{m.month.slice(5)}</span>
+                  </div>
+                ))
+              })()}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   )
