@@ -3,6 +3,7 @@
 import { useActionState, useTransition, useState, useRef } from 'react'
 import { toast } from 'sonner'
 import { Plus, X, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { updateCoachProfileAction } from '@/features/coaches/actions/updateCoachProfile'
 import type { ActionResult } from '@/types'
 import type { CoachFullProfile } from '@/features/coaches/queries/getCoachById'
@@ -38,6 +39,7 @@ const COMMON_LANGUAGES = [
 ]
 
 export function CoachProfileForm({ coach }: CoachProfileFormProps) {
+  const t = useTranslations('coaches.edit')
   const [, startTransition] = useTransition()
   const [specializationInput, setSpecializationInput] = useState('')
   const [languageInput, setLanguageInput] = useState('')
@@ -104,14 +106,12 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
 
       {/* Bio */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-wial-navy mb-4 text-base font-semibold">About You</h2>
+        <h2 className="text-wial-navy mb-4 text-base font-semibold">{t('aboutSection')}</h2>
         <div>
           <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-            Bio
+            {t('bioLabel')}
           </label>
-          <p className="mt-0.5 text-xs text-gray-500">
-            Describe your background and approach to Action Learning (max 2000 characters).
-          </p>
+          <p className="mt-0.5 text-xs text-gray-500">{t('bioHint')}</p>
           <textarea
             id="bio"
             name="bio"
@@ -119,7 +119,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
             rows={6}
             maxLength={2000}
             className="focus:border-wial-navy focus:ring-wial-navy/20 mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="Tell coaches and organizations about your background and approach to Action Learning..."
+            placeholder={t('bioPlaceholder')}
           />
           {state && !state.success && state.fieldErrors?.['bio'] && (
             <p className="mt-1 text-xs text-red-600">{state.fieldErrors['bio'][0]}</p>
@@ -129,12 +129,14 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
 
       {/* Specializations */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-wial-navy mb-4 text-base font-semibold">Specializations</h2>
-        <p className="mb-3 text-xs text-gray-500">Add up to 20 areas of expertise.</p>
+        <h2 className="text-wial-navy mb-4 text-base font-semibold">
+          {t('specializationsSection')}
+        </h2>
+        <p className="mb-3 text-xs text-gray-500">{t('specializationsHint')}</p>
 
         {/* Current specializations */}
         {specializations.length > 0 && (
-          <ul className="mb-3 flex flex-wrap gap-2" aria-label="Your specializations">
+          <ul className="mb-3 flex flex-wrap gap-2" aria-label={t('specializationsLabel')}>
             {specializations.map((spec) => (
               <li
                 key={spec}
@@ -145,7 +147,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
                   type="button"
                   onClick={() => removeSpecialization(spec)}
                   className="hover:text-wial-red ms-1 text-gray-400"
-                  aria-label={`Remove ${spec}`}
+                  aria-label={t('removeItemLabel', { item: spec })}
                 >
                   <X size={12} />
                 </button>
@@ -158,7 +160,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
         <div className="flex gap-2">
           <div className="relative flex-1">
             <label htmlFor="specialization-input" className="sr-only">
-              Add specialization
+              {t('addSpecializationLabel')}
             </label>
             <input
               id="specialization-input"
@@ -171,7 +173,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
                   addSpecialization(specializationInput)
                 }
               }}
-              placeholder="Type a specialization and press Enter"
+              placeholder={t('addSpecializationPlaceholder')}
               list="specialization-suggestions"
               className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
             />
@@ -188,7 +190,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
             className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus size={14} />
-            Add
+            {t('addButton')}
           </button>
         </div>
         {state && !state.success && state.fieldErrors?.['specializations'] && (
@@ -198,12 +200,12 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
 
       {/* Languages */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-wial-navy mb-4 text-base font-semibold">Languages</h2>
-        <p className="mb-3 text-xs text-gray-500">Add languages you coach in (at least 1).</p>
+        <h2 className="text-wial-navy mb-4 text-base font-semibold">{t('languagesSection')}</h2>
+        <p className="mb-3 text-xs text-gray-500">{t('languagesHint')}</p>
 
         {/* Current languages */}
         {languages.length > 0 && (
-          <ul className="mb-3 flex flex-wrap gap-2" aria-label="Your languages">
+          <ul className="mb-3 flex flex-wrap gap-2" aria-label={t('languagesLabel')}>
             {languages.map((lang) => (
               <li
                 key={lang}
@@ -214,7 +216,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
                   type="button"
                   onClick={() => removeLanguage(lang)}
                   className="ms-1 text-blue-400 hover:text-blue-700"
-                  aria-label={`Remove ${lang}`}
+                  aria-label={t('removeItemLabel', { item: lang })}
                 >
                   <X size={12} />
                 </button>
@@ -227,7 +229,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
         <div className="flex gap-2">
           <div className="relative flex-1">
             <label htmlFor="language-input" className="sr-only">
-              Add language
+              {t('addLanguageLabel')}
             </label>
             <input
               id="language-input"
@@ -240,7 +242,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
                   addLanguage(languageInput)
                 }
               }}
-              placeholder="Type a language and press Enter"
+              placeholder={t('addLanguagePlaceholder')}
               list="language-suggestions"
               className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
             />
@@ -257,7 +259,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
             className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus size={14} />
-            Add
+            {t('addButton')}
           </button>
         </div>
         {state && !state.success && state.fieldErrors?.['languages'] && (
@@ -267,11 +269,11 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
 
       {/* Location & Contact */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-wial-navy mb-4 text-base font-semibold">Location & Contact</h2>
+        <h2 className="text-wial-navy mb-4 text-base font-semibold">{t('locationSection')}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="location_city" className="block text-sm font-medium text-gray-700">
-              City
+              {t('locationCityLabel')}
             </label>
             <input
               id="location_city"
@@ -284,7 +286,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
           </div>
           <div>
             <label htmlFor="location_country" className="block text-sm font-medium text-gray-700">
-              Country
+              {t('locationCountryLabel')}
             </label>
             <input
               id="location_country"
@@ -297,7 +299,8 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
           </div>
           <div>
             <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700">
-              Contact Email <span className="font-normal text-gray-400">(shown publicly)</span>
+              {t('contactEmailLabel')}{' '}
+              <span className="font-normal text-gray-400">{t('contactEmailPublicNote')}</span>
             </label>
             <input
               id="contact_email"
@@ -313,7 +316,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
           </div>
           <div>
             <label htmlFor="linkedin_url" className="block text-sm font-medium text-gray-700">
-              LinkedIn URL
+              {t('linkedinLabel')}
             </label>
             <input
               id="linkedin_url"
@@ -332,8 +335,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
 
       {/* Locked fields notice */}
       <p className="text-xs text-gray-400">
-        <strong>Note:</strong> Certification level and published status are managed by WIAL
-        administrators and cannot be changed here.
+        <strong>{t('lockedFieldsNote')}</strong> {t('lockedFields')}
       </p>
 
       {/* Submit */}
@@ -344,7 +346,7 @@ export function CoachProfileForm({ coach }: CoachProfileFormProps) {
           className="bg-wial-navy hover:bg-wial-navy-light inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
-          {isPending ? 'Saving...' : 'Save Changes'}
+          {isPending ? t('saving') : t('saveButton')}
         </button>
       </div>
     </form>

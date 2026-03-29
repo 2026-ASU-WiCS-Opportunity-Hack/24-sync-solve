@@ -1,8 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
-import { coachProfileUpdateSchema } from '@/lib/utils/validation'
+import { coachProfileUpdateSchema, translateZodErrors } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
 /**
@@ -63,10 +64,11 @@ export async function updateCoachProfileAction(
 
   const result = coachProfileUpdateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

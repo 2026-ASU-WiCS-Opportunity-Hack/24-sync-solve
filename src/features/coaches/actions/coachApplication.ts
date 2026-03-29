@@ -2,10 +2,11 @@
 
 import React from 'react'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requirePermission } from '@/lib/permissions/context'
-import { coachApplicationSchema, uuidSchema } from '@/lib/utils/validation'
+import { coachApplicationSchema, uuidSchema, translateZodErrors } from '@/lib/utils/validation'
 import { sendEmail } from '@/lib/email/send'
 import { CoachApplicationReviewed } from '@/lib/email/templates/CoachApplicationReviewed'
 import type { ActionResult, CoachApplication } from '@/types'
@@ -92,10 +93,11 @@ export async function applyForCoachAction(
 
   const result = coachApplicationSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

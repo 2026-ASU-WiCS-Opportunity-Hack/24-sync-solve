@@ -1,6 +1,7 @@
 'use server'
 
 import { z } from 'zod'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/send'
 import { ContactFormNotification } from '@/lib/email/templates/ContactFormNotification'
@@ -9,7 +10,7 @@ import { emailSchema } from '@/lib/utils/validation'
 import React from 'react'
 
 const contactFormSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().min(1, 'contact.nameRequired').max(100),
   email: emailSchema,
   subject: z
     .string()
@@ -17,7 +18,7 @@ const contactFormSchema = z.object({
     .optional()
     .or(z.literal(''))
     .transform((v) => v || undefined),
-  message: z.string().min(1, 'Message is required').max(3000),
+  message: z.string().min(1, 'contact.messageRequired').max(3000),
   chapter_slug: z.string().optional(),
 })
 
@@ -35,8 +36,18 @@ export async function submitContactForm(
 
   const result = contactFormSchema.safeParse(raw)
   if (!result.success) {
-    const firstError = Object.values(result.error.flatten().fieldErrors)[0]?.[0]
-    return { success: false, error: firstError ?? 'Please check your input.' }
+    const tV = await getTranslations('validation')
+    const firstKey = Object.values(result.error.flatten().fieldErrors)[0]?.[0]
+    const firstError = firstKey
+      ? (() => {
+          try {
+            return tV(firstKey as never)
+          } catch {
+            return firstKey
+          }
+        })()
+      : 'Please check your input.'
+    return { success: false, error: firstError }
   }
 
   const { name, email, subject, message, chapter_slug } = result.data

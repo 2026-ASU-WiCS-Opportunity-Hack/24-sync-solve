@@ -1,9 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { chapterCreateSchema } from '@/lib/utils/validation'
+import { chapterCreateSchema, translateZodErrors } from '@/lib/utils/validation'
 import type { ActionResult, Chapter } from '@/types'
 import type { Json } from '@/types/database'
 
@@ -49,10 +50,11 @@ export async function createChapterAction(
 
   const result = chapterCreateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

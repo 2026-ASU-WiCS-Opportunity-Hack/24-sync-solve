@@ -2,9 +2,15 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { eventCreateSchema, eventUpdateSchema, uuidSchema } from '@/lib/utils/validation'
+import {
+  eventCreateSchema,
+  eventUpdateSchema,
+  uuidSchema,
+  translateZodErrors,
+} from '@/lib/utils/validation'
 import type { ActionResult, Event } from '@/types'
 import type { Json } from '@/types/database'
 
@@ -65,10 +71,11 @@ export async function createEventAction(
 
   const result = eventCreateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 
@@ -149,10 +156,11 @@ export async function updateEventAction(
 
   const result = eventUpdateSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

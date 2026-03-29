@@ -3,30 +3,12 @@
 import { useActionState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { createChapterAction } from '@/features/chapters/actions/createChapter'
 import { updateChapterAction } from '@/features/chapters/actions/updateChapter'
+import { TIMEZONES } from '@/lib/utils/constants'
 import type { ActionResult, Chapter } from '@/types'
-
-const TIMEZONES = [
-  'America/New_York',
-  'America/Chicago',
-  'America/Denver',
-  'America/Los_Angeles',
-  'America/Sao_Paulo',
-  'Europe/London',
-  'Europe/Paris',
-  'Europe/Berlin',
-  'Africa/Lagos',
-  'Africa/Nairobi',
-  'Asia/Dubai',
-  'Asia/Kolkata',
-  'Asia/Singapore',
-  'Asia/Tokyo',
-  'Australia/Sydney',
-  'Pacific/Auckland',
-  'UTC',
-] as const
 
 const CURRENCIES = [
   { code: 'USD', label: 'USD — US Dollar' },
@@ -52,6 +34,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
   const isEdit = !!chapter
   const action = isEdit ? updateChapterAction : createChapterAction
   const router = useRouter()
+  const t = useTranslations('admin.chapters')
 
   const [state, formAction, isPending] = useActionState<ActionResult<Chapter> | null, FormData>(
     action,
@@ -61,10 +44,10 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
   // Show toast and redirect on success
   useEffect(() => {
     if (state?.success) {
-      toast.success(state.message ?? (isEdit ? 'Chapter updated.' : 'Chapter created.'))
+      toast.success(state.message ?? (isEdit ? t('form.saveButton') : t('form.createButton')))
       router.push('/admin/chapters')
     }
-  }, [state, isEdit, router])
+  }, [state, isEdit, router, t])
 
   function fieldError(field: string): string | undefined {
     if (!state || state.success) return undefined
@@ -75,7 +58,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
     <form
       action={formAction}
       className="space-y-6"
-      aria-label={isEdit ? 'Edit chapter' : 'Create chapter'}
+      aria-label={isEdit ? t('form.ariaEdit') : t('form.ariaCreate')}
     >
       {/* Hidden id for edit */}
       {isEdit && <input type="hidden" name="id" value={chapter.id} />}
@@ -94,7 +77,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Chapter name */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Chapter Name{' '}
+            {t('fields.name')}{' '}
             <span className="text-red-500" aria-hidden="true">
               *
             </span>
@@ -119,13 +102,13 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Slug */}
         <div>
           <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
-            Slug{' '}
+            {t('fields.slug')}{' '}
             <span className="text-red-500" aria-hidden="true">
               *
             </span>
           </label>
           <div className="relative mt-1">
-            <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3 text-sm text-gray-400">
+            <span className="pointer-events-none absolute inset-y-0 inset-s-0 flex items-center ps-3 text-sm text-gray-400">
               /
             </span>
             <input
@@ -141,7 +124,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
             />
           </div>
           <p id="slug-hint" className="mt-1 text-xs text-gray-500">
-            Lowercase letters, numbers, hyphens only.
+            {t('fields.slugHint')}
           </p>
           {fieldError('slug') && (
             <p id="slug-error" role="alert" className="mt-1 text-xs text-red-600">
@@ -153,7 +136,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Country code */}
         <div>
           <label htmlFor="country_code" className="block text-sm font-medium text-gray-700">
-            Country Code{' '}
+            {t('fields.countryCode')}{' '}
             <span className="text-red-500" aria-hidden="true">
               *
             </span>
@@ -170,7 +153,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
             aria-describedby={fieldError('country_code') ? 'country-error' : 'country-hint'}
           />
           <p id="country-hint" className="mt-1 text-xs text-gray-500">
-            ISO 3166-1 alpha-2 (e.g. US, NG, GB).
+            {t('fields.countryCodeHint')}
           </p>
           {fieldError('country_code') && (
             <p id="country-error" role="alert" className="mt-1 text-xs text-red-600">
@@ -182,7 +165,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Timezone */}
         <div>
           <label htmlFor="timezone" className="block text-sm font-medium text-gray-700">
-            Timezone{' '}
+            {t('fields.timezone')}{' '}
             <span className="text-red-500" aria-hidden="true">
               *
             </span>
@@ -205,7 +188,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Currency */}
         <div>
           <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
-            Currency{' '}
+            {t('fields.currency')}{' '}
             <span className="text-red-500" aria-hidden="true">
               *
             </span>
@@ -228,7 +211,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Accent color */}
         <div>
           <label htmlFor="accent_color" className="block text-sm font-medium text-gray-700">
-            Accent Color{' '}
+            {t('fields.accentColor')}{' '}
             <span className="text-red-500" aria-hidden="true">
               *
             </span>
@@ -241,7 +224,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
               required
               defaultValue={chapter?.accent_color ?? '#CC0000'}
               className="h-9 w-16 cursor-pointer rounded-lg border border-gray-300 p-0.5"
-              aria-label="Pick accent color"
+              aria-label={t('fields.accentColorPickerLabel')}
             />
             <input
               type="text"
@@ -263,7 +246,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Contact email */}
         <div>
           <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700">
-            Contact Email
+            {t('fields.contactEmail')}
           </label>
           <input
             id="contact_email"
@@ -284,7 +267,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         {/* Website URL */}
         <div>
           <label htmlFor="website_url" className="block text-sm font-medium text-gray-700">
-            Website URL
+            {t('fields.websiteUrl')}
           </label>
           <input
             id="website_url"
@@ -315,7 +298,7 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
                 className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
-                Active (chapter visible on site)
+                {t('fields.isActiveLabel')}
               </label>
             </div>
           </div>
@@ -331,18 +314,18 @@ export function ChapterForm({ chapter }: ChapterFormProps) {
         >
           {isPending
             ? isEdit
-              ? 'Saving…'
-              : 'Creating…'
+              ? t('form.saving')
+              : t('form.creating')
             : isEdit
-              ? 'Save Changes'
-              : 'Create Chapter'}
+              ? t('form.saveButton')
+              : t('form.createButton')}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
           className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
         >
-          Cancel
+          {t('form.cancel')}
         </button>
       </div>
     </form>

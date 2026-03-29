@@ -62,7 +62,22 @@
       "noAccount": "Don't have an account?",
       "signUpLink": "Sign up",
       "orContinueWith": "Or continue with",
-      "googleButton": "Continue with Google"
+      "googleButton": "Continue with Google",
+      "registeredMessage": "Account created! Check your email to confirm your address before logging in.",
+      "passwordUpdatedMessage": "Password updated successfully. Log in with your new password.",
+      "unauthorizedMessage": "You don't have permission to access that page.",
+      "authErrorMessage": "Authentication failed. Please try again."
+    },
+    "verifyEmail": {
+      "title": "Check your email",
+      "subtitle": "Verify your email address to continue",
+      "body": "We sent a verification link to your email address. Click it to activate your account, then log in.",
+      "resendButton": "Resend verification email",
+      "resending": "Sending…",
+      "resentSuccess": "Verification email sent! Check your inbox.",
+      "resentError": "Failed to send. Please try again.",
+      "backToLogin": "Back to login",
+      "alreadyVerified": "Already verified? Try logging in again."
     },
     "register": {
       "title": "Create your account",
@@ -155,19 +170,34 @@
     "edit": {
       "title": "My Coach Profile",
       "photoLabel": "Profile photo",
+      "aboutSection": "About You",
       "bioLabel": "Bio",
+      "bioHint": "Describe your background and approach to Action Learning (max 2000 characters).",
       "bioPlaceholder": "Tell coaches and organizations about your background and approach to Action Learning...",
+      "specializationsSection": "Specializations",
       "specializationsLabel": "Specializations",
+      "specializationsHint": "Add up to 20 areas of expertise.",
+      "addSpecializationLabel": "Add specialization",
+      "addSpecializationPlaceholder": "Type a specialization and press Enter",
+      "languagesSection": "Languages",
       "languagesLabel": "Languages",
+      "languagesHint": "Add languages you coach in (at least 1).",
+      "addLanguageLabel": "Add language",
+      "addLanguagePlaceholder": "Type a language and press Enter",
+      "addButton": "Add",
+      "removeItemLabel": "Remove {item}",
+      "locationSection": "Location & Contact",
       "locationCityLabel": "City",
       "locationCountryLabel": "Country",
       "contactEmailLabel": "Contact email",
+      "contactEmailPublicNote": "(shown publicly)",
       "linkedinLabel": "LinkedIn URL",
       "saveButton": "Save Changes",
       "saving": "Saving...",
       "savedSuccess": "Profile updated successfully.",
       "pendingApproval": "Your changes are pending admin review.",
-      "lockedFields": "Certification level and published status are managed by WIAL administrators."
+      "lockedFields": "Certification level and published status are managed by WIAL administrators.",
+      "lockedFieldsNote": "Note:"
     }
   },
   "events": {
@@ -191,6 +221,17 @@
       "manageEvents": "Manage Events",
       "createFirst": "Create the first event →",
       "ariaManageEvents": "Manage chapter events"
+    },
+    "filterBar": {
+      "allTypes": "All Events",
+      "workshop": "Workshops",
+      "webinar": "Webinars",
+      "conference": "Conferences",
+      "certification": "Certification",
+      "networking": "Networking",
+      "upcomingOnly": "Upcoming only",
+      "filterByTypeLabel": "Filter by event type",
+      "upcomingOnlyLabel": "Show only upcoming events"
     },
     "types": {
       "workshop": "Workshop",
@@ -328,13 +369,28 @@
       "noChapters": "No chapters yet.",
       "fields": {
         "slug": "Slug",
+        "slugHint": "Lowercase letters, numbers, hyphens only.",
         "name": "Chapter Name",
         "country": "Country",
+        "countryCode": "Country Code",
+        "countryCodeHint": "ISO 3166-1 alpha-2 (e.g. US, NG, GB).",
         "timezone": "Timezone",
         "currency": "Currency",
         "accentColor": "Accent Color",
+        "accentColorPickerLabel": "Pick accent color",
         "contactEmail": "Contact Email",
-        "isActive": "Active"
+        "websiteUrl": "Website URL",
+        "isActive": "Active",
+        "isActiveLabel": "Active (chapter visible on site)"
+      },
+      "form": {
+        "ariaCreate": "Create chapter",
+        "ariaEdit": "Edit chapter",
+        "saveButton": "Save Changes",
+        "createButton": "Create Chapter",
+        "saving": "Saving…",
+        "creating": "Creating…",
+        "cancel": "Cancel"
       }
     },
     "approvals": {
@@ -511,6 +567,7 @@
     },
     "roleAssignment": {
       "heading": "Global Role",
+      "globalRoleLabel": "Global role for user",
       "updateButton": "Update",
       "updating": "Updating…",
       "successMessage": "Role updated successfully.",
@@ -671,6 +728,54 @@
     "message": "Your account has been suspended and you cannot access the platform at this time.",
     "contactSupport": "If you believe this is a mistake, please contact {email} for assistance.",
     "returnHome": "← Return to homepage"
+  },
+  "validation": {
+    "slug": { "pattern": "Slug must contain only lowercase letters, numbers, and hyphens" },
+    "email": { "invalid": "Please enter a valid email address" },
+    "password": {
+      "tooShort": "Password must be at least 8 characters",
+      "tooLong": "Password must be less than 128 characters",
+      "required": "Password is required"
+    },
+    "hexColor": { "invalid": "Must be a valid hex color (e.g., #CC0000)" },
+    "url": { "invalid": "Must be a valid URL" },
+    "currencyCode": { "invalid": "Must be a valid ISO 4217 currency code (e.g., USD)" },
+    "countryCode": { "invalid": "Must be a valid 2-letter country code" },
+    "uuid": { "invalid": "Must be a valid UUID" },
+    "amount": {
+      "notInt": "Amount must be a whole number",
+      "notPositive": "Amount must be positive"
+    },
+    "name": { "tooShort": "Name must be at least 2 characters" },
+    "timezone": { "required": "Timezone is required" },
+    "login": { "passwordRequired": "Password is required" },
+    "register": { "nameRequired": "Full name is required" },
+    "resetPassword": { "noMatch": "Passwords do not match" },
+    "coachProfile": {
+      "bioTooLong": "Bio must be under 2000 characters",
+      "tooManySpecializations": "Maximum 20 specializations",
+      "languageRequired": "At least one language is required"
+    },
+    "credly": {
+      "invalidUrl": "Must be a valid Credly badge URL (https://www.credly.com/badges/...)"
+    },
+    "coachApplication": { "messageTooLong": "Message must be under 1000 characters" },
+    "suspension": {
+      "reasonRequired": "Reason is required",
+      "reasonTooLong": "Reason must be under 500 characters"
+    },
+    "event": {
+      "titleTooShort": "Title must be at least 3 characters",
+      "startDateRequired": "Start date is required",
+      "invalidDate": "Must be a valid date/time",
+      "priceTooLow": "Price must be at least $0.50",
+      "endBeforeStart": "End date must be on or after start date"
+    },
+    "eventRegistration": { "nameRequired": "Name is required" },
+    "contact": {
+      "nameRequired": "Name is required",
+      "messageRequired": "Message is required"
+    }
   },
   "a11y": {
     "openMenu": "Open navigation menu",

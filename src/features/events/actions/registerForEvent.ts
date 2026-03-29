@@ -1,10 +1,11 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createCheckoutSessionAction } from '@/features/payments/actions/createCheckoutSession'
-import { eventRegistrationSchema } from '@/lib/utils/validation'
+import { eventRegistrationSchema, translateZodErrors } from '@/lib/utils/validation'
 import type { ActionResult } from '@/types'
 
 /**
@@ -28,10 +29,11 @@ export async function registerForEventAction(
 
   const result = eventRegistrationSchema.safeParse(raw)
   if (!result.success) {
+    const tV = await getTranslations('validation')
     return {
       success: false,
       error: 'Please fix the errors below.',
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: translateZodErrors(result.error.flatten().fieldErrors, (k) => tV(k as never)),
     }
   }
 

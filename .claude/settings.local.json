@@ -26,7 +26,9 @@
       "Bash(find c:UserspresyzeProjectsASUohacksrcapp[chapter] -name *.tsx)",
       "Bash(cat \"/c/Users/presyze/Projects/ASU/ohack/src/app/\\(global\\)/page.tsx\")",
       "Bash(ls -la /c/Users/presyze/Projects/ASU/ohack/src/app/\\\\\\(global\\\\\\)/)",
-      "Bash(ls -la /c/Users/presyze/Projects/ASU/ohack/src/app/\\\\\\(auth\\\\\\)/)"
+      "Bash(ls -la /c/Users/presyze/Projects/ASU/ohack/src/app/\\\\\\(auth\\\\\\)/)",
+      "Bash(find /c/Users/presyze/Projects/ASU/ohack/src -path *verify-email* -type f)",
+      "Bash(find /c/Users/presyze/Projects/ASU/ohack/src/app -path *contact* -type f)"
     ],
     "additionalDirectories": [
       "c:\\Users\\presyze\\Projects\\ASU\\ohack\\src\\app\\[chapter]\\manage"

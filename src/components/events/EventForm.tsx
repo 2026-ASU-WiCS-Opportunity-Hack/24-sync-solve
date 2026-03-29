@@ -2,6 +2,8 @@
 
 import { useActionState, useTransition } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { TIMEZONES } from '@/lib/utils/constants'
 import type { ActionResult, Event } from '@/types'
 
 interface EventFormProps {
@@ -16,15 +18,6 @@ interface EventFormProps {
   accentColor?: string | null
 }
 
-const EVENT_TYPES = [
-  { value: 'workshop', label: 'Workshop' },
-  { value: 'webinar', label: 'Webinar' },
-  { value: 'conference', label: 'Conference' },
-  { value: 'certification', label: 'Certification Program' },
-  { value: 'networking', label: 'Networking' },
-  { value: 'other', label: 'Other' },
-] as const
-
 /** Format a datetime-local input value from an ISO string */
 function toDatetimeLocal(iso: string | null | undefined): string {
   if (!iso) return ''
@@ -33,6 +26,8 @@ function toDatetimeLocal(iso: string | null | undefined): string {
 }
 
 export function EventForm({ action, event, accentColor }: EventFormProps) {
+  const t = useTranslations('events.form')
+  const tTypes = useTranslations('events.types')
   const [, startTransition] = useTransition()
   const [state, formAction, isPending] = useActionState<ActionResult<Event> | null, FormData>(
     action,
@@ -40,6 +35,15 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
   )
 
   const isEditing = !!event
+
+  const EVENT_TYPES = [
+    { value: 'workshop', label: tTypes('workshop') },
+    { value: 'webinar', label: tTypes('webinar') },
+    { value: 'conference', label: tTypes('conference') },
+    { value: 'certification', label: tTypes('certification') },
+    { value: 'networking', label: tTypes('networking') },
+    { value: 'other', label: tTypes('other') },
+  ] as const
 
   return (
     <form action={(fd) => startTransition(() => formAction(fd))} className="space-y-6" noValidate>
@@ -60,7 +64,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       {/* Title */}
       <div>
         <label htmlFor="event-title" className="block text-sm font-medium text-gray-700">
-          Event Title <span className="text-red-500">*</span>
+          {t('titleLabel')} <span className="text-red-500">*</span>
         </label>
         <input
           id="event-title"
@@ -69,7 +73,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           required
           defaultValue={event?.title ?? ''}
           className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="e.g. WIAL USA Annual Conference 2026"
+          placeholder={t('titlePlaceholder')}
         />
         {state && !state.success && state.fieldErrors?.['title'] && (
           <p className="mt-1 text-xs text-red-600">{state.fieldErrors['title'][0]}</p>
@@ -79,7 +83,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       {/* Event type */}
       <div>
         <label htmlFor="event-type" className="block text-sm font-medium text-gray-700">
-          Event Type <span className="text-red-500">*</span>
+          {t('typeLabel')} <span className="text-red-500">*</span>
         </label>
         <select
           id="event-type"
@@ -88,9 +92,9 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           defaultValue={event?.event_type ?? 'workshop'}
           className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
         >
-          {EVENT_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
+          {EVENT_TYPES.map((eventType) => (
+            <option key={eventType.value} value={eventType.value}>
+              {eventType.label}
             </option>
           ))}
         </select>
@@ -99,7 +103,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       {/* Description */}
       <div>
         <label htmlFor="event-description" className="block text-sm font-medium text-gray-700">
-          Description
+          {t('descriptionLabel')}
         </label>
         <textarea
           id="event-description"
@@ -107,7 +111,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           rows={4}
           defaultValue={event?.description ?? ''}
           className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="Describe the event, objectives, and what attendees can expect..."
+          placeholder={t('descriptionPlaceholder')}
         />
       </div>
 
@@ -115,7 +119,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="event-start" className="block text-sm font-medium text-gray-700">
-            Start Date & Time <span className="text-red-500">*</span>
+            {t('startDateLabel')} <span className="text-red-500">*</span>
           </label>
           <input
             id="event-start"
@@ -131,7 +135,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
         </div>
         <div>
           <label htmlFor="event-end" className="block text-sm font-medium text-gray-700">
-            End Date & Time
+            {t('endDateLabel')}
           </label>
           <input
             id="event-end"
@@ -149,7 +153,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       {/* Timezone */}
       <div>
         <label htmlFor="event-timezone" className="block text-sm font-medium text-gray-700">
-          Timezone <span className="text-red-500">*</span>
+          {t('timezoneLabel')} <span className="text-red-500">*</span>
         </label>
         <input
           id="event-timezone"
@@ -159,20 +163,12 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           defaultValue={event?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone}
           list="timezone-list"
           className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="e.g. America/New_York"
+          placeholder={t('timezonePlaceholder')}
         />
         <datalist id="timezone-list">
-          <option value="America/New_York" />
-          <option value="America/Chicago" />
-          <option value="America/Denver" />
-          <option value="America/Los_Angeles" />
-          <option value="Europe/London" />
-          <option value="Europe/Paris" />
-          <option value="Africa/Lagos" />
-          <option value="Asia/Tokyo" />
-          <option value="Asia/Shanghai" />
-          <option value="Australia/Sydney" />
-          <option value="America/Sao_Paulo" />
+          {TIMEZONES.map((tz) => (
+            <option key={tz} value={tz} />
+          ))}
         </datalist>
       </div>
 
@@ -185,8 +181,6 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           defaultChecked={event?.is_virtual ?? false}
           value="true"
           onChange={(e) => {
-            // If unchecked we want is_virtual=false, but checkboxes only send value when checked
-            // The action handles missing value as "false" via transform
             const hiddenInput = e.currentTarget.form?.elements.namedItem(
               'is_virtual_hidden'
             ) as HTMLInputElement | null
@@ -201,7 +195,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           id="is_virtual_hidden"
         />
         <label htmlFor="event-virtual" className="text-sm font-medium text-gray-700">
-          This is a virtual / online event
+          {t('isVirtualLabel')}
         </label>
       </div>
 
@@ -209,7 +203,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="event-location" className="block text-sm font-medium text-gray-700">
-            Location
+            {t('locationNameLabel')}
           </label>
           <input
             id="event-location"
@@ -217,12 +211,12 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             type="text"
             defaultValue={event?.location_name ?? ''}
             className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="e.g. Washington Convention Center"
+            placeholder={t('locationNamePlaceholder')}
           />
         </div>
         <div>
           <label htmlFor="event-virtual-link" className="block text-sm font-medium text-gray-700">
-            Virtual Meeting Link
+            {t('virtualLinkLabel')}
           </label>
           <input
             id="event-virtual-link"
@@ -230,7 +224,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             type="url"
             defaultValue={event?.virtual_link ?? ''}
             className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="https://zoom.us/..."
+            placeholder={t('virtualLinkPlaceholder')}
           />
           {state && !state.success && state.fieldErrors?.['virtual_link'] && (
             <p className="mt-1 text-xs text-red-600">{state.fieldErrors['virtual_link'][0]}</p>
@@ -241,7 +235,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       {/* Ticket price */}
       <div>
         <label htmlFor="event-ticket-price" className="block text-sm font-medium text-gray-700">
-          Ticket Price (USD)
+          {t('ticketPriceLabel')}
         </label>
         <div className="relative mt-1">
           <span className="pointer-events-none absolute inset-y-0 inset-s-3 flex items-center text-sm text-gray-500">
@@ -254,7 +248,6 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             min="0"
             step="0.01"
             defaultValue={
-              // ticket_price stored as cents — display as dollars
               (event as Event & { ticket_price?: number | null })?.ticket_price != null
                 ? ((event as Event & { ticket_price?: number | null }).ticket_price! / 100).toFixed(
                     2
@@ -262,12 +255,10 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
                 : ''
             }
             className="focus:border-wial-navy focus:ring-wial-navy/20 w-full rounded-lg border border-gray-300 py-2 ps-8 pe-3 text-sm focus:ring-2 focus:outline-none"
-            placeholder="Leave blank for a free event"
+            placeholder={t('ticketPricePlaceholder')}
           />
         </div>
-        <p className="mt-1 text-xs text-gray-500">
-          Attendees will be directed to a Stripe checkout. Leave blank for free RSVP.
-        </p>
+        <p className="mt-1 text-xs text-gray-500">{t('ticketPriceHint')}</p>
         {state && !state.success && state.fieldErrors?.['ticket_price_usd'] && (
           <p className="mt-1 text-xs text-red-600">{state.fieldErrors['ticket_price_usd'][0]}</p>
         )}
@@ -280,7 +271,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             htmlFor="event-registration-url"
             className="block text-sm font-medium text-gray-700"
           >
-            External Registration URL
+            {t('registrationUrlLabel')}
           </label>
           <input
             id="event-registration-url"
@@ -288,18 +279,16 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             type="url"
             defaultValue={event?.registration_url ?? ''}
             className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="https://eventbrite.com/... (optional override)"
+            placeholder={t('registrationUrlPlaceholder')}
           />
-          <p className="mt-1 text-xs text-gray-500">
-            Optional. If set, overrides the built-in registration and links here instead.
-          </p>
+          <p className="mt-1 text-xs text-gray-500">{t('registrationUrlHint')}</p>
           {state && !state.success && state.fieldErrors?.['registration_url'] && (
             <p className="mt-1 text-xs text-red-600">{state.fieldErrors['registration_url'][0]}</p>
           )}
         </div>
         <div>
           <label htmlFor="event-max-attendees" className="block text-sm font-medium text-gray-700">
-            Max Attendees
+            {t('maxAttendeesLabel')}
           </label>
           <input
             id="event-max-attendees"
@@ -308,7 +297,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
             min="1"
             defaultValue={event?.max_attendees ?? ''}
             className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-            placeholder="Leave blank for unlimited"
+            placeholder={t('maxAttendeesPlaceholder')}
           />
         </div>
       </div>
@@ -316,7 +305,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
       {/* Image URL */}
       <div>
         <label htmlFor="event-image-url" className="block text-sm font-medium text-gray-700">
-          Event Image URL
+          {t('imageUrlLabel')}
         </label>
         <input
           id="event-image-url"
@@ -324,7 +313,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           type="url"
           defaultValue={event?.image_url ?? ''}
           className="focus:border-wial-navy focus:ring-wial-navy/20 mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-          placeholder="https://..."
+          placeholder={t('imageUrlPlaceholder')}
         />
       </div>
 
@@ -339,7 +328,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           className="accent-wial-navy h-4 w-4"
         />
         <label htmlFor="event-published" className="text-sm font-medium text-gray-700">
-          Publish this event (make it visible on the public site)
+          {t('isPublishedLabel')}
         </label>
       </div>
 
@@ -352,7 +341,7 @@ export function EventForm({ action, event, accentColor }: EventFormProps) {
           className="bg-wial-navy hover:bg-wial-navy-light inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
-          {isPending ? 'Saving...' : isEditing ? 'Save Event' : 'Create Event'}
+          {isPending ? t('saving') : isEditing ? t('saveButton') : t('createButton')}
         </button>
       </div>
     </form>
