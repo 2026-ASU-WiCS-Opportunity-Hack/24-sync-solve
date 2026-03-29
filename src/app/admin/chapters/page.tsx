@@ -85,7 +85,7 @@ export default async function AdminChaptersPage() {
                       />
                       <div>
                         <p className="font-semibold text-gray-900">{chapter.name}</p>
-                        <p className="text-xs text-gray-400">/{chapter.slug}</p>
+                        <p className="text-xs text-gray-600">/{chapter.slug}</p>
                       </div>
                     </div>
                   </td>

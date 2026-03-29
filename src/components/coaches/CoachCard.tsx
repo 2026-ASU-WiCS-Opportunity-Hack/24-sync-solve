@@ -97,7 +97,7 @@ export function CoachCard({ coach }: CoachCardProps) {
                 </span>
               ))}
               {coach.specializations.length > 3 && (
-                <span className="text-xs text-gray-400">+{coach.specializations.length - 3}</span>
+                <span className="text-xs text-gray-600">+{coach.specializations.length - 3}</span>
               )}
             </div>
           )}

@@ -23,7 +23,7 @@ export default async function AdminCoachesPage() {
         <h1 className="text-2xl font-bold text-gray-900">Coaches</h1>
         <p className="mt-1 text-sm text-gray-500">
           {total} coach profile{total !== 1 ? 's' : ''} in the system.{' '}
-          <span className="text-gray-400">
+          <span className="text-gray-600">
             Click ✓/✗ icons to toggle published or verified status.
           </span>
         </p>
@@ -78,7 +78,7 @@ export default async function AdminCoachesPage() {
                     <td className="px-4 py-3">
                       <div>
                         <p className="font-medium text-gray-900">{name}</p>
-                        <p className="text-xs text-gray-400">{coach.profile?.email}</p>
+                        <p className="text-xs text-gray-600">{coach.profile?.email}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-gray-600">

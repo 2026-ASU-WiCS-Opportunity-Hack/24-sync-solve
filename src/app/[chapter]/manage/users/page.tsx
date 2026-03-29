@@ -80,7 +80,7 @@ export default async function ChapterManageUsersPage({ params }: Props) {
                 >
                   <td className="px-4 py-3">
                     <p className="font-medium text-gray-900">{member.fullName ?? 'No name'}</p>
-                    <p className="text-xs text-gray-400">{member.email}</p>
+                    <p className="text-xs text-gray-600">{member.email}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span

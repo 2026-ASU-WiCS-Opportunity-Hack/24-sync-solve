@@ -31,13 +31,13 @@ export function UserMenu({ user }: UserMenuProps) {
       <div className="flex items-center gap-2">
         <Link
           href="/login"
-          className="rounded px-3 py-2 text-sm font-medium text-white/80 hover:text-white"
+          className="rounded px-3 py-2 text-sm font-medium text-[var(--color-brand-shell)]/90 hover:bg-red-50 hover:text-[var(--color-brand-shell)]"
         >
           Log In
         </Link>
         <Link
           href="/register"
-          className="bg-wial-red hover:bg-wial-red-dark rounded-lg px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-lg border border-[var(--color-brand-shell)] px-4 py-2 text-sm font-semibold text-[var(--color-brand-shell)] hover:bg-red-50"
         >
           Get Started
         </Link>
@@ -53,7 +53,7 @@ export function UserMenu({ user }: UserMenuProps) {
         type="button"
         isIconOnly
         onPress={() => setIsOpen(!isOpen)}
-        className="hover:bg-wial-navy-light flex items-center gap-2 rounded-full p-1 text-white"
+        className="flex items-center gap-2 rounded-full p-1 text-[var(--color-brand-shell)] hover:bg-red-50"
         aria-label="Open user menu"
         aria-expanded={isOpen}
         aria-haspopup="true"

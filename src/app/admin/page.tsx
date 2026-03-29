@@ -179,7 +179,7 @@ export default async function AdminDashboardPage() {
               Payment Conversion
             </div>
             <p className="text-3xl font-extrabold text-gray-900">{paymentStats.conversionRate}%</p>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-600">
               {paymentStats.succeededLast30} of {paymentStats.totalLast30} payments succeeded
             </p>
           </div>
@@ -193,7 +193,7 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-extrabold text-gray-900">
               {formatCurrency(paymentStats.revenueLast30, 'USD')}
             </p>
-            <p className="mt-1 text-xs text-gray-400">Successful payments, last 30 days</p>
+            <p className="mt-1 text-xs text-gray-600">Successful payments, last 30 days</p>
           </div>
 
           {/* New coaches this month */}
@@ -205,7 +205,7 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-extrabold text-gray-900">
               {coachGrowth[coachGrowth.length - 1]?.count ?? 0}
             </p>
-            <p className="mt-1 text-xs text-gray-400">Added this month</p>
+            <p className="mt-1 text-xs text-gray-600">Added this month</p>
           </div>
         </div>
 
@@ -226,7 +226,7 @@ export default async function AdminDashboardPage() {
                       style={{ height: `${Math.max((m.count / max) * 80, 4)}px` }}
                       aria-hidden="true"
                     />
-                    <span className="text-[10px] text-gray-400">{m.month.slice(5)}</span>
+                    <span className="text-[10px] text-gray-600">{m.month.slice(5)}</span>
                   </div>
                 ))
               })()}

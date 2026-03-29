@@ -154,7 +154,7 @@ export default async function AdminUsersPage() {
                     <td className="px-4 py-3">
                       <div>
                         <p className="font-medium text-gray-900">{user.full_name ?? 'No name'}</p>
-                        <p className="text-xs text-gray-400">{user.email}</p>
+                        <p className="text-xs text-gray-600">{user.email}</p>
                       </div>
                     </td>
 
@@ -182,7 +182,7 @@ export default async function AdminUsersPage() {
                             </div>
                           ))
                         ) : (
-                          <span className="text-xs text-gray-400">No chapter roles</span>
+                          <span className="text-xs text-gray-600">No chapter roles</span>
                         )}
 
                         {/* Form to add a role in a chapter the user isn't in yet */}

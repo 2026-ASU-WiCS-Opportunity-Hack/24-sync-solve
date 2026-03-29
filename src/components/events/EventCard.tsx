@@ -117,7 +117,7 @@ export async function EventCard({ event, accentColor }: EventCardProps) {
               <span>{event.location_name}</span>
             </div>
           )}
-          <p className="text-xs text-gray-400">{formatRelativeTime(event.start_date)}</p>
+          <p className="text-xs text-gray-600">{formatRelativeTime(event.start_date)}</p>
         </div>
 
         {/* CTA row */}

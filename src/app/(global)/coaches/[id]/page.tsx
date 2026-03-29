@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { Award, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getCoachById } from '@/features/coaches/queries/getCoachById'
+import { getCoursesForCoach } from '@/features/resources/queries/getCoachCourseMappings'
 import { CoachProfileView } from '@/components/coaches/CoachProfileView'
 import { CERTIFICATION_LABELS } from '@/lib/utils/constants'
 import type { CertificationLevel } from '@/types/database'
@@ -59,6 +60,7 @@ export default async function CoachProfilePage({ params }: CoachProfilePageProps
     text: 'text-gray-700',
     ring: 'ring-gray-200',
   }
+  const courses = await getCoursesForCoach(supabase, coach.id)
 
   return (
     <>
@@ -131,7 +133,7 @@ export default async function CoachProfilePage({ params }: CoachProfilePageProps
       {/* ── Profile content ───────────────────────────────────────────────── */}
       <section className="bg-gray-50 py-12">
         <div className="mx-auto max-w-4xl px-6 lg:px-8">
-          <CoachProfileView coach={coach} />
+          <CoachProfileView coach={coach} courses={courses} />
         </div>
       </section>
     </>

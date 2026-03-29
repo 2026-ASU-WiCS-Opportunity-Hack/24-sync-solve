@@ -66,7 +66,7 @@ export default async function ChapterPaymentsPage({ params }: ChapterPaymentsPag
         </div>
         {totalCollected > 0 && (
           <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-2 text-right">
-            <p className="text-xs font-medium text-green-600">Total Collected</p>
+            <p className="text-xs font-medium text-green-800">Total Collected</p>
             <p className="text-xl font-extrabold text-green-700">
               {formatCurrency(totalCollected, 'USD')}
             </p>
@@ -110,7 +110,7 @@ export default async function ChapterPaymentsPage({ params }: ChapterPaymentsPag
                 <tr key={payment.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <p className="font-medium text-gray-900">{payment.user_name ?? 'Unknown'}</p>
-                    <p className="text-xs text-gray-400">{payment.user_email}</p>
+                    <p className="text-xs text-gray-600">{payment.user_email}</p>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
                     {PAYMENT_TYPE_LABELS[payment.payment_type] ?? payment.payment_type}
